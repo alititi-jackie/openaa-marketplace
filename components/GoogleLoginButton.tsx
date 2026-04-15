@@ -5,22 +5,28 @@ import { useState } from 'react'
 
 export default function GoogleLoginButton() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleGoogleLogin = async () => {
     setLoading(true)
+    setError('')
     const { error } = await signInWithGoogle()
     if (error) {
-      alert('Google 登录失败，请重试')
+      setError('Google 登录失败，请重试')
       setLoading(false)
     }
   }
 
   return (
-    <button
-      onClick={handleGoogleLogin}
-      disabled={loading}
-      className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition disabled:opacity-50"
-    >
+    <div className="w-full">
+      {error && (
+        <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-2">{error}</div>
+      )}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2.5 px-4 hover:bg-gray-50 transition disabled:opacity-50"
+      >
       <svg width="20" height="20" viewBox="0 0 24 24">
         <path
           fill="#4285F4"
@@ -40,6 +46,7 @@ export default function GoogleLoginButton() {
         />
       </svg>
       {loading ? '登录中...' : '使用 Google 登录'}
-    </button>
+      </button>
+    </div>
   )
 }
