@@ -33,8 +33,9 @@ export default function SecondhandPage() {
     fetchItems()
   }, [fetchItems])
 
+  const searchLower = search.toLowerCase()
   const filtered = items.filter(item =>
-    !search || item.title.toLowerCase().includes(search.toLowerCase())
+    !search || item.title.toLowerCase().includes(searchLower)
   )
 
   return (

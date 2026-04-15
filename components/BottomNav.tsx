@@ -15,7 +15,7 @@ export default function BottomNav() {
 
   const isActive = (href: string, exact: boolean) => {
     if (exact) return pathname === href
-    return pathname.startsWith(href)
+    return pathname === href || pathname.startsWith(href + '/')
   }
 
   return (

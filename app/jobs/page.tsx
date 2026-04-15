@@ -35,11 +35,12 @@ export default function JobsPage() {
     fetchJobs()
   }, [fetchJobs])
 
+  const searchLower = search.toLowerCase()
   const filtered = jobs.filter(job =>
     !search ||
-    job.title.toLowerCase().includes(search.toLowerCase()) ||
-    job.company.toLowerCase().includes(search.toLowerCase()) ||
-    job.location.toLowerCase().includes(search.toLowerCase())
+    job.title.toLowerCase().includes(searchLower) ||
+    job.company.toLowerCase().includes(searchLower) ||
+    job.location.toLowerCase().includes(searchLower)
   )
 
   return (
