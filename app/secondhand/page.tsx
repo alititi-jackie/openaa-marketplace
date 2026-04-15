@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import SecondhandCard from '@/components/SecondhandCard'
@@ -13,12 +13,7 @@ export default function SecondhandPage() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
 
-  useEffect(() => {
-    fetchItems()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category])
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true)
     let query = supabase
       .from('secondhand_items')
@@ -32,7 +27,11 @@ export default function SecondhandPage() {
     const { data } = await query
     setItems(data || [])
     setLoading(false)
-  }
+  }, [category])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
 
   const filtered = items.filter(item =>
     !search || item.title.toLowerCase().includes(search.toLowerCase())

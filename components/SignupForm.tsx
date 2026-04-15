@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signUpWithEmail } from '@/lib/auth'
@@ -40,8 +40,13 @@ export default function SignupForm() {
     }
 
     setSuccess(true)
-    setTimeout(() => router.push('/auth/login'), 3000)
   }
+
+  useEffect(() => {
+    if (!success) return
+    const timer = setTimeout(() => router.push('/auth/login'), 3000)
+    return () => clearTimeout(timer)
+  }, [success, router])
 
   if (success) {
     return (

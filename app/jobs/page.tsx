@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import JobCard from '@/components/JobCard'
@@ -14,12 +14,7 @@ export default function JobsPage() {
   const [jobType, setJobType] = useState('')
   const [category, setCategory] = useState('')
 
-  useEffect(() => {
-    fetchJobs()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobType, category])
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true)
     let query = supabase
       .from('job_postings')
@@ -34,7 +29,11 @@ export default function JobsPage() {
     const { data } = await query
     setJobs(data || [])
     setLoading(false)
-  }
+  }, [jobType, category])
+
+  useEffect(() => {
+    fetchJobs()
+  }, [fetchJobs])
 
   const filtered = jobs.filter(job =>
     !search ||
