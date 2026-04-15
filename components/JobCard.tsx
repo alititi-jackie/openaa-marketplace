@@ -30,9 +30,9 @@ export default function JobCard({ job }: Props) {
           <span>{job.category}</span>
         </div>
 
-        <div className="flex items-center justify-between mt-3">
+        <div className="mt-3">
           <p className="text-gray-500 text-sm line-clamp-2">{job.description}</p>
-          <span className="text-xs text-gray-400 ml-2 shrink-0">{formatDate(job.created_at)}</span>
+          <span className="text-xs text-gray-400 mt-1 block">{formatDate(job.created_at)}</span>
         </div>
       </div>
     </Link>

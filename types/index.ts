@@ -9,6 +9,12 @@ export interface UserProfile {
   updated_at: string
 }
 
+/** Partial user data returned by Supabase joined queries */
+export interface JoinedUser {
+  username: string
+  avatar_url?: string
+}
+
 export interface SecondhandItem {
   id: number
   user_id: string
@@ -21,7 +27,7 @@ export interface SecondhandItem {
   views: number
   created_at: string
   updated_at: string
-  user?: UserProfile
+  user?: JoinedUser
 }
 
 export interface JobPosting {
@@ -39,7 +45,7 @@ export interface JobPosting {
   views: number
   created_at: string
   updated_at: string
-  user?: UserProfile
+  user?: JoinedUser
 }
 
 export interface ApiResponse<T> {

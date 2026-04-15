@@ -41,5 +41,7 @@ npm start
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon/public key |
 | `NEXT_PUBLIC_APP_URL` | Yes | App URL for OAuth redirects |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | No | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | No | Google OAuth client secret |
+
+> **Note:** Google OAuth is configured directly in the Supabase Dashboard under
+> Authentication > Providers > Google. No additional environment variables are needed
+> in this app for Google login.
