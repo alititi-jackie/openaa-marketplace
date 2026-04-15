@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -15,7 +16,7 @@ export async function GET(
   const { data, error } = await supabase
     .from('job_postings')
     .select('*, user:users(username, avatar_url)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error || !data) return NextResponse.json({ error: '职位不存在' }, { status: 404 })
@@ -24,8 +25,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const authHeader = request.headers.get('Authorization')
   const token = authHeader?.replace('Bearer ', '')
   if (!token) return NextResponse.json({ error: '未授权' }, { status: 401 })
@@ -43,7 +45,7 @@ export async function PUT(
   const { data, error } = await supabase
     .from('job_postings')
     .update({ ...body, updated_at: new Date().toISOString() })
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .select()
     .single()
@@ -54,8 +56,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const authHeader = request.headers.get('Authorization')
   const token = authHeader?.replace('Bearer ', '')
   if (!token) return NextResponse.json({ error: '未授权' }, { status: 401 })
@@ -72,7 +75,7 @@ export async function DELETE(
   const { error } = await supabase
     .from('job_postings')
     .delete()
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
