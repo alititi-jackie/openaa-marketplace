@@ -11,14 +11,20 @@ export default function HomePage() {
       {/* Banner carousel */}
       <BannerCarousel />
 
-      {/* Search bar */}
-      <SearchBar />
+      {/* Search bar — clear gap below banner */}
+      <div className="mt-4">
+        <SearchBar />
+      </div>
 
-      {/* 8-grid quick-access menu — sits on a zinc-50 band */}
-      <GridMenu />
+      {/* 8-grid quick-access menu */}
+      <div className="mt-5">
+        <GridMenu />
+      </div>
 
       {/* Latest posts */}
-      <LatestPostsSection />
+      <div className="mt-2">
+        <LatestPostsSection />
+      </div>
 
       {/* Thin section divider */}
       <div className="h-2 bg-zinc-50 mt-6" />

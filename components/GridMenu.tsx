@@ -79,20 +79,20 @@ const menuItems = [
 
 export default function GridMenu() {
   return (
-    <div className="mt-4 bg-zinc-50 border-y border-zinc-100 py-5 px-4">
-      <div className="grid grid-cols-4 gap-y-4 gap-x-2">
+    <div className="bg-white border-y border-zinc-100 py-5 px-4">
+      <div className="grid grid-cols-4 gap-y-5 gap-x-3">
         {menuItems.map(({ label, Icon, href, bg, color, ring }) => (
           <Link
             key={href}
             href={href}
-            className="flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150"
+            className="flex flex-col items-center gap-2.5 active:scale-90 transition-transform duration-150"
           >
             <div
-              className={`w-[54px] h-[54px] rounded-[18px] ${bg} ring-1 ${ring} flex items-center justify-center shadow-sm`}
+              className={`w-[62px] h-[62px] rounded-2xl ${bg} ring-1 ${ring} flex items-center justify-center shadow-md`}
             >
-              <Icon size={25} className={color} strokeWidth={1.7} />
+              <Icon size={28} className={color} strokeWidth={1.6} />
             </div>
-            <span className="text-[11.5px] font-medium text-zinc-600 text-center leading-tight">
+            <span className="text-[12px] font-semibold text-zinc-600 text-center leading-tight">
               {label}
             </span>
           </Link>
