@@ -23,7 +23,7 @@ export default function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] z-50 bg-white border-t border-zinc-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] z-50 bg-white/95 backdrop-blur-sm border-t border-zinc-100 shadow-[0_-6px_24px_rgba(0,0,0,0.08)]">
       <div className="grid grid-cols-5 h-16 items-end pb-2">
         {leftItems.map(({ href, label, Icon, exact }) => {
           const active = isActive(href, exact)
@@ -44,8 +44,8 @@ export default function BottomNav() {
         {/* Center publish button */}
         <div className="flex flex-col items-center justify-end pb-1">
           <Link href="/publish" className="flex flex-col items-center gap-0.5">
-            <div className="-mt-6 w-[52px] h-[52px] rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-400/40 border-4 border-white">
-              <Plus size={24} className="text-white" strokeWidth={2.8} />
+            <div className="-mt-7 w-[58px] h-[58px] rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xl shadow-blue-400/50 border-[3px] border-white">
+              <Plus size={26} className="text-white" strokeWidth={2.8} />
             </div>
             <span className="text-[10px] font-medium text-zinc-400 mt-0.5">发布</span>
           </Link>

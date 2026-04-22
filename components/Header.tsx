@@ -16,7 +16,7 @@ export default function Header() {
           <ChevronDown size={12} className="text-zinc-400 mt-px" />
         </button>
 
-        {/* Center: logo */}
+        {/* Center: logo image only */}
         <Link
           href="/"
           className="absolute left-1/2 -translate-x-1/2 flex items-center select-none"
@@ -25,15 +25,11 @@ export default function Header() {
           <Image
             src="/openaa-logo.png"
             alt="OpenAA"
-            width={36}
+            width={144}
             height={36}
-            className="rounded-xl object-contain"
+            className="h-9 w-auto object-contain"
             priority
           />
-          <span className="ml-1.5 font-extrabold text-[20px] tracking-tight leading-none">
-            <span className="text-blue-500">Open</span>
-            <span className="text-zinc-800">AA</span>
-          </span>
         </Link>
 
         {/* Right: share */}
