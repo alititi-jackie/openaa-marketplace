@@ -9,18 +9,18 @@ const rates = [
 
 export default function InfoCardsSection() {
   return (
-    <section className="px-4 pt-6">
+    <section className="px-4 pt-8">
       {/* Section header */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-[18px] bg-blue-500 rounded-full" />
         <h2 className="text-[15px] font-bold text-zinc-800">实用工具</h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {/* DMV card */}
         <Link
           href="/dmv"
-          className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_4px_20px_rgba(59,130,246,0.35)] active:scale-[0.97] transition-transform duration-150"
+          className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg active:scale-[0.97] transition-transform duration-150"
         >
           {/* Decorative circles */}
           <div className="absolute -top-5 -right-5 w-24 h-24 bg-white/10 rounded-full" />
@@ -45,7 +45,7 @@ export default function InfoCardsSection() {
         </Link>
 
         {/* Exchange rate card */}
-        <div className="rounded-2xl p-4 bg-white border border-zinc-100 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+        <div className="rounded-2xl p-4 bg-white border border-zinc-100 shadow-md">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-[14px] bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
               <span className="text-[18px] font-black text-emerald-500 leading-none">$</span>

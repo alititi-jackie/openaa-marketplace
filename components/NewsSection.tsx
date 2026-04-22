@@ -57,9 +57,9 @@ const newsItems: NewsItem[] = [
 
 export default function NewsSection() {
   return (
-    <section className="pt-6 pb-4">
+    <section className="pt-8 pb-6">
       {/* Section header */}
-      <div className="flex items-center justify-between px-4 mb-3">
+      <div className="flex items-center justify-between px-4 mb-4">
         <div className="flex items-center gap-2">
           <div className="w-1 h-[18px] bg-blue-500 rounded-full" />
           <h2 className="text-[15px] font-bold text-zinc-800">本地新闻</h2>
@@ -74,12 +74,12 @@ export default function NewsSection() {
       </div>
 
       {/* News list */}
-      <div className="px-4 space-y-2.5">
+      <div className="px-4 space-y-3">
         {newsItems.map((item, idx) => (
           <Link
             key={item.id}
             href="/news"
-            className="flex gap-3 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.99] transition-transform duration-150"
+            className="flex gap-3 bg-white rounded-2xl p-4 shadow-md border border-zinc-100/70 active:scale-[0.99] transition-transform duration-150"
           >
             {/* Left: rank */}
             <div className="flex-shrink-0 w-6 flex flex-col items-center pt-0.5 gap-1.5">

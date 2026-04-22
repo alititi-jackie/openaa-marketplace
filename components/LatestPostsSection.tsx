@@ -95,9 +95,9 @@ export default function LatestPostsSection() {
     activeTab === '全部' ? posts : posts.filter((p) => p.category === activeTab)
 
   return (
-    <section className="pt-6">
+    <section className="pt-8">
       {/* Section header */}
-      <div className="flex items-center justify-between px-4 mb-3">
+      <div className="flex items-center justify-between px-4 mb-4">
         <div className="flex items-center gap-2">
           <div className="w-1 h-[18px] bg-blue-500 rounded-full" />
           <h2 className="text-[15px] font-bold text-zinc-800">最新发布</h2>
@@ -112,7 +112,7 @@ export default function LatestPostsSection() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 px-4 mb-3 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-2 px-4 mb-4 overflow-x-auto scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -130,24 +130,24 @@ export default function LatestPostsSection() {
       </div>
 
       {/* Post grid */}
-      <div className="px-4 grid grid-cols-2 gap-3">
+      <div className="px-4 grid grid-cols-2 gap-4">
         {filtered.map((post) => (
           <Link
             key={post.id}
             href={post.href}
-            className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.07)] border border-zinc-100/70 active:scale-[0.97] transition-transform duration-150"
+            className="bg-white rounded-2xl overflow-hidden shadow-md border border-zinc-100/70 active:scale-[0.97] transition-transform duration-150"
           >
             {/* Image placeholder */}
             <div
-              className={`h-[108px] bg-gradient-to-br ${post.gradient} flex items-center justify-center relative overflow-hidden`}
+              className={`h-[112px] bg-gradient-to-br ${post.gradient} flex items-center justify-center relative overflow-hidden`}
             >
               {/* Subtle shine */}
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
-              <span className="text-[38px] drop-shadow-md relative z-10">{post.icon}</span>
+              <span className="text-[40px] drop-shadow-md relative z-10">{post.icon}</span>
             </div>
 
             {/* Details */}
-            <div className="p-3">
+            <div className="p-3.5">
               <p className="text-[13px] font-semibold text-zinc-800 line-clamp-2 leading-snug">
                 {post.title}
               </p>
@@ -157,7 +157,7 @@ export default function LatestPostsSection() {
                   {post.location}
                 </span>
               </div>
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-zinc-50">
+              <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-zinc-100">
                 <span className="text-[13px] font-bold text-blue-600">
                   {post.price}
                 </span>
