@@ -1,57 +1,15 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const slides = [
-  {
-    id: 1,
-    title: '纽约华人生活圈',
-    subtitle: '招聘 · 房屋 · 二手 · 服务一站搞定',
-    href: '/',
-    badge: '精选推荐',
-    gradient: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 60%, #60a5fa 100%)',
-  },
-  {
-    id: 2,
-    title: '最新招聘信息',
-    subtitle: '数百个华人职位 · 每日更新',
-    href: '/jobs',
-    badge: '热门招聘',
-    gradient: 'linear-gradient(135deg, #065f46 0%, #10b981 60%, #34d399 100%)',
-  },
-  {
-    id: 3,
-    title: '二手好物淘不停',
-    subtitle: '闲置变现 · 低价好货等你来',
-    href: '/secondhand',
-    badge: '二手交易',
-    gradient: 'linear-gradient(135deg, #5b21b6 0%, #7c3aed 60%, #a78bfa 100%)',
-  },
-  {
-    id: 4,
-    title: 'DMV 驾照一站通',
-    subtitle: '预约 · 笔试 · 路考 · 换驾照',
-    href: '/dmv',
-    badge: 'DMV 服务',
-    gradient: 'linear-gradient(135deg, #92400e 0%, #f59e0b 60%, #fcd34d 100%)',
-  },
-  {
-    id: 5,
-    title: '新手移民指南',
-    subtitle: '开户 · 租房 · 驾照 · 社区资源',
-    href: '/guide',
-    badge: '新手必读',
-    gradient: 'linear-gradient(135deg, #9f1239 0%, #e11d48 60%, #fb7185 100%)',
-  },
-  {
-    id: 6,
-    title: '本地房屋出租',
-    subtitle: '整租 · 合租 · 短租 · 筛选便捷',
-    href: '/housing',
-    badge: '房屋信息',
-    gradient: 'linear-gradient(135deg, #134e4a 0%, #0d9488 60%, #5eead4 100%)',
-  },
+  { id: 1, imageSrc: '/banners/nyc-1.jpg', href: '/' },
+  { id: 2, imageSrc: '/banners/nyc-2.jpg', href: '/jobs' },
+  { id: 3, imageSrc: '/banners/nyc-3.jpg', href: '/secondhand' },
+  { id: 4, imageSrc: '/banners/nyc-4.jpg', href: '/dmv' },
+  { id: 5, imageSrc: '/banners/nyc-5.jpg', href: '/guide' },
 ]
 
 export default function BannerCarousel() {
@@ -101,7 +59,7 @@ export default function BannerCarousel() {
   return (
     <div className="px-4 pt-4">
       <div
-        className="relative overflow-hidden rounded-2xl shadow-md"
+        className="relative overflow-hidden rounded-3xl shadow-lg"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -115,36 +73,28 @@ export default function BannerCarousel() {
               key={slide.id}
               href={slide.href}
               className="relative flex-shrink-0 w-full h-[200px] select-none"
-              style={{ background: slide.gradient }}
               draggable={false}
             >
-              {/* Decorative circles */}
-              <div
-                className="absolute -top-8 -right-8 w-44 h-44 rounded-full opacity-30"
-                style={{ background: 'rgba(255,255,255,0.25)' }}
-              />
-              <div
-                className="absolute top-4 -right-2 w-24 h-24 rounded-full opacity-20"
-                style={{ background: 'rgba(255,255,255,0.3)' }}
-              />
-              <div
-                className="absolute -bottom-8 -left-6 w-36 h-36 rounded-full opacity-20"
-                style={{ background: 'rgba(255,255,255,0.2)' }}
+              {/* Photo image */}
+              <Image
+                src={slide.imageSrc}
+                alt="OpenAA Banner"
+                fill
+                priority={slide.id === 1}
+                className="object-cover"
               />
 
-              {/* Content */}
-              <div className="absolute inset-0 p-5 flex flex-col justify-between">
-                <span className="self-start bg-white/25 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1 rounded-full border border-white/20">
-                  {slide.badge}
-                </span>
-                <div className="pb-2">
-                  <h2 className="text-white font-bold text-[22px] leading-tight drop-shadow-sm">
-                    {slide.title}
-                  </h2>
-                  <p className="text-white/80 text-[13px] mt-1 font-medium">
-                    {slide.subtitle}
-                  </p>
-                </div>
+              {/* Dark gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10" />
+
+              {/* Fixed overlay text */}
+              <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                <h2 className="text-white font-bold text-[22px] leading-tight drop-shadow-md">
+                  纽约华人生活入口
+                </h2>
+                <p className="text-white/90 text-[13px] mt-1 font-medium drop-shadow-sm">
+                  招聘 · 房屋 · 二手 · DMV · 导航
+                </p>
               </div>
             </Link>
           ))}

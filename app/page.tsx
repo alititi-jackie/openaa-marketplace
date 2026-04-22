@@ -7,7 +7,7 @@ import NewsSection from '@/components/NewsSection'
 
 export default function HomePage() {
   return (
-    <div className="bg-white">
+    <div className="bg-zinc-50 pb-8">
       {/* Banner carousel */}
       <BannerCarousel />
 
@@ -21,13 +21,13 @@ export default function HomePage() {
       <LatestPostsSection />
 
       {/* Thin section divider */}
-      <div className="h-2 bg-zinc-50 mt-6" />
+      <div className="h-2 bg-zinc-100 mt-8" />
 
       {/* DMV + exchange rate info cards */}
       <InfoCardsSection />
 
       {/* Thin section divider */}
-      <div className="h-2 bg-zinc-50 mt-6" />
+      <div className="h-2 bg-zinc-100 mt-8" />
 
       {/* News section */}
       <NewsSection />
