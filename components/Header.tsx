@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, ChevronDown, Share2 } from 'lucide-react'
 
@@ -15,13 +16,21 @@ export default function Header() {
           <ChevronDown size={12} className="text-zinc-400 mt-px" />
         </button>
 
-        {/* Center: logo */}
+        {/* Center: OpenAA logo */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2 flex items-center font-extrabold text-[22px] tracking-tight select-none"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center select-none"
+          aria-label="OpenAA 首页"
         >
-          <span className="text-blue-500">Open</span>
-          <span className="text-zinc-800">AA</span>
+          <Image
+            src="/openaa-logo.svg"
+            alt="OpenAA"
+            width={130}
+            height={32}
+            className="h-8 w-auto object-contain"
+            priority
+            unoptimized
+          />
         </Link>
 
         {/* Right: share */}
