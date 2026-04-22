@@ -25,9 +25,9 @@ export default function Header() {
           <Image
             src="/openaa-logo.png"
             alt="OpenAA"
-            width={110}
+            width={144}
             height={36}
-            className="object-contain h-9 w-auto"
+            className="h-9 w-auto object-contain"
             priority
           />
         </Link>
