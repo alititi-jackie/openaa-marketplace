@@ -7,30 +7,38 @@ import NewsSection from '@/components/NewsSection'
 
 export default function HomePage() {
   return (
-    <div className="bg-white">
+    <div className="bg-zinc-50">
       {/* Banner carousel */}
       <BannerCarousel />
 
-      {/* Search bar */}
-      <SearchBar />
+      {/* Search bar — breathing room below banner */}
+      <div className="mt-3 bg-white pt-3 pb-1 px-0">
+        <SearchBar />
+      </div>
 
-      {/* 8-grid quick-access menu — sits on a zinc-50 band */}
+      {/* 8-grid quick-access menu */}
       <GridMenu />
 
       {/* Latest posts */}
-      <LatestPostsSection />
+      <div className="mt-3 bg-white">
+        <LatestPostsSection />
+      </div>
 
       {/* Thin section divider */}
-      <div className="h-2 bg-zinc-50 mt-6" />
+      <div className="h-3 bg-zinc-50 mt-4" />
 
       {/* DMV + exchange rate info cards */}
-      <InfoCardsSection />
+      <div className="bg-white">
+        <InfoCardsSection />
+      </div>
 
       {/* Thin section divider */}
-      <div className="h-2 bg-zinc-50 mt-6" />
+      <div className="h-3 bg-zinc-50 mt-4" />
 
       {/* News section */}
-      <NewsSection />
+      <div className="bg-white">
+        <NewsSection />
+      </div>
     </div>
   )
 }
