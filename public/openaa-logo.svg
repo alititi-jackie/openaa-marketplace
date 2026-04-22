@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 56" fill="none">
+  <!-- "Open" in blue -->
+  <text
+    x="0"
+    y="42"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="40"
+    font-weight="800"
+    letter-spacing="-1"
+    fill="#3b82f6"
+  >Open</text>
+  <!-- "AA" in dark -->
+  <text
+    x="116"
+    y="42"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="40"
+    font-weight="800"
+    letter-spacing="-1"
+    fill="#18181b"
+  >AA</text>
+  <!-- ".com" in muted -->
+  <text
+    x="185"
+    y="42"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="22"
+    font-weight="500"
+    fill="#71717a"
+  >.com</text>
+</svg>
