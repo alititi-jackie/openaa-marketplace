@@ -5,11 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 const slides = [
-  { id: 1, imageSrc: '/banners/nyc-1.jpg', href: '/' },
-  { id: 2, imageSrc: '/banners/nyc-2.jpg', href: '/jobs' },
-  { id: 3, imageSrc: '/banners/nyc-3.jpg', href: '/secondhand' },
-  { id: 4, imageSrc: '/banners/nyc-4.jpg', href: '/dmv' },
-  { id: 5, imageSrc: '/banners/nyc-5.jpg', href: '/guide' },
+  { id: 1, imageSrc: '/banners/nyc-1.jpg', href: '/', alt: '纽约华人生活入口 – 首页' },
+  { id: 2, imageSrc: '/banners/nyc-2.jpg', href: '/jobs', alt: '纽约华人招聘信息' },
+  { id: 3, imageSrc: '/banners/nyc-3.jpg', href: '/secondhand', alt: '二手好物交易' },
+  { id: 4, imageSrc: '/banners/nyc-4.jpg', href: '/dmv', alt: 'DMV 驾照服务' },
+  { id: 5, imageSrc: '/banners/nyc-5.jpg', href: '/guide', alt: '新手移民指南' },
 ]
 
 export default function BannerCarousel() {
@@ -78,7 +78,7 @@ export default function BannerCarousel() {
               {/* Photo image */}
               <Image
                 src={slide.imageSrc}
-                alt="OpenAA Banner"
+                alt={slide.alt}
                 fill
                 priority={slide.id === 1}
                 className="object-cover"

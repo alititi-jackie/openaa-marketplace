@@ -12,7 +12,7 @@ export default function SearchBar() {
           type="search"
           readOnly
           placeholder="搜索招聘、房屋、二手、DMV、新闻等"
-          className="w-full h-12 pl-11 pr-4 bg-transparent rounded-full text-sm text-zinc-500 placeholder:text-zinc-400 outline-none cursor-pointer"
+          className="w-full h-12 pl-11 pr-4 bg-transparent rounded-full text-sm text-zinc-500 placeholder:text-zinc-400 outline-none cursor-pointer focus:ring-2 focus:ring-blue-400 focus:ring-inset"
         />
       </div>
     </div>
