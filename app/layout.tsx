@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Navigation from '@/components/Navigation'
+import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 
 export const metadata: Metadata = {
-  title: 'OpenAA 华人生活',
-  description: '美国华人二手交易和招聘平台',
+  title: 'OpenAA – 纽约华人生活圈',
+  description: '纽约华人综合服务平台 — 招聘·房屋·二手·DMV·新闻',
   icons: {
     icon: '/favicon.ico',
   },
@@ -18,12 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body>
-        <Navigation />
-        <main className="pb-20 md:pb-0 min-h-screen">
-          {children}
-        </main>
-        <BottomNav />
+      <body className="bg-zinc-200">
+        <div className="mx-auto max-w-[560px] min-h-screen bg-white relative shadow-[0_0_80px_rgba(0,0,0,0.10)]">
+          <Header />
+          <main className="pt-14 pb-20">
+            {children}
+          </main>
+          <BottomNav />
+        </div>
       </body>
     </html>
   )
