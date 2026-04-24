@@ -27,7 +27,7 @@ export async function PATCH(
   const body = await request.json()
 
   // Whitelist allowed fields
-  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position'] as const
+  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content'] as const
   type AllowedField = typeof ALLOWED_FIELDS[number]
   const update: Partial<Record<AllowedField, unknown>> = {}
   for (const field of ALLOWED_FIELDS) {

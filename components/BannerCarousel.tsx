@@ -1,19 +1,23 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import Link from 'next/link'
 
 interface AdSlide {
   id: string
   image_url: string
-  link_url: string
+  link_url?: string | null
+  link_type?: string | null
+  external_url?: string | null
+  slug?: string | null
 }
 
 const FALLBACK_SLIDES: AdSlide[] = [
-  { id: 'f1', image_url: '/banners/nyc-1.jpg', link_url: '/' },
-  { id: 'f2', image_url: '/banners/nyc-2.jpg', link_url: '/' },
-  { id: 'f3', image_url: '/banners/nyc-3.jpg', link_url: '/' },
-  { id: 'f4', image_url: '/banners/nyc-4.jpg', link_url: '/' },
-  { id: 'f5', image_url: '/banners/nyc-5.jpg', link_url: '/' },
+  { id: 'f1', image_url: '/banners/nyc-1.jpg' },
+  { id: 'f2', image_url: '/banners/nyc-2.jpg' },
+  { id: 'f3', image_url: '/banners/nyc-3.jpg' },
+  { id: 'f4', image_url: '/banners/nyc-4.jpg' },
+  { id: 'f5', image_url: '/banners/nyc-5.jpg' },
 ]
 
 export default function BannerCarousel() {
@@ -74,6 +78,62 @@ export default function BannerCarousel() {
     }
   }
 
+  const slideImage = (slide: AdSlide) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={slide.image_url}
+      alt=""
+      className="w-full h-full object-cover"
+      draggable={false}
+    />
+  )
+
+  const renderSlide = (slide: AdSlide) => {
+    const imageEl = (
+      <div className="relative flex-shrink-0 w-full h-[200px] select-none bg-gray-100">
+        {slideImage(slide)}
+      </div>
+    )
+
+    // Internal ad → route to /ads/[slug]
+    if (slide.link_type === 'internal' && slide.slug) {
+      return (
+        <Link
+          key={slide.id}
+          href={`/ads/${slide.slug}`}
+          className="block flex-shrink-0 w-full"
+          draggable={false}
+        >
+          {imageEl}
+        </Link>
+      )
+    }
+
+    // External ad → open new tab
+    const href = slide.external_url || slide.link_url
+    if (href) {
+      return (
+        <a
+          key={slide.id}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block flex-shrink-0 w-full"
+          draggable={false}
+        >
+          {imageEl}
+        </a>
+      )
+    }
+
+    // Fallback (no link)
+    return (
+      <div key={slide.id} className="flex-shrink-0 w-full">
+        {imageEl}
+      </div>
+    )
+  }
+
   return (
     <div className="px-4 pt-4">
       <div
@@ -86,24 +146,7 @@ export default function BannerCarousel() {
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
-          {slides.map((slide) => (
-            <a
-              key={slide.id}
-              href={slide.link_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative flex-shrink-0 w-full h-[200px] select-none block bg-gray-100"
-              draggable={false}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={slide.image_url}
-                alt=""
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-            </a>
-          ))}
+          {slides.map((slide) => renderSlide(slide))}
         </div>
 
         {/* Dot indicators */}
