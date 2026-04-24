@@ -20,11 +20,15 @@ const FALLBACK_SLIDES: AdSlide[] = [
   { id: 'f5', image_url: '/banners/nyc-5.jpg' },
 ]
 
+// Minimum horizontal movement (px) before a gesture is treated as a swipe
+const SWIPE_START_THRESHOLD_PX = 12
+
 export default function BannerCarousel() {
   const [slides, setSlides] = useState<AdSlide[]>(FALLBACK_SLIDES)
   const [current, setCurrent] = useState(0)
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
+  const isSwipingRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -63,6 +67,15 @@ export default function BannerCarousel() {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
+    isSwipingRef.current = false
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const dx = touchStartX.current - e.touches[0].clientX
+    const dy = touchStartY.current - e.touches[0].clientY
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_START_THRESHOLD_PX) {
+      isSwipingRef.current = true
+    }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -103,6 +116,9 @@ export default function BannerCarousel() {
           href={`/ads/${slide.slug}`}
           className="block flex-shrink-0 w-full"
           draggable={false}
+          onClick={(e) => {
+            if (isSwipingRef.current) e.preventDefault()
+          }}
         >
           {imageEl}
         </Link>
@@ -120,6 +136,9 @@ export default function BannerCarousel() {
           rel="noopener noreferrer"
           className="block flex-shrink-0 w-full"
           draggable={false}
+          onClick={(e) => {
+            if (isSwipingRef.current) e.preventDefault()
+          }}
         >
           {imageEl}
         </a>
@@ -139,6 +158,7 @@ export default function BannerCarousel() {
       <div
         className="relative overflow-hidden rounded-2xl shadow-md"
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* Slide track */}
