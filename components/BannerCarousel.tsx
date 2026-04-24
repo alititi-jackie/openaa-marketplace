@@ -1,19 +1,23 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface AdSlide {
   id: string
   image_url: string
-  link_url: string
+  link_url: string | null
+  link_type: 'external' | 'internal'
+  external_url: string | null
+  slug: string | null
 }
 
 const FALLBACK_SLIDES: AdSlide[] = [
-  { id: 'f1', image_url: '/banners/nyc-1.jpg', link_url: '/' },
-  { id: 'f2', image_url: '/banners/nyc-2.jpg', link_url: '/' },
-  { id: 'f3', image_url: '/banners/nyc-3.jpg', link_url: '/' },
-  { id: 'f4', image_url: '/banners/nyc-4.jpg', link_url: '/' },
-  { id: 'f5', image_url: '/banners/nyc-5.jpg', link_url: '/' },
+  { id: 'f1', image_url: '/banners/nyc-1.jpg', link_url: '/', link_type: 'external', external_url: null, slug: null },
+  { id: 'f2', image_url: '/banners/nyc-2.jpg', link_url: '/', link_type: 'external', external_url: null, slug: null },
+  { id: 'f3', image_url: '/banners/nyc-3.jpg', link_url: '/', link_type: 'external', external_url: null, slug: null },
+  { id: 'f4', image_url: '/banners/nyc-4.jpg', link_url: '/', link_type: 'external', external_url: null, slug: null },
+  { id: 'f5', image_url: '/banners/nyc-5.jpg', link_url: '/', link_type: 'external', external_url: null, slug: null },
 ]
 
 export default function BannerCarousel() {
@@ -22,6 +26,7 @@ export default function BannerCarousel() {
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetch('/api/ads?position=home')
@@ -74,6 +79,17 @@ export default function BannerCarousel() {
     }
   }
 
+  function handleSlideClick(slide: AdSlide) {
+    if (slide.link_type === 'internal' && slide.slug) {
+      router.push(`/ads/${slide.slug}`)
+    } else {
+      const url = slide.external_url || slide.link_url
+      if (url && url !== '/') {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      }
+    }
+  }
+
   return (
     <div className="px-4 pt-4">
       <div
@@ -87,13 +103,13 @@ export default function BannerCarousel() {
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
           {slides.map((slide) => (
-            <a
+            <div
               key={slide.id}
-              href={slide.link_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative flex-shrink-0 w-full h-[200px] select-none block bg-gray-100"
-              draggable={false}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleSlideClick(slide)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSlideClick(slide)}
+              className="relative flex-shrink-0 w-full h-[200px] select-none block bg-gray-100 cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -102,7 +118,7 @@ export default function BannerCarousel() {
                 className="w-full h-full object-cover"
                 draggable={false}
               />
-            </a>
+            </div>
           ))}
         </div>
 

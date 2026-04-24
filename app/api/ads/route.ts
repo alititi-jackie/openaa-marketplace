@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('ads')
-    .select('id, image_url, link_url, position, start_date, end_date, is_active, created_at')
+    .select('id, image_url, link_url, link_type, external_url, slug, content, position, start_date, end_date, is_active, created_at')
     .eq('position', position)
     .eq('is_active', true)
     .or(`start_date.is.null,start_date.lte.${now}`)
