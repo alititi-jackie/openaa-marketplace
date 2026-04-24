@@ -136,6 +136,29 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Ads table
+CREATE TABLE IF NOT EXISTS public.ads (
+  id BIGSERIAL PRIMARY KEY,
+  image_url TEXT NOT NULL,
+  link_url TEXT NOT NULL DEFAULT '/',
+  position TEXT NOT NULL CHECK (position IN ('home', 'jobs', 'housing', 'marketplace')),
+  start_date TIMESTAMPTZ,
+  end_date TIMESTAMPTZ,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.ads ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read active ads
+CREATE POLICY "Anyone can view active ads" ON public.ads
+  FOR SELECT USING (is_active = true);
+
+CREATE TRIGGER update_ads_updated_at
+  BEFORE UPDATE ON public.ads
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
 -- Storage policies
 CREATE POLICY "Anyone can view item images" ON storage.objects
   FOR SELECT USING (bucket_id = 'item-images');
