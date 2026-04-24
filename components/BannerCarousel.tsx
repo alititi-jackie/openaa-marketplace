@@ -108,7 +108,7 @@ export default function BannerCarousel() {
               role="button"
               tabIndex={0}
               onClick={() => handleSlideClick(slide)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSlideClick(slide)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSlideClick(slide)}
               className="relative flex-shrink-0 w-full h-[200px] select-none block bg-gray-100 cursor-pointer"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -229,7 +229,7 @@ function AdsAdminContent() {
               <input
                 type="text"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''))}
                 placeholder="my-ad-slug"
                 className="w-full border rounded-lg px-3 py-2 text-sm"
               />
