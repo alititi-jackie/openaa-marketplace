@@ -9,6 +9,7 @@
 - 👤 **用户系统** - Email/password and Google OAuth registration and login
 - 📱 **移动端优化** - Mobile-first design with bottom navigation
 - 🔒 **安全** - Row Level Security via Supabase, protected routes
+- 📢 **广告系统** - Position-based banner ads with date range, admin management
 
 ## Tech Stack
 
@@ -28,6 +29,27 @@ npm run dev
 ```
 
 See [docs/SETUP.md](docs/SETUP.md) for full setup instructions.
+
+## Ads Feature
+
+### Setup
+1. Run `supabase/create_ads.sql` in your Supabase SQL Editor to create the `ads` table, index, and RLS policy.
+2. Create a public Storage bucket named **`ads`** in Supabase → Storage.
+3. Add to `.env.local`:
+   ```
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   ADMIN_TOKEN=your-secret-admin-token
+   ```
+
+### Admin UI
+Visit `/admin/ads` — enter your `ADMIN_TOKEN` to upload ads, toggle active/inactive, and delete.
+
+### API
+- `GET /api/ads?position=home` — public, returns up to 5 active ads within date range.
+- `GET /api/admin/ads` — admin list (requires `x-admin-token` header).
+- `POST /api/admin/ads` — admin create (multipart/form-data: `image`, `link_url`, `position`, `is_active`, `start_date`, `end_date`).
+- `PATCH /api/admin/ads/:id` — admin update (e.g. `{ "is_active": false }`).
+- `DELETE /api/admin/ads/:id` — admin delete.
 
 ## Documentation
 
