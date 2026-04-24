@@ -7,7 +7,11 @@ import { Suspense } from 'react'
 interface Ad {
   id: string
   image_url: string
-  link_url: string
+  link_url: string | null
+  link_type: 'external' | 'internal'
+  external_url: string | null
+  slug: string | null
+  content: string | null
   position: string
   start_date: string | null
   end_date: string | null
@@ -22,7 +26,10 @@ function AdsAdminContent() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [linkUrl, setLinkUrl] = useState('')
+  const [linkType, setLinkType] = useState<'external' | 'internal'>('external')
+  const [externalUrl, setExternalUrl] = useState('')
+  const [slug, setSlug] = useState('')
+  const [content, setContent] = useState('')
   const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand'>('home')
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
@@ -61,13 +68,19 @@ function AdsAdminContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!imageFile) { setMessage('请选择图片'); return }
-    if (!linkUrl) { setMessage('请填写链接'); return }
+    if (linkType === 'external' && !externalUrl) { setMessage('请填写外部链接'); return }
+    if (linkType === 'internal' && !slug) { setMessage('请填写 Slug'); return }
 
     setLoading(true)
     setMessage('')
     const form = new FormData()
     form.append('image', imageFile)
-    form.append('link_url', linkUrl)
+    form.append('link_type', linkType)
+    if (linkType === 'external') form.append('external_url', externalUrl)
+    if (linkType === 'internal') {
+      form.append('slug', slug)
+      if (content) form.append('content', content)
+    }
     form.append('position', position)
     form.append('is_active', String(isActive))
     if (startDate) form.append('start_date', startDate)
@@ -82,7 +95,9 @@ function AdsAdminContent() {
       const json = await res.json()
       if (json.data) {
         setMessage('创建成功')
-        setLinkUrl('')
+        setExternalUrl('')
+        setSlug('')
+        setContent('')
         setStartDate('')
         setEndDate('')
         setImageFile(null)
@@ -167,16 +182,71 @@ function AdsAdminContent() {
           />
         </div>
 
+        {/* Link type toggle */}
         <div>
-          <label className="block text-sm font-medium mb-1">链接地址 *</label>
-          <input
-            type="url"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="https://example.com"
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-          />
+          <label className="block text-sm font-medium mb-2">链接类型</label>
+          <div className="flex gap-4">
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="radio"
+                name="link_type"
+                value="external"
+                checked={linkType === 'external'}
+                onChange={() => setLinkType('external')}
+              />
+              <span className="text-sm">外部链接 (External)</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="radio"
+                name="link_type"
+                value="internal"
+                checked={linkType === 'internal'}
+                onChange={() => setLinkType('internal')}
+              />
+              <span className="text-sm">内部详情页 (Internal)</span>
+            </label>
+          </div>
         </div>
+
+        {linkType === 'external' && (
+          <div>
+            <label className="block text-sm font-medium mb-1">外部链接 *</label>
+            <input
+              type="url"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              placeholder="https://example.com"
+              className="w-full border rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+
+        {linkType === 'internal' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium mb-1">Slug *</label>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                placeholder="my-ad-slug"
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              />
+              <p className="text-xs text-gray-400 mt-0.5">访问路径: /ads/{slug || 'slug'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">内容（可选）</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="广告详情内容..."
+                rows={4}
+                className="w-full border rounded-lg px-3 py-2 text-sm resize-y"
+              />
+            </div>
+          </>
+        )}
 
         <div>
           <label className="block text-sm font-medium mb-1">位置</label>
@@ -254,12 +324,20 @@ function AdsAdminContent() {
                 className="w-20 h-14 object-cover rounded-lg flex-shrink-0 bg-gray-100"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-500 truncate">{ad.link_url}</p>
+                <p className="text-xs text-gray-500 truncate">
+                  {ad.link_type === 'internal'
+                    ? `/ads/${ad.slug}`
+                    : (ad.external_url || ad.link_url || '—')}
+                </p>
                 <p className="text-xs mt-1">
                   <span className="font-medium">位置:</span> {ad.position}
                   {' · '}
                   <span className={ad.is_active ? 'text-green-600' : 'text-gray-400'}>
                     {ad.is_active ? '启用' : '停用'}
+                  </span>
+                  {' · '}
+                  <span className="text-blue-500">
+                    {ad.link_type === 'internal' ? '内部页' : '外部链接'}
                   </span>
                 </p>
                 {(ad.start_date || ad.end_date) && (

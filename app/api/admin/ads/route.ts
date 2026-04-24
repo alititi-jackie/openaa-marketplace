@@ -45,14 +45,24 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData()
 
   const file = formData.get('image') as File | null
-  const link_url = formData.get('link_url') as string
+  const link_url = formData.get('link_url') as string | null
+  const link_type = (formData.get('link_type') as string) || 'external'
+  const external_url = (formData.get('external_url') as string) || null
+  const slug = (formData.get('slug') as string) || null
+  const content = (formData.get('content') as string) || null
   const position = formData.get('position') as string
   const is_active = formData.get('is_active') !== 'false'
   const start_date = (formData.get('start_date') as string) || null
   const end_date = (formData.get('end_date') as string) || null
 
-  if (!link_url || !position) {
-    return NextResponse.json({ error: 'link_url and position are required' }, { status: 400 })
+  if (!position) {
+    return NextResponse.json({ error: 'position is required' }, { status: 400 })
+  }
+  if (link_type === 'external' && !external_url) {
+    return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
+  }
+  if (link_type === 'internal' && !slug) {
+    return NextResponse.json({ error: 'slug is required for internal ads' }, { status: 400 })
   }
 
   let image_url = formData.get('image_url') as string | null
@@ -87,7 +97,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('ads')
-    .insert({ image_url, link_url, position, is_active, start_date, end_date })
+    .insert({ image_url, link_url: link_url || null, link_type, external_url, slug, content, position, is_active, start_date, end_date })
     .select()
     .single()
 
