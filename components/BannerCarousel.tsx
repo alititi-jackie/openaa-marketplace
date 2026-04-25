@@ -38,7 +38,6 @@ export default function BannerCarousel() {
       .then((res) => res.json())
       .then((json) => {
         if (Array.isArray(json.data) && json.data.length > 0) {
-          // Defensive: filter out rows without image_url so Swiper doesn't render blank slides.
           const filtered = json.data.filter((s: AdSlide) => normalizeImageUrl(s?.image_url))
           setSlides(filtered.length > 0 ? filtered : FALLBACK_SLIDES)
         }
@@ -51,19 +50,21 @@ export default function BannerCarousel() {
   const renderSlideContent = (slide: AdSlide) => {
     const imageUrl = normalizeImageUrl(slide.image_url)
 
-    const image = (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={imageUrl}
-        alt=""
-        className="w-full h-[200px] object-cover select-none"
-        draggable={false}
-        loading="eager"
-      />
-    )
-
     // If we somehow have no image url, render nothing (should not happen after filtering)
     if (!imageUrl) return null
+
+    const image = (
+      <div className="w-full">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt=""
+          className="w-full h-[240px] sm:h-[270px] md:h-[300px] lg:h-[340px] object-contain bg-zinc-100 select-none"
+          draggable={false}
+          loading="eager"
+        />
+      </div>
+    )
 
     const href = (slide.external_url || slide.link_url || '').trim()
     const openMode = slide.open_mode || (slide.link_type === 'internal' ? 'internal' : 'external_new')
@@ -128,7 +129,7 @@ export default function BannerCarousel() {
 
   return (
     <div className="px-4 pt-4">
-      <div className="rounded-2xl shadow-md overflow-hidden">
+      <div className="rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden bg-white">
         <Swiper
           modules={[Autoplay, Pagination]}
           loop={slides.length > 1}
