@@ -12,6 +12,7 @@ interface Ad {
   external_url?: string | null
   slug?: string | null
   content?: string | null
+  open_mode?: 'internal' | 'external_new' | 'external_same' | string | null
   position: string
   start_date: string | null
   end_date: string | null
@@ -27,6 +28,7 @@ function AdsAdminContent() {
   const [message, setMessage] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [linkType, setLinkType] = useState<'external' | 'internal'>('external')
+  const [openMode, setOpenMode] = useState<'internal' | 'external_new' | 'external_same'>('external_new')
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
@@ -68,19 +70,29 @@ function AdsAdminContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!imageFile) { setMessage('请选择图片'); return }
-    if (linkType === 'external' && !externalUrl) { setMessage('请填写外部链接'); return }
-    if (linkType === 'internal' && !slug) { setMessage('请填写页面标识 (slug)'); return }
 
+    // Enforce open_mode requirements
+    if (openMode === 'internal') {
+      if (!slug) { setMessage('请填写页面标识 (slug)'); return }
+    } else {
+      if (!externalUrl) { setMessage('请填写外部链接'); return }
+    }
+
+    // Keep existing link_type behavior for compatibility
+    const effectiveLinkType: 'external' | 'internal' = openMode === 'internal' ? 'internal' : 'external'
     setLoading(true)
     setMessage('')
     const form = new FormData()
     form.append('image', imageFile)
-    form.append('link_type', linkType)
-    if (linkType === 'external') form.append('external_url', externalUrl)
-    if (linkType === 'internal') {
+    form.append('link_type', effectiveLinkType)
+    form.append('open_mode', openMode)
+
+    if (effectiveLinkType === 'external') form.append('external_url', externalUrl)
+    if (effectiveLinkType === 'internal') {
       form.append('slug', slug)
       if (content) form.append('content', content)
     }
+
     form.append('position', position)
     form.append('is_active', String(isActive))
     if (startDate) form.append('start_date', startDate)
@@ -182,35 +194,22 @@ function AdsAdminContent() {
           />
         </div>
 
-        {/* Link type radio */}
+        {/* Open mode selector */}
         <div>
-          <label className="block text-sm font-medium mb-2">链接类型 *</label>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="link_type"
-                value="external"
-                checked={linkType === 'external'}
-                onChange={() => setLinkType('external')}
-              />
-              外部链接 (External Link)
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="link_type"
-                value="internal"
-                checked={linkType === 'internal'}
-                onChange={() => setLinkType('internal')}
-              />
-              内部详情页 (Internal Detail Page)
-            </label>
-          </div>
+          <label className="block text-sm font-medium mb-2">打开方式 (Open mode) *</label>
+          <select
+            value={openMode}
+            onChange={(e) => setOpenMode(e.target.value as 'internal' | 'external_new' | 'external_same')}
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="internal">内部详情页</option>
+            <option value="external_new">外部链接 - 新窗口</option>
+            <option value="external_same">外部链接 - 当前窗口</option>
+          </select>
         </div>
 
         {/* External URL */}
-        {linkType === 'external' && (
+        {openMode !== 'internal' && (
           <div>
             <label className="block text-sm font-medium mb-1">外部链接地址 *</label>
             <input
@@ -224,7 +223,7 @@ function AdsAdminContent() {
         )}
 
         {/* Internal slug + content */}
-        {linkType === 'internal' && (
+        {openMode === 'internal' && (
           <>
             <div>
               <label className="block text-sm font-medium mb-1">页面标识 (slug) *</label>
@@ -327,15 +326,15 @@ function AdsAdminContent() {
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-500 truncate">
-                  {ad.link_type === 'internal'
+                  {(ad.open_mode === 'internal' || ad.link_type === 'internal')
                     ? `/ads/${ad.slug ?? ''}`
                     : (ad.external_url || ad.link_url || '')}
                 </p>
                 <p className="text-xs mt-1">
                   <span className="font-medium">位置:</span> {ad.position}
                   {' · '}
-                  <span className={`font-medium ${ad.link_type === 'internal' ? 'text-purple-600' : 'text-blue-600'}`}>
-                    {ad.link_type === 'internal' ? '内部页' : '外部链接'}
+                  <span className={`font-medium ${ad.open_mode === 'internal' || ad.link_type === 'internal' ? 'text-purple-600' : 'text-blue-600'}`}>
+                    {(ad.open_mode === 'internal' || ad.link_type === 'internal') ? '内部页' : '外部链接'}
                   </span>
                   {' · '}
                   <span className={ad.is_active ? 'text-green-600' : 'text-gray-400'}>

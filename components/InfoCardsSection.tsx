@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { Car, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react'
+import { Car, ChevronRight } from 'lucide-react'
 
 const rates = [
-  { from: 'USD', to: 'CNY', rate: '7.24', trend: 'up', change: '+0.03' },
-  { from: 'USD', to: 'JPY', rate: '149.2', trend: 'up', change: '+0.5' },
-  { from: 'EUR', to: 'CNY', rate: '7.87', trend: 'down', change: '-0.02' },
+  { from: 'USD', to: 'CNY', rate: '7.24' },
+  { from: 'CNY', to: 'USD', rate: '0.14' },
 ]
 
 export default function InfoCardsSection() {
@@ -50,34 +49,17 @@ export default function InfoCardsSection() {
             <div className="w-10 h-10 rounded-[14px] bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
               <span className="text-[18px] font-black text-emerald-500 leading-none">$</span>
             </div>
-            <span className="text-[10px] text-zinc-400 font-medium bg-zinc-50 px-2 py-0.5 rounded-full">实时汇率</span>
           </div>
 
           <h3 className="text-[13px] font-bold text-zinc-800 mb-2.5">今日汇率</h3>
 
           <div className="space-y-2">
-            {rates.map(({ from, to, rate, trend, change }) => (
+            {rates.map(({ from, to, rate }) => (
               <div key={`${from}-${to}`} className="flex items-center justify-between">
                 <span className="text-[11px] text-zinc-500 font-medium">
-                  {from} → {to}
+                  {from} / {to}
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[12px] font-bold text-zinc-800">
-                    {rate}
-                  </span>
-                  <div
-                    className={`flex items-center gap-0.5 text-[10px] font-semibold ${
-                      trend === 'up' ? 'text-emerald-500' : 'text-rose-500'
-                    }`}
-                  >
-                    {trend === 'up' ? (
-                      <TrendingUp size={10} />
-                    ) : (
-                      <TrendingDown size={10} />
-                    )}
-                    <span>{change}</span>
-                  </div>
-                </div>
+                <span className="text-[12px] font-bold text-zinc-800">{rate}</span>
               </div>
             ))}
           </div>

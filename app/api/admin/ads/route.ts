@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
   const external_url = (formData.get('external_url') as string) || null
   const slug = (formData.get('slug') as string) || null
   const content = (formData.get('content') as string) || null
+  const open_mode = (formData.get('open_mode') as string) || 'external_new'
   const position = formData.get('position') as string
   const is_active = formData.get('is_active') !== 'false'
   const start_date = (formData.get('start_date') as string) || null
@@ -59,6 +60,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'link_type must be external or internal' }, { status: 400 })
   }
 
+  if (open_mode !== 'internal' && open_mode !== 'external_new' && open_mode !== 'external_same') {
+    return NextResponse.json({ error: 'open_mode must be internal, external_new or external_same' }, { status: 400 })
+  }
+
+  // Minimal compatibility rule: internal mode requires internal link fields
+  if (open_mode === 'internal') {
+    if (!slug) return NextResponse.json({ error: 'slug is required for internal ads' }, { status: 400 })
+  } else {
+    if (!external_url && !link_url) {
+      return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
+    }
+  }
+
+  // Keep existing validation for link_type to avoid breaking existing clients
   if (link_type === 'external' && !external_url && !link_url) {
     return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
   }
@@ -101,16 +116,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'image is required' }, { status: 400 })
   }
 
+  const external = external_url || link_url
+
   const { data, error } = await supabase
     .from('ads')
     .insert({
       image_url,
       // link_url mirrors external_url for backward compatibility with existing queries
-      link_url: link_type === 'external' ? (external_url || link_url) : null,
+      link_url: link_type === 'external' ? external : null,
       link_type,
-      external_url: link_type === 'external' ? (external_url || link_url) : null,
+      external_url: link_type === 'external' ? external : null,
       slug: link_type === 'internal' ? slug : null,
       content: link_type === 'internal' ? content : null,
+      open_mode,
       position,
       is_active,
       start_date,

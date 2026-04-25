@@ -27,11 +27,18 @@ export async function PATCH(
   const body = await request.json()
 
   // Whitelist allowed fields
-  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content'] as const
+  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content', 'open_mode'] as const
   type AllowedField = typeof ALLOWED_FIELDS[number]
   const update: Partial<Record<AllowedField, unknown>> = {}
   for (const field of ALLOWED_FIELDS) {
     if (field in body) update[field] = body[field]
+  }
+
+  if ('open_mode' in update) {
+    const v = update.open_mode
+    if (v !== 'internal' && v !== 'external_new' && v !== 'external_same') {
+      return NextResponse.json({ error: 'open_mode must be internal, external_new or external_same' }, { status: 400 })
+    }
   }
 
   if (Object.keys(update).length === 0) {
