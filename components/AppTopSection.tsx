@@ -7,24 +7,18 @@ import SearchBar from '@/components/SearchBar'
 /**
  * Unified top section used across main pages.
  * Includes exactly:
- * 1) city selector row
- * 2) OpenAA logo header row
- * 3) BannerCarousel
- * 4) homepage style search bar
+ * 1) city selector row + logo header row (Header)
+ * 2) BannerCarousel
+ * 3) homepage-style SearchBar
  */
 export default function AppTopSection() {
   return (
     <div className="bg-white">
-      {/* 1) city selector row + 2) logo header row */}
       <Header />
 
-      {/* spacer to account for fixed header height */}
-      <div className="h-14" />
-
-      {/* 3) banner */}
+      {/* Keep header->banner close (no extra spacer gap here) */}
       <BannerCarousel />
 
-      {/* 4) search */}
       <SearchBar />
     </div>
   )

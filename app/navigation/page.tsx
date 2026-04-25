@@ -3,15 +3,17 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
-import { navigationCategories } from '@/data/navigationLinks'
 import AppTopSection from '@/components/AppTopSection'
+import { navigationCategories } from '@/data/navigationLinks'
 
 function normalize(s: string) {
   return s.trim().toLowerCase()
 }
 
 export default function NavigationPage() {
-  const [q, setQ] = useState('')
+  // Filtering is temporarily disabled to avoid a second search box.
+  // (AppTopSection already includes the homepage-style SearchBar.)
+  const [q] = useState('')
 
   const filtered = useMemo(() => {
     const query = normalize(q)
@@ -28,99 +30,63 @@ export default function NavigationPage() {
       .filter((cat) => cat.links.length > 0)
   }, [q])
 
-  const totalResults = useMemo(() => {
-    return filtered.reduce((acc, c) => acc + c.links.length, 0)
-  }, [filtered])
-
   return (
     <div className="min-h-screen bg-zinc-50">
-      {/* Top section identical to homepage */}
+      {/* Top section identical to homepage (includes banner + homepage-style search bar) */}
       <AppTopSection />
 
-      <div className="mx-auto w-full max-w-[860px] px-4 pt-3 pb-16">
-        {/* Page title (keep minimal, avoid custom wrappers that diverge from homepage) */}
-        <div className="px-1 pt-2">
-          <h1 className="text-[16px] md:text-[18px] font-black text-zinc-900 tracking-tight">
-            美国华人生活导航
-          </h1>
-          <p className="mt-1 text-[12px] text-zinc-500">
-            常用网站 · 政务办事 · 招聘房屋 · AI工具
-          </p>
-
-          {/* Filter input (navigation-only) */}
-          <div className="mt-3">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="筛选导航链接…"
-              className="w-full h-11 px-4 bg-white border border-zinc-100 rounded-2xl text-sm text-zinc-700 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 transition shadow-sm"
-            />
-            <div className="mt-2 text-[11px] text-zinc-400">
-              {q ? `找到 ${totalResults} 个结果` : '输入关键词可快速筛选'}
-            </div>
-          </div>
-        </div>
-
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-16">
         {/* Categories */}
-        <div className="mt-6 space-y-5">
-          {q && totalResults === 0 ? (
-            <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-6 text-center">
-              <p className="text-[14px] font-bold text-zinc-900">没有找到相关网站</p>
-              <p className="mt-1 text-[12px] text-zinc-500">
-                试试更短的关键词，例如：DMV / Bank / AI / 纽约
-              </p>
-            </div>
-          ) : (
-            filtered.map((cat) => (
-              <section key={cat.id}>
-                <div className="flex items-end justify-between px-1 mb-2">
-                  <div>
-                    <h2 className="text-[14px] md:text-[15px] font-black text-zinc-900">
-                      <span className="mr-2">{cat.icon}</span>
-                      {cat.title}
-                    </h2>
-                    <p className="mt-0.5 text-[11px] text-zinc-500">{cat.description}</p>
-                  </div>
-                  <span className="text-[11px] text-zinc-400 font-medium">{cat.links.length}</span>
+        <div className="space-y-5">
+          {filtered.map((cat) => (
+            <section key={cat.id}>
+              <div className="flex items-end justify-between px-1 mb-2">
+                <div>
+                  <h2 className="text-[14px] md:text-[15px] font-black text-zinc-900">
+                    <span className="mr-2">{cat.icon}</span>
+                    {cat.title}
+                  </h2>
+                  <p className="mt-0.5 text-[11px] text-zinc-500">{cat.description}</p>
                 </div>
+                <span className="text-[11px] text-zinc-400 font-medium">{cat.links.length}</span>
+              </div>
 
-                <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-3">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {cat.links.map((l) => {
-                      if (l.isExternal) {
-                        return (
-                          <a
-                            key={`${cat.id}-${l.name}`}
-                            href={l.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group rounded-2xl px-3 py-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="text-[12.5px] font-bold text-zinc-900">{l.name}</div>
-                              <ExternalLink size={14} className="text-zinc-400" />
-                            </div>
-                            <div className="mt-1 text-[11px] text-zinc-500 line-clamp-2">{l.description}</div>
-                          </a>
-                        )
-                      }
-
+              <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {cat.links.map((l) => {
+                    if (l.isExternal) {
                       return (
-                        <Link
+                        <a
                           key={`${cat.id}-${l.name}`}
                           href={l.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="group rounded-2xl px-3 py-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                         >
-                          <div className="text-[12.5px] font-bold text-zinc-900">{l.name}</div>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-[12.5px] font-bold text-zinc-900">{l.name}</div>
+                            <ExternalLink size={14} className="text-zinc-400" />
+                          </div>
                           <div className="mt-1 text-[11px] text-zinc-500 line-clamp-2">{l.description}</div>
-                        </Link>
+                        </a>
                       )
-                    })}
-                  </div>
+                    }
+
+                    return (
+                      <Link
+                        key={`${cat.id}-${l.name}`}
+                        href={l.url}
+                        className="group rounded-2xl px-3 py-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
+                      >
+                        <div className="text-[12.5px] font-bold text-zinc-900">{l.name}</div>
+                        <div className="mt-1 text-[11px] text-zinc-500 line-clamp-2">{l.description}</div>
+                      </Link>
+                    )
+                  })}
                 </div>
-              </section>
-            ))
-          )}
+              </div>
+            </section>
+          ))}
         </div>
 
         {/* Bottom SEO */}
