@@ -12,6 +12,7 @@ interface Ad {
   external_url?: string | null
   slug?: string | null
   content?: string | null
+  open_mode?: string | null
   position: string
   start_date: string | null
   end_date: string | null
@@ -26,7 +27,7 @@ function AdsAdminContent() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [linkType, setLinkType] = useState<'external' | 'internal'>('external')
+  const [openMode, setOpenMode] = useState<'external_new' | 'external_same' | 'internal'>('external_new')
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
@@ -68,16 +69,16 @@ function AdsAdminContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!imageFile) { setMessage('请选择图片'); return }
-    if (linkType === 'external' && !externalUrl) { setMessage('请填写外部链接'); return }
-    if (linkType === 'internal' && !slug) { setMessage('请填写页面标识 (slug)'); return }
+    if ((openMode === 'external_new' || openMode === 'external_same') && !externalUrl) { setMessage('请填写外部链接'); return }
+    if (openMode === 'internal' && !slug) { setMessage('请填写页面标识 (slug)'); return }
 
     setLoading(true)
     setMessage('')
     const form = new FormData()
     form.append('image', imageFile)
-    form.append('link_type', linkType)
-    if (linkType === 'external') form.append('external_url', externalUrl)
-    if (linkType === 'internal') {
+    form.append('open_mode', openMode)
+    if (openMode === 'external_new' || openMode === 'external_same') form.append('external_url', externalUrl)
+    if (openMode === 'internal') {
       form.append('slug', slug)
       if (content) form.append('content', content)
     }
@@ -182,35 +183,22 @@ function AdsAdminContent() {
           />
         </div>
 
-        {/* Link type radio */}
+        {/* Open mode selector */}
         <div>
-          <label className="block text-sm font-medium mb-2">链接类型 *</label>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="link_type"
-                value="external"
-                checked={linkType === 'external'}
-                onChange={() => setLinkType('external')}
-              />
-              外部链接 (External Link)
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="link_type"
-                value="internal"
-                checked={linkType === 'internal'}
-                onChange={() => setLinkType('internal')}
-              />
-              内部详情页 (Internal Detail Page)
-            </label>
-          </div>
+          <label className="block text-sm font-medium mb-1">打开方式 *</label>
+          <select
+            value={openMode}
+            onChange={(e) => setOpenMode(e.target.value as 'external_new' | 'external_same' | 'internal')}
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="external_new">外部链接 · 新窗口打开 (External · New Tab)</option>
+            <option value="external_same">外部链接 · 当前窗口打开 (External · Same Window)</option>
+            <option value="internal">内部详情页 (Internal Detail Page)</option>
+          </select>
         </div>
 
         {/* External URL */}
-        {linkType === 'external' && (
+        {(openMode === 'external_new' || openMode === 'external_same') && (
           <div>
             <label className="block text-sm font-medium mb-1">外部链接地址 *</label>
             <input
@@ -224,7 +212,7 @@ function AdsAdminContent() {
         )}
 
         {/* Internal slug + content */}
-        {linkType === 'internal' && (
+        {openMode === 'internal' && (
           <>
             <div>
               <label className="block text-sm font-medium mb-1">页面标识 (slug) *</label>
@@ -335,7 +323,9 @@ function AdsAdminContent() {
                   <span className="font-medium">位置:</span> {ad.position}
                   {' · '}
                   <span className={`font-medium ${ad.link_type === 'internal' ? 'text-purple-600' : 'text-blue-600'}`}>
-                    {ad.link_type === 'internal' ? '内部页' : '外部链接'}
+                    {ad.open_mode === 'internal' ? '内部页'
+                      : ad.open_mode === 'external_same' ? '外链·同窗口'
+                      : '外链·新窗口'}
                   </span>
                   {' · '}
                   <span className={ad.is_active ? 'text-green-600' : 'text-gray-400'}>

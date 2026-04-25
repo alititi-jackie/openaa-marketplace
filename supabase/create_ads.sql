@@ -12,7 +12,9 @@ create table if not exists public.ads (
   link_type    text not null default 'external' check (link_type in ('external', 'internal')),
   external_url text,
   slug         text,
-  content      text
+  content      text,
+  -- Open mode: controls how clicking the ad navigates the user
+  open_mode    text not null default 'external_new' check (open_mode in ('internal', 'external_new', 'external_same'))
   -- Note: link_url is kept for backward compatibility with existing rows.
   -- New external ads should use external_url; link_url mirrors it on insert.
 );
@@ -47,9 +49,13 @@ create policy "Public can read active ads"
 --     check (link_type in ('external', 'internal')),
 --   add column if not exists external_url text,
 --   add column if not exists slug         text,
---   add column if not exists content      text;
+--   add column if not exists content      text,
+--   add column if not exists open_mode    text not null default 'external_new'
+--     check (open_mode in ('internal', 'external_new', 'external_same'));
 --
 -- update public.ads set external_url = link_url where link_type = 'external';
+-- update public.ads set open_mode = 'internal' where link_type = 'internal';
+-- update public.ads set open_mode = 'external_new' where link_type = 'external';
 --
 -- create unique index if not exists ads_internal_slug_unique
 --   on public.ads (slug)

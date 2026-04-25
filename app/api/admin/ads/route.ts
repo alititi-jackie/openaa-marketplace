@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
 
   const file = formData.get('image') as File | null
   const link_url = formData.get('link_url') as string | null
-  const link_type = (formData.get('link_type') as string) || 'external'
+  const open_mode = (formData.get('open_mode') as string) || 'external_new'
+  // Derive link_type for backward compatibility
+  const link_type = open_mode === 'internal' ? 'internal' : 'external'
   const external_url = (formData.get('external_url') as string) || null
   const slug = (formData.get('slug') as string) || null
   const content = (formData.get('content') as string) || null
@@ -55,15 +57,15 @@ export async function POST(request: NextRequest) {
   const start_date = (formData.get('start_date') as string) || null
   const end_date = (formData.get('end_date') as string) || null
 
-  if (link_type !== 'external' && link_type !== 'internal') {
-    return NextResponse.json({ error: 'link_type must be external or internal' }, { status: 400 })
+  if (!['internal', 'external_new', 'external_same'].includes(open_mode)) {
+    return NextResponse.json({ error: 'open_mode must be internal, external_new, or external_same' }, { status: 400 })
   }
 
-  if (link_type === 'external' && !external_url && !link_url) {
+  if ((open_mode === 'external_new' || open_mode === 'external_same') && !external_url && !link_url) {
     return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
   }
 
-  if (link_type === 'internal' && !slug) {
+  if (open_mode === 'internal' && !slug) {
     return NextResponse.json({ error: 'slug is required for internal ads' }, { status: 400 })
   }
 
@@ -111,6 +113,7 @@ export async function POST(request: NextRequest) {
       external_url: link_type === 'external' ? (external_url || link_url) : null,
       slug: link_type === 'internal' ? slug : null,
       content: link_type === 'internal' ? content : null,
+      open_mode,
       position,
       is_active,
       start_date,

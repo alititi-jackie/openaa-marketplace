@@ -14,6 +14,7 @@ interface AdSlide {
   link_type?: string | null
   external_url?: string | null
   slug?: string | null
+  open_mode?: string | null
 }
 
 const FALLBACK_SLIDES: AdSlide[] = [
@@ -46,14 +47,18 @@ export default function BannerCarousel() {
       <img
         src={slide.image_url}
         alt=""
-        className="w-full h-[200px] object-cover select-none"
+        className="w-full h-[200px] object-cover select-none pointer-events-none"
         draggable={false}
       />
     )
 
-    if (slide.link_type === 'internal' && slide.slug) {
+    // Determine effective open mode (fall back to link_type for backward compat)
+    const mode = slide.open_mode
+      ?? (slide.link_type === 'internal' ? 'internal' : 'external_new')
+
+    if (mode === 'internal' && slide.slug) {
       return (
-        <Link href={`/ads/${slide.slug}`} className="block w-full">
+        <Link href={`/ads/${encodeURIComponent(slide.slug)}`} className="block w-full">
           {image}
         </Link>
       )
@@ -61,6 +66,14 @@ export default function BannerCarousel() {
 
     const href = slide.external_url || slide.link_url
     if (href) {
+      if (mode === 'external_same') {
+        return (
+          <a href={href} className="block w-full">
+            {image}
+          </a>
+        )
+      }
+      // external_new (default)
       return (
         <a href={href} target="_blank" rel="noopener noreferrer" className="block w-full">
           {image}
@@ -80,6 +93,8 @@ export default function BannerCarousel() {
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           touchRatio={1}
+          preventClicks={false}
+          preventClicksPropagation={false}
           className="banner-swiper"
         >
           {slides.map((slide) => (
