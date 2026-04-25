@@ -31,7 +31,17 @@ export default function LoginForm() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">登录 OpenAA</h1>
+      <h1 className="text-2xl font-bold text-center text-gray-900">登录 OpenAA</h1>
+
+      {/* Guidance message */}
+      <div className="mt-3 mb-6 text-center">
+        <p className="text-[13.5px] leading-relaxed text-zinc-500">
+          登录后即可免费发布二手商品、招聘信息，管理您的内容并享受更多OpenAA服务。
+        </p>
+        <p className="mt-1 text-[12px] text-zinc-400">
+          Login to post listings, jobs and manage your OpenAA account.
+        </p>
+      </div>
 
       <GoogleLoginButton />
 
