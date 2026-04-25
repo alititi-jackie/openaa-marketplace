@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import BannerCarousel from '@/components/BannerCarousel'
-import { Search, ExternalLink } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { navigationCategories } from '@/data/navigationLinks'
+import AppTopSection from '@/components/AppTopSection'
 
 function normalize(s: string) {
   return s.trim().toLowerCase()
@@ -34,37 +34,31 @@ export default function NavigationPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-16">
-        {/* Header */}
-        <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-5">
-          <h1 className="text-[18px] md:text-[22px] font-black text-zinc-900 tracking-tight">
+      {/* Top section identical to homepage */}
+      <AppTopSection />
+
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-3 pb-16">
+        {/* Page title (keep minimal, avoid custom wrappers that diverge from homepage) */}
+        <div className="px-1 pt-2">
+          <h1 className="text-[16px] md:text-[18px] font-black text-zinc-900 tracking-tight">
             美国华人生活导航
           </h1>
-          <p className="mt-1 text-[12px] md:text-[13px] text-zinc-500">
+          <p className="mt-1 text-[12px] text-zinc-500">
             常用网站 · 政务办事 · 招聘房屋 · AI工具
           </p>
 
-          {/* Search */}
-          <div className="mt-4">
-            <div className="relative flex items-center">
-              <Search size={16} className="absolute left-4 text-zinc-400 pointer-events-none" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="搜索网站 / 分类…"
-                className="w-full h-11 pl-10 pr-4 bg-zinc-50 border border-zinc-100 rounded-full text-sm text-zinc-700 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 transition shadow-sm"
-              />
-            </div>
-
+          {/* Filter input (navigation-only) */}
+          <div className="mt-3">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="筛选导航链接…"
+              className="w-full h-11 px-4 bg-white border border-zinc-100 rounded-2xl text-sm text-zinc-700 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 transition shadow-sm"
+            />
             <div className="mt-2 text-[11px] text-zinc-400">
               {q ? `找到 ${totalResults} 个结果` : '输入关键词可快速筛选'}
             </div>
           </div>
-        </div>
-
-        {/* Optional banner */}
-        <div className="mt-4">
-          <BannerCarousel />
         </div>
 
         {/* Categories */}

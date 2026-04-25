@@ -1,5 +1,4 @@
-import BannerCarousel from '@/components/BannerCarousel'
-import SearchBar from '@/components/SearchBar'
+import AppTopSection from '@/components/AppTopSection'
 import GridMenu from '@/components/GridMenu'
 import LatestPostsSection from '@/components/LatestPostsSection'
 import InfoCardsSection from '@/components/InfoCardsSection'
@@ -8,11 +7,7 @@ import NewsSection from '@/components/NewsSection'
 export default function HomePage() {
   return (
     <div className="bg-white">
-      {/* Banner carousel */}
-      <BannerCarousel />
-
-      {/* Search bar */}
-      <SearchBar />
+      <AppTopSection />
 
       {/* 8-grid quick-access menu — sits on a zinc-50 band */}
       <GridMenu />
