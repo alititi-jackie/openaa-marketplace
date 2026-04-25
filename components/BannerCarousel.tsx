@@ -53,13 +53,14 @@ export default function BannerCarousel() {
     // If we somehow have no image url, render nothing (should not happen after filtering)
     if (!imageUrl) return null
 
+    // Standardized ratio close to 3:1, recommended 1500x500
     const image = (
       <div className="w-full">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
           alt=""
-          className="w-full h-[240px] sm:h-[270px] md:h-[300px] lg:h-[340px] object-contain bg-zinc-100 select-none"
+          className="w-full h-[160px] sm:h-[180px] md:h-[200px] object-cover bg-zinc-100 select-none"
           draggable={false}
           loading="eager"
         />
@@ -129,7 +130,7 @@ export default function BannerCarousel() {
 
   return (
     <div className="px-4 pt-4">
-      <div className="rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden bg-white">
+      <div className="rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden bg-white">
         <Swiper
           modules={[Autoplay, Pagination]}
           loop={slides.length > 1}
