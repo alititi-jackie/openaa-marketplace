@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination } from 'swiper/modules'
@@ -10,7 +9,7 @@ import 'swiper/css/pagination'
 
 interface AdSlide {
   id: string
-  image_url: string
+  image_url?: string | null
   link_url?: string | null
   link_type?: string | null
   external_url?: string | null
@@ -26,16 +25,22 @@ const FALLBACK_SLIDES: AdSlide[] = [
   { id: 'f5', image_url: '/banners/nyc-5.jpg' },
 ]
 
+function normalizeImageUrl(v: unknown): string {
+  if (typeof v === 'string' && v.trim()) return v.trim()
+  return ''
+}
+
 export default function BannerCarousel() {
   const [slides, setSlides] = useState<AdSlide[]>(FALLBACK_SLIDES)
-  const router = useRouter()
 
   useEffect(() => {
     fetch('/api/ads?position=home')
       .then((res) => res.json())
       .then((json) => {
         if (Array.isArray(json.data) && json.data.length > 0) {
-          setSlides(json.data)
+          // Defensive: filter out rows without image_url so Swiper doesn't render blank slides.
+          const filtered = json.data.filter((s: AdSlide) => normalizeImageUrl(s?.image_url))
+          setSlides(filtered.length > 0 ? filtered : FALLBACK_SLIDES)
         }
       })
       .catch(() => {
@@ -44,21 +49,26 @@ export default function BannerCarousel() {
   }, [])
 
   const renderSlideContent = (slide: AdSlide) => {
-    const href = (slide.external_url || slide.link_url || '').trim()
+    const imageUrl = normalizeImageUrl(slide.image_url)
 
     const image = (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={slide.image_url}
+        src={imageUrl}
         alt=""
         className="w-full h-[200px] object-cover select-none"
         draggable={false}
+        loading="eager"
       />
     )
 
+    // If we somehow have no image url, render nothing (should not happen after filtering)
+    if (!imageUrl) return null
+
+    const href = (slide.external_url || slide.link_url || '').trim()
     const openMode = slide.open_mode || (slide.link_type === 'internal' ? 'internal' : 'external_new')
 
-    // Keep fallback banners non-clickable (no mode + no url/slug)
+    // Keep fallback banners non-clickable
     const isFallback = slide.id.startsWith('f') && !slide.slug && !href
     if (isFallback) return image
 
@@ -70,17 +80,25 @@ export default function BannerCarousel() {
       )
     }
 
-    if ((openMode === 'external_new' || openMode === 'external_same') && href) {
+    if (openMode === 'external_new' && href) {
+      return (
+        <button
+          type="button"
+          className="block w-full text-left"
+          onClick={() => window.open(href, '_blank', 'noopener,noreferrer')}
+        >
+          {image}
+        </button>
+      )
+    }
+
+    if (openMode === 'external_same' && href) {
       return (
         <button
           type="button"
           className="block w-full text-left"
           onClick={() => {
-            if (openMode === 'external_new') {
-              window.open(href, '_blank', 'noopener,noreferrer')
-            } else {
-              window.location.href = href
-            }
+            window.location.href = href
           }}
         >
           {image}
@@ -88,7 +106,7 @@ export default function BannerCarousel() {
       )
     }
 
-    // Fallback to internal if link_type says internal
+    // Back-compat fallbacks
     if (slide.link_type === 'internal' && slide.slug) {
       return (
         <Link href={`/ads/${slide.slug}`} className="block w-full">
@@ -97,7 +115,6 @@ export default function BannerCarousel() {
       )
     }
 
-    // Default external new
     if (href) {
       return (
         <a href={href} target="_blank" rel="noopener noreferrer" className="block w-full">
@@ -114,7 +131,7 @@ export default function BannerCarousel() {
       <div className="rounded-2xl shadow-md overflow-hidden">
         <Swiper
           modules={[Autoplay, Pagination]}
-          loop={true}
+          loop={slides.length > 1}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           touchRatio={1}
