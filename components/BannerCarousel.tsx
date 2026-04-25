@@ -58,7 +58,7 @@ export default function BannerCarousel() {
 
     if (mode === 'internal' && slide.slug) {
       return (
-        <Link href={`/ads/${encodeURIComponent(slide.slug)}`} className="block w-full">
+        <Link href={`/ads/${slide.slug}`} className="block w-full">
           {image}
         </Link>
       )

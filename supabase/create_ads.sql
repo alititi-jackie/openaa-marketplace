@@ -49,7 +49,11 @@ create policy "Public can read active ads"
 --     check (link_type in ('external', 'internal')),
 --   add column if not exists external_url text,
 --   add column if not exists slug         text,
---   add column if not exists content      text,
+--   add column if not exists content      text;
+--
+-- -- In PostgreSQL, ADD COLUMN ... NOT NULL DEFAULT ... applies the default to
+-- -- all existing rows atomically, so this is safe to run in a single statement.
+-- alter table public.ads
 --   add column if not exists open_mode    text not null default 'external_new'
 --     check (open_mode in ('internal', 'external_new', 'external_same'));
 --
