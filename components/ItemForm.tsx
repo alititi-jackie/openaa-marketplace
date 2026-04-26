@@ -34,6 +34,14 @@ function safeNumber(s: string) {
   return Number.isFinite(n) ? n : 0
 }
 
+function getFileExtFromType(mimeType: string) {
+  const t = (mimeType || '').toLowerCase()
+  if (t.includes('png')) return 'png'
+  if (t.includes('webp')) return 'webp'
+  if (t.includes('gif')) return 'gif'
+  return 'jpg'
+}
+
 function formatBuyingDescription(input: BuyingFormData) {
   const lines: string[] = []
   lines.push('【求购信息】')
@@ -73,6 +81,10 @@ export default function ItemForm({ initialType }: Props) {
     description: '',
   })
 
+  // Optional image upload
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>('')
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -96,6 +108,36 @@ export default function ItemForm({ initialType }: Props) {
       router.push('/auth/login')
       return
     }
+
+    // 1) Upload optional image (if provided)
+    let uploadedImageUrl = ''
+    if (imageFile) {
+      const ext = getFileExtFromType(imageFile.type)
+      const filePath = `${user.id}/${Date.now()}.${ext}`
+
+      const { error: uploadError } = await supabase
+        .storage
+        .from('item-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: imageFile.type || undefined,
+        })
+
+      if (uploadError) {
+        setError(`图片上传失败：${uploadError.message}`)
+        setLoading(false)
+        return
+      }
+
+      const { data: publicData } = supabase.storage
+        .from('item-images')
+        .getPublicUrl(filePath)
+
+      uploadedImageUrl = publicData?.publicUrl || ''
+    }
+
+    const images = uploadedImageUrl ? [uploadedImageUrl] : []
 
     const title =
       mode === 'buying'
@@ -121,7 +163,7 @@ export default function ItemForm({ initialType }: Props) {
         description,
         price,
         category,
-        images: [],
+        images,
         status: 'published',
         views: 0,
       })
@@ -167,6 +209,31 @@ export default function ItemForm({ initialType }: Props) {
             我要求购
           </button>
         </div>
+      </div>
+
+      {/* Optional image upload */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">图片（可选）</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const f = e.target.files?.[0] || null
+            setImageFile(f)
+            setImagePreviewUrl(f ? URL.createObjectURL(f) : '')
+          }}
+          className="w-full text-sm text-gray-600"
+        />
+        {imagePreviewUrl && (
+          <div className="mt-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imagePreviewUrl}
+              alt="preview"
+              className="h-24 w-24 object-cover rounded-lg border"
+            />
+          </div>
+        )}
       </div>
 
       {mode === 'selling' ? (
