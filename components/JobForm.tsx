@@ -8,13 +8,33 @@ import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
 
+const JOB_LOCATIONS = [
+  '其它地区',
+  '法拉盛',
+  '布鲁克林',
+  '曼哈顿',
+  '皇后区',
+  '布朗士',
+  '长岛',
+  '新泽西',
+  '史丹顿岛',
+  '纽约上州',
+  '费城',
+  '波士顿',
+  '洛杉矶',
+  '旧金山',
+  '芝加哥',
+] as const
+
+type JobLocation = (typeof JOB_LOCATIONS)[number]
+
 interface HiringFormData {
   title: string
   company: string
   description: string
   salary_min: string
   salary_max: string
-  location: string
+  location: JobLocation
   job_type: string
   category: string
 }
@@ -22,7 +42,7 @@ interface HiringFormData {
 interface SeekingFormData {
   display_name: string
   desired_role: string
-  region: string
+  region: JobLocation
   experience: string
   availability: string
   contact: string
@@ -59,6 +79,10 @@ function safeNumber(s: string): number {
   return Number.isFinite(n) ? n : 0
 }
 
+function normalizeLocation(v: unknown): JobLocation {
+  return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : '其它地区'
+}
+
 export default function JobForm({ initialType = 'hiring', editJob = null }: Props) {
   const router = useRouter()
   const isEditing = !!editJob
@@ -81,7 +105,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     description: '',
     salary_min: '',
     salary_max: '',
-    location: '',
+    location: '其它地区',
     job_type: defaultJobType,
     category: defaultCategory,
   })
@@ -90,7 +114,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
   const [seeking, setSeeking] = useState<SeekingFormData>({
     display_name: '',
     desired_role: '',
-    region: '',
+    region: '其它地区',
     experience: '',
     availability: '',
     contact: '',
@@ -114,7 +138,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
         description: editJob.description ?? '',
         salary_min: String(editJob.salary_min ?? 0),
         salary_max: String(editJob.salary_max ?? 0),
-        location: editJob.location ?? '',
+        location: normalizeLocation(editJob.location),
         job_type: editJob.job_type ?? defaultJobType,
         category: editJob.category ?? defaultCategory,
       })
@@ -124,7 +148,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       setSeeking((prev) => ({
         ...prev,
         desired_role: editJob.title ?? '',
-        region: editJob.location ?? '',
+        region: normalizeLocation(editJob.location),
         bio: editJob.description ?? '',
       }))
     }
@@ -136,7 +160,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     setHiring((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSeekingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleSeekingChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setSeeking((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
@@ -163,7 +189,8 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             description: hiring.description.trim(),
             salary_min: safeNumber(hiring.salary_min),
             salary_max: safeNumber(hiring.salary_max),
-            location: hiring.location.trim() || '-',
+            // Keep optional UX: always DB-safe value
+            location: hiring.location || '其它地区',
             job_type: hiring.job_type?.trim() || defaultJobType,
             category: hiring.category?.trim() || defaultCategory,
             status: 'published' as const,
@@ -178,7 +205,8 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             description: isEditing ? seeking.bio.trim() : buildSeekingDescription(seeking),
             salary_min: 0,
             salary_max: 0,
-            location: seeking.region.trim() || '-',
+            // Keep optional UX: always DB-safe value
+            location: seeking.region || '其它地区',
             job_type: defaultJobType,
             category: defaultCategory,
             status: 'published' as const,
@@ -325,14 +353,19 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
-            <input
-              type="text"
+            <select
               name="location"
               value={hiring.location}
               onChange={handleHiringChange}
-              placeholder="不填默认：-"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
+            >
+              {JOB_LOCATIONS.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -402,15 +435,20 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">所在地区</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
+              <select
                 name="region"
                 value={seeking.region}
                 onChange={handleSeekingChange}
-                placeholder="不填默认：-"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-              />
+              >
+                {JOB_LOCATIONS.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
             </div>
           </div>
 
