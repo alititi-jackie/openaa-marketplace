@@ -14,20 +14,27 @@ import {
 import { supabase } from '@/lib/supabase'
 import ProfileHeader from '@/components/ProfileHeader'
 import type { UserProfile } from '@/types'
+import A2HSButton, { IosA2HSModal } from '@/components/A2HSButton'
+import { shareOpenAA } from '@/lib/share'
 
 export default function ProfilePage() {
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [publishOpen, setPublishOpen] = useState(false)
+  const [iosA2hsOpen, setIosA2hsOpen] = useState(false)
+  const [toast, setToast] = useState<string>('')
 
   useEffect(() => {
     const fetchProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
+
+      // Guest mode: do NOT redirect; keep page visible
       if (!user) {
-        router.push('/auth/login')
+        setProfile(null)
+        setLoading(false)
         return
       }
 
@@ -57,8 +64,15 @@ export default function ProfilePage() {
     router.push('/')
   }
 
+  const handleShare = async () => {
+    const res = await shareOpenAA()
+    if (res === 'copied') {
+      setToast('✅ 链接已复制')
+      setTimeout(() => setToast(''), 1800)
+    }
+  }
+
   if (loading) return <div className="flex justify-center py-20 text-zinc-500">加载中...</div>
-  if (!profile) return null
 
   return (
     <div className="min-h-screen bg-zinc-100">
@@ -68,7 +82,41 @@ export default function ProfilePage() {
           <p className="mt-1 text-[12px] text-zinc-500">管理我的信息与发布入口</p>
         </div>
 
-        <ProfileHeader profile={profile} />
+        {profile ? (
+          <ProfileHeader profile={profile} />
+        ) : (
+          <div className="bg-white rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[13px] font-black text-zinc-900">未登录</div>
+                <div className="text-[11px] text-zinc-500 mt-0.5">登录后可管理发布与个人信息</div>
+              </div>
+              <Link
+                href="/auth/login"
+                className="rounded-2xl bg-zinc-900 text-white font-bold text-[13px] px-4 py-2"
+              >
+                登录
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Growth cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <A2HSButton
+            onIosNeedInstructions={() => setIosA2hsOpen(true)}
+            className="text-left rounded-2xl p-4 bg-white shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 active:scale-[0.99] transition"
+          />
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="text-left rounded-2xl p-4 bg-white shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 active:scale-[0.99] transition"
+          >
+            <div className="text-[13px] font-black text-zinc-900">📤 分享 OpenAA</div>
+            <div className="text-[11px] text-zinc-500 mt-1">分享给朋友，一起使用</div>
+          </button>
+        </div>
 
         {/* Menu */}
         <div className="bg-white rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 overflow-hidden">
@@ -183,15 +231,29 @@ export default function ProfilePage() {
             <span className="text-zinc-300">›</span>
           </Link>
 
-          <button
-            onClick={handleLogout}
-            className="w-full text-left flex items-center justify-between p-4 hover:bg-red-50 transition"
-          >
-            <span className="text-red-600 font-medium">退出登录</span>
-            <span className="text-red-300">›</span>
-          </button>
+          {profile ? (
+            <button
+              onClick={handleLogout}
+              className="w-full text-left flex items-center justify-between p-4 hover:bg-red-50 transition"
+            >
+              <span className="text-red-600 font-medium">退出登录</span>
+              <span className="text-red-300">›</span>
+            </button>
+          ) : (
+            <div className="p-4 text-[12px] text-zinc-400">登录后可使用更多功能</div>
+          )}
         </div>
       </div>
+
+      {toast ? (
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-[110]">
+          <div className="rounded-full bg-zinc-900 text-white text-[12px] font-semibold px-4 py-2 shadow-lg">
+            {toast}
+          </div>
+        </div>
+      ) : null}
+
+      <IosA2HSModal open={iosA2hsOpen} onClose={() => setIosA2hsOpen(false)} />
     </div>
   )
 }

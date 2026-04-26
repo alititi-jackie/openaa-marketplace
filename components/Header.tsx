@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, ChevronDown, Share2 } from 'lucide-react'
+import { shareOpenAA } from '@/lib/share'
 
 export default function Header() {
   return (
@@ -41,6 +44,9 @@ export default function Header() {
           type="button"
           aria-label="分享"
           className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
+          onClick={() => {
+            void shareOpenAA()
+          }}
         >
           <Share2 size={16} className="text-zinc-600" />
         </button>
