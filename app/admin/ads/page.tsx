@@ -32,7 +32,7 @@ function AdsAdminContent() {
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
-  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand'>('home')
+  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation'>('home')
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -253,12 +253,13 @@ function AdsAdminContent() {
           <label className="block text-sm font-medium mb-1">位置</label>
           <select
             value={position}
-            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand')}
+            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand' | 'navigation')}
             className="w-full border rounded-lg px-3 py-2 text-sm"
           >
             <option value="home">首页 (home)</option>
             <option value="jobs">招聘 (jobs)</option>
             <option value="secondhand">二手 (secondhand)</option>
+            <option value="navigation">导航页 (navigation)</option>
           </select>
         </div>
 
