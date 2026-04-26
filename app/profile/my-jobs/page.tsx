@@ -14,8 +14,13 @@ export default function MyJobsPage() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/auth/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
 
       const { data } = await supabase
         .from('job_postings')
@@ -31,8 +36,27 @@ export default function MyJobsPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('确认删除此职位？')) return
-    await supabase.from('job_postings').delete().eq('id', id)
-    setJobs(prev => prev.filter(job => job.id !== id))
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    const { error } = await supabase
+      .from('job_postings')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      alert(`删除失败：${error.message}`)
+      return
+    }
+
+    setJobs((prev) => prev.filter((job) => job.id !== id))
   }
 
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
@@ -59,15 +83,25 @@ export default function MyJobsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {jobs.map(job => (
+          {jobs.map((job) => (
             <div key={job.id} className="relative">
               <JobCard job={job} />
-              <button
-                onClick={() => handleDelete(job.id)}
-                className="absolute top-4 right-4 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-              >
-                ×
-              </button>
+
+              <div className="absolute top-4 right-4 flex gap-2">
+                <Link
+                  href={`/jobs/publish?edit=${job.id}`}
+                  className="bg-white/90 text-gray-700 rounded-full px-2 py-1 text-xs ring-1 ring-gray-200 hover:bg-white"
+                >
+                  编辑
+                </Link>
+                <button
+                  onClick={() => handleDelete(job.id)}
+                  className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                  aria-label="delete"
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))}
         </div>
