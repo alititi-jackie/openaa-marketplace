@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ItemForm from '@/components/ItemForm'
@@ -10,7 +10,7 @@ function normalizeType(t: string | null): SecondhandItemType {
   return t === 'buying' ? 'buying' : 'selling'
 }
 
-export default function PublishItemPage() {
+function PublishItemPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [checking, setChecking] = useState(true)
@@ -35,5 +35,13 @@ export default function PublishItemPage() {
       </h1>
       <ItemForm initialType={initialType} />
     </div>
+  )
+}
+
+export default function PublishItemPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20 text-gray-500">加载中...</div>}>
+      <PublishItemPageInner />
+    </Suspense>
   )
 }
