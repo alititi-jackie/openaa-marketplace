@@ -7,6 +7,12 @@ import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
+type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation'
+
+interface Props {
+  position?: BannerPosition
+}
+
 interface AdSlide {
   id: string
   image_url?: string | null
@@ -30,22 +36,25 @@ function normalizeImageUrl(v: unknown): string {
   return ''
 }
 
-export default function BannerCarousel() {
+export default function BannerCarousel({ position = 'home' }: Props) {
   const [slides, setSlides] = useState<AdSlide[]>(FALLBACK_SLIDES)
 
   useEffect(() => {
-    fetch('/api/ads?position=home')
+    fetch(`/api/ads?position=${position}`)
       .then((res) => res.json())
       .then((json) => {
         if (Array.isArray(json.data) && json.data.length > 0) {
           const filtered = json.data.filter((s: AdSlide) => normalizeImageUrl(s?.image_url))
           setSlides(filtered.length > 0 ? filtered : FALLBACK_SLIDES)
+        } else {
+          setSlides(FALLBACK_SLIDES)
         }
       })
       .catch(() => {
         // keep fallback slides on error
+        setSlides(FALLBACK_SLIDES)
       })
-  }, [])
+  }, [position])
 
   const renderSlideContent = (slide: AdSlide) => {
     const imageUrl = normalizeImageUrl(slide.image_url)

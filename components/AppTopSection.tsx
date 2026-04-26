@@ -17,18 +17,13 @@ interface Props {
  * 2) BannerCarousel
  * 3) homepage-style SearchBar
  */
-export default function AppTopSection({ bannerPosition = 'home' }: Props) {
+export default function AppTopSection({ bannerPosition }: Props) {
   return (
     <div className="bg-white">
       <Header />
 
       {/* Keep header->banner close (no extra spacer gap here) */}
-      {/*
-        NOTE: BannerCarousel currently fetches home banners internally.
-        The bannerPosition prop is wired for future BannerCarousel support,
-        but must not break production builds.
-      */}
-      <BannerCarousel />
+      <BannerCarousel position={bannerPosition || 'home'} />
 
       <SearchBar />
     </div>
