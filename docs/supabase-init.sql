@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public.secondhand_items (
 CREATE TABLE IF NOT EXISTS public.job_postings (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  type TEXT NOT NULL DEFAULT 'hiring' CHECK (type IN ('hiring', 'seeking')),
   title TEXT NOT NULL,
   company TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -45,6 +46,10 @@ CREATE TABLE IF NOT EXISTS public.job_postings (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure existing installations get the new column too
+ALTER TABLE public.job_postings
+  ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'hiring' CHECK (type IN ('hiring', 'seeking'));
 
 -- Enable Row Level Security
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
