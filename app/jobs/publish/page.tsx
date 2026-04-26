@@ -1,12 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import JobForm from '@/components/JobForm'
+import type { JobPostingType } from '@/types'
+
+function normalizeType(v: string | null): JobPostingType {
+  return v === 'seeking' ? 'seeking' : 'hiring'
+}
 
 export default function PublishJobPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialType = useMemo(() => normalizeType(searchParams.get('type')), [searchParams])
+
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
@@ -20,8 +28,8 @@ export default function PublishJobPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">发布招聘信息</h1>
-      <JobForm />
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">发布信息</h1>
+      <JobForm initialType={initialType} />
     </div>
   )
 }

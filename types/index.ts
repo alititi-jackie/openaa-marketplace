@@ -30,9 +30,19 @@ export interface SecondhandItem {
   user?: JoinedUser
 }
 
+export type JobPostingType = 'hiring' | 'seeking'
+
 export interface JobPosting {
   id: number
   user_id: string
+  /**
+   * Job post type.
+   * - 'hiring': 招聘岗位
+   * - 'seeking': 求职人才
+   *
+   * Optional for backward-compat with older rows / environments.
+   */
+  type?: JobPostingType
   title: string
   company: string
   description: string
