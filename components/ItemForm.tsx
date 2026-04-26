@@ -109,7 +109,8 @@ export default function ItemForm({ initialType }: Props) {
 
     const price = mode === 'buying' ? 0 : safeNumber(selling.price)
 
-    const description = mode === 'buying' ? formatBuyingDescription(buying) : selling.description.trim()
+    const description =
+      mode === 'buying' ? formatBuyingDescription(buying) : selling.description.trim()
 
     const { data, error } = await supabase
       .from('secondhand_items')
@@ -128,7 +129,7 @@ export default function ItemForm({ initialType }: Props) {
       .single()
 
     if (error) {
-      setError('发布失败，请重试')
+      setError(`发布失败：${error.message}`)
       setLoading(false)
       return
     }
