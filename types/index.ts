@@ -61,6 +61,31 @@ export interface JobPosting {
   user?: JoinedUser
 }
 
+export type HousingPostType = 'renting' | 'seeking'
+
+export interface HousingPost {
+  id: number
+  user_id: string
+  /**
+   * Housing post type.
+   * - 'renting': 房屋出租
+   * - 'seeking': 求租信息
+   */
+  type?: HousingPostType
+  title: string
+  description: string
+  price: number
+  location: string
+  room_type: string
+  contact: string
+  images: string[]
+  status: 'published' | 'unpublished'
+  views: number
+  created_at: string
+  updated_at: string
+  user?: JoinedUser
+}
+
 export interface ApiResponse<T> {
   data?: T
   error?: string
