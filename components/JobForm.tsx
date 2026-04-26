@@ -53,11 +53,16 @@ function buildSeekingDescription(seeking: SeekingFormData) {
   ].join('\n')
 }
 
+function safeNumber(s: string): number {
+  const n = parseFloat((s || '').trim())
+  return Number.isFinite(n) ? n : 0
+}
+
 export default function JobForm({ initialType = 'hiring' }: Props) {
   const router = useRouter()
 
   const defaultJobType = useMemo(() => {
-    // user asked to default to “其他” for seeking placeholders
+    // For DB NOT NULL safety, prefer “其他”
     return JOB_TYPES.includes('其他') ? '其他' : JOB_TYPES[0]
   }, [])
 
@@ -67,6 +72,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
 
   const [mode, setMode] = useState<PublishMode>(initialType)
 
+  // Hiring: only description required, other fields optional in UI
   const [hiring, setHiring] = useState<HiringFormData>({
     title: '',
     company: '',
@@ -74,10 +80,11 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
     salary_min: '',
     salary_max: '',
     location: '',
-    job_type: JOB_TYPES[0],
-    category: JOB_CATEGORIES[0],
+    job_type: defaultJobType,
+    category: defaultCategory,
   })
 
+  // Seeking: only personal description/info content required (bio), use existing placeholders
   const [seeking, setSeeking] = useState<SeekingFormData>({
     display_name: '',
     desired_role: '',
@@ -114,25 +121,26 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
       return
     }
 
+    // DB NOT NULL safe defaults (per requirements)
     const payload =
       mode === 'hiring'
         ? {
             type: 'hiring' as const,
-            title: hiring.title,
-            company: hiring.company,
-            description: hiring.description,
-            salary_min: parseFloat(hiring.salary_min),
-            salary_max: parseFloat(hiring.salary_max),
-            location: hiring.location,
-            job_type: hiring.job_type,
-            category: hiring.category,
+            title: hiring.title.trim() || '招聘信息',
+            company: hiring.company.trim() || '匿名发布',
+            description: hiring.description.trim(),
+            salary_min: safeNumber(hiring.salary_min),
+            salary_max: safeNumber(hiring.salary_max),
+            location: hiring.location.trim() || '-',
+            job_type: hiring.job_type?.trim() || defaultJobType,
+            category: hiring.category?.trim() || defaultCategory,
             status: 'published' as const,
             views: 0,
             user_id: user.id,
           }
         : {
             type: 'seeking' as const,
-            // Placeholders (per requirement)
+            // Existing seeking placeholders
             title: seeking.desired_role.trim() || '求职',
             company: '个人求职',
             description: buildSeekingDescription(seeking),
@@ -145,6 +153,14 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
             views: 0,
             user_id: user.id,
           }
+
+    // Enforce required content only
+    const contentOk = mode === 'hiring' ? payload.description.trim() : seeking.bio.trim()
+    if (!contentOk) {
+      setError('请填写信息内容')
+      setLoading(false)
+      return
+    }
 
     const { data, error: insertError } = await supabase
       .from('job_postings')
@@ -198,26 +214,24 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">职位名称 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">职位名称</label>
               <input
                 type="text"
                 name="title"
                 value={hiring.title}
                 onChange={handleHiringChange}
-                required
-                placeholder="例：高级前端工程师"
+                placeholder="不填默认：招聘信息"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">公司名称 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">公司名称</label>
               <input
                 type="text"
                 name="company"
                 value={hiring.company}
                 onChange={handleHiringChange}
-                required
-                placeholder="例：ABC 科技公司"
+                placeholder="不填默认：匿名发布"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
@@ -225,7 +239,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">工作类型 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">工作类型</label>
               <select
                 name="job_type"
                 value={hiring.job_type}
@@ -238,9 +252,10 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-gray-400">不选默认：其他</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">职位分类 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">职位分类</label>
               <select
                 name="category"
                 value={hiring.category}
@@ -253,104 +268,99 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-gray-400">不选默认：其他</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">工作地点 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
             <input
               type="text"
               name="location"
               value={hiring.location}
               onChange={handleHiringChange}
-              required
-              placeholder="例：San Francisco, CA 或 远程"
+              placeholder="不填默认：-"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最低年薪 (USD) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">最低年薪 (USD)</label>
               <input
                 type="number"
                 name="salary_min"
                 value={hiring.salary_min}
                 onChange={handleHiringChange}
-                required
                 min="0"
-                placeholder="80000"
+                placeholder="不填默认：0"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最高年薪 (USD) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">最高年薪 (USD)</label>
               <input
                 type="number"
                 name="salary_max"
                 value={hiring.salary_max}
                 onChange={handleHiringChange}
-                required
                 min="0"
-                placeholder="120000"
+                placeholder="不填默认：0"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">职位描述 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 / 职位描述 *</label>
             <textarea
               name="description"
               value={hiring.description}
               onChange={handleHiringChange}
               required
-              rows={5}
-              placeholder="请描述职位要求、工作内容、福利待遇等信息"
+              rows={6}
+              placeholder="请写清楚：招聘岗位、要求、待遇、联系方式等（可只写一段内容）"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
             />
           </div>
         </>
       ) : (
         <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">姓名/称呼</label>
+            <input
+              type="text"
+              name="display_name"
+              value={seeking.display_name}
+              onChange={handleSeekingChange}
+              placeholder="例：Jackie / 王女士（可不填）"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">姓名/称呼 *</label>
-              <input
-                type="text"
-                name="display_name"
-                value={seeking.display_name}
-                onChange={handleSeekingChange}
-                required
-                placeholder="例：Jackie / 王女士"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">期望岗位 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">期望岗位</label>
               <input
                 type="text"
                 name="desired_role"
                 value={seeking.desired_role}
                 onChange={handleSeekingChange}
-                required
-                placeholder="例：前端工程师 / 会计"
+                placeholder="不填默认：求职"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">所在地区 *</label>
-            <input
-              type="text"
-              name="region"
-              value={seeking.region}
-              onChange={handleSeekingChange}
-              required
-              placeholder="例：纽约 / 新泽西 / 远程"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">所在地区</label>
+              <input
+                type="text"
+                name="region"
+                value={seeking.region}
+                onChange={handleSeekingChange}
+                placeholder="不填默认：-"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,7 +371,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
                 name="experience"
                 value={seeking.experience}
                 onChange={handleSeekingChange}
-                placeholder="例：3年 / 应届"
+                placeholder="例：3年 / 应届（可不填）"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
@@ -372,34 +382,33 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
                 name="availability"
                 value={seeking.availability}
                 onChange={handleSeekingChange}
-                placeholder="例：随时 / 两周后"
+                placeholder="例：随时 / 两周后（可不填）"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">联系方式 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
             <input
               type="text"
               name="contact"
               value={seeking.contact}
               onChange={handleSeekingChange}
-              required
-              placeholder="例：微信 / 电话 / 邮箱"
+              placeholder="例：微信 / 电话 / 邮箱（可不填）"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">个人简介 *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 / 个人简介 *</label>
             <textarea
               name="bio"
               value={seeking.bio}
               onChange={handleSeekingChange}
               required
-              rows={6}
-              placeholder="简单介绍技能、经历、求职意向等"
+              rows={7}
+              placeholder="简单介绍技能、经历、求职意向等（可只写一段内容）"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
             />
             <p className="mt-2 text-xs text-gray-400">
