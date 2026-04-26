@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
-import type { JobPostingType } from '@/types'
+import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
 
@@ -31,6 +31,7 @@ interface SeekingFormData {
 
 interface Props {
   initialType?: JobPostingType
+  editJob?: JobPosting | null
 }
 
 function line(label: string, value: string) {
@@ -58,8 +59,9 @@ function safeNumber(s: string): number {
   return Number.isFinite(n) ? n : 0
 }
 
-export default function JobForm({ initialType = 'hiring' }: Props) {
+export default function JobForm({ initialType = 'hiring', editJob = null }: Props) {
   const router = useRouter()
+  const isEditing = !!editJob
 
   const defaultJobType = useMemo(() => {
     // For DB NOT NULL safety, prefer “其他”
@@ -98,6 +100,36 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Edit mode: use DB job.type and prefill fields
+  useEffect(() => {
+    if (!editJob) return
+
+    const t: JobPostingType = editJob.type === 'seeking' ? 'seeking' : 'hiring'
+    setMode(t)
+
+    if (t === 'hiring') {
+      setHiring({
+        title: editJob.title ?? '',
+        company: editJob.company ?? '',
+        description: editJob.description ?? '',
+        salary_min: String(editJob.salary_min ?? 0),
+        salary_max: String(editJob.salary_max ?? 0),
+        location: editJob.location ?? '',
+        job_type: editJob.job_type ?? defaultJobType,
+        category: editJob.category ?? defaultCategory,
+      })
+    } else {
+      // We can't reliably parse structured fields back from description.
+      // Keep lightweight UX: prefill required content field from existing description.
+      setSeeking((prev) => ({
+        ...prev,
+        desired_role: editJob.title ?? '',
+        region: editJob.location ?? '',
+        bio: editJob.description ?? '',
+      }))
+    }
+  }, [editJob, defaultJobType, defaultCategory])
+
   const handleHiringChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -135,7 +167,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
             job_type: hiring.job_type?.trim() || defaultJobType,
             category: hiring.category?.trim() || defaultCategory,
             status: 'published' as const,
-            views: 0,
+            views: editJob?.views ?? 0,
             user_id: user.id,
           }
         : {
@@ -143,14 +175,14 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
             // Existing seeking placeholders
             title: seeking.desired_role.trim() || '求职',
             company: '个人求职',
-            description: buildSeekingDescription(seeking),
+            description: isEditing ? seeking.bio.trim() : buildSeekingDescription(seeking),
             salary_min: 0,
             salary_max: 0,
             location: seeking.region.trim() || '-',
             job_type: defaultJobType,
             category: defaultCategory,
             status: 'published' as const,
-            views: 0,
+            views: editJob?.views ?? 0,
             user_id: user.id,
           }
 
@@ -159,6 +191,23 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
     if (!contentOk) {
       setError('请填写信息内容')
       setLoading(false)
+      return
+    }
+
+    if (isEditing && editJob) {
+      const { error: updateError } = await supabase
+        .from('job_postings')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', editJob.id)
+        .eq('user_id', user.id)
+
+      if (updateError) {
+        setError('保存失败，请重试')
+        setLoading(false)
+        return
+      }
+
+      router.push('/profile/my-jobs')
       return
     }
 
@@ -188,6 +237,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
           <button
             type="button"
             onClick={() => setMode('hiring')}
+            disabled={isEditing}
             className={
               mode === 'hiring'
                 ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
@@ -199,6 +249,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
           <button
             type="button"
             onClick={() => setMode('seeking')}
+            disabled={isEditing}
             className={
               mode === 'seeking'
                 ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
@@ -423,7 +474,7 @@ export default function JobForm({ initialType = 'hiring' }: Props) {
         disabled={loading}
         className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
       >
-        {loading ? '发布中...' : '发布'}
+        {loading ? (isEditing ? '保存中...' : '发布中...') : isEditing ? '保存修改' : '发布'}
       </button>
     </form>
   )
