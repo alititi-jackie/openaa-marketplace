@@ -7,7 +7,7 @@ import NewsSection from '@/components/NewsSection'
 export default function HomePage() {
   return (
     <div className="bg-white">
-      <AppTopSection />
+      <AppTopSection bannerPosition="home" />
 
       {/* 8-grid quick-access menu — sits on a zinc-50 band */}
       <GridMenu />
