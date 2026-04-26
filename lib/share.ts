@@ -3,19 +3,27 @@
 export const OPENAA_SHARE_URL = 'https://openaa.com'
 export const OPENAA_SHARE_TITLE = 'OpenAA 美国华人生活平台'
 
+type ShareNav = {
+  share?: (data: { title?: string; text?: string; url?: string }) => Promise<void>
+  clipboard?: { writeText?: (text: string) => Promise<void> }
+}
+
 export async function shareOpenAA(): Promise<'shared' | 'copied' | 'unsupported'> {
   const url = OPENAA_SHARE_URL
   const title = OPENAA_SHARE_TITLE
 
-  const nav = typeof window !== 'undefined' ? window.navigator : undefined
+  const nav: ShareNav | undefined = typeof window !== 'undefined'
+    ? (window.navigator as unknown as ShareNav)
+    : undefined
 
   try {
-    if (nav && 'share' in nav) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (nav as any).share({ title, url })
+    // native share first
+    if (nav?.share) {
+      await nav.share({ title, url })
       return 'shared'
     }
 
+    // fallback clipboard
     if (nav?.clipboard?.writeText) {
       await nav.clipboard.writeText(url)
       return 'copied'
