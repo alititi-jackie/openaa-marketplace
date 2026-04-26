@@ -4,8 +4,40 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import JobCard from '@/components/JobCard'
 import type { JobPosting } from '@/types'
+
+function formatDate(s: string) {
+  try {
+    return new Date(s).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  } catch {
+    return s
+  }
+}
+
+function jobTypeLabel(t?: string) {
+  return t === 'seeking' ? '求职' : '招聘'
+}
+
+function jobTypeBadgeClass(t?: string) {
+  return t === 'seeking'
+    ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
+    : 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
+}
+
+function displaySalary(job: JobPosting) {
+  const min = Number(job.salary_min ?? 0)
+  const max = Number(job.salary_max ?? 0)
+
+  if (!Number.isFinite(min) || !Number.isFinite(max) || (min <= 0 && max <= 0)) return '薪资面议'
+  if (min > 0 && max <= 0) return `$${min}+`
+  if (max > 0 && min <= 0) return `≤ $${max}`
+  if (min === max) return `$${min}`
+  return `$${min} - $${max}`
+}
 
 export default function MyJobsPage() {
   const router = useRouter()
@@ -63,43 +95,62 @@ export default function MyJobsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-5">
         <h1 className="text-2xl font-bold text-gray-900">我的招聘</h1>
-        <Link
-          href="/jobs/publish"
-          className="bg-[#1976d2] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#1565c0] transition"
-        >
-          + 发布职位
-        </Link>
+        <p className="text-sm text-gray-500 mt-1">管理您发布的招聘岗位与求职信息</p>
       </div>
 
       {jobs.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
           <div className="text-4xl mb-3">💼</div>
-          <p>还没有发布招聘信息</p>
-          <Link href="/jobs/publish" className="text-[#1976d2] mt-2 inline-block hover:underline">
+          <p className="text-gray-700 font-medium">你还没有发布招聘信息</p>
+          <Link
+            href="/jobs/publish"
+            className="inline-flex mt-4 bg-[#1976d2] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#1565c0] transition"
+          >
             立即发布
           </Link>
         </div>
       ) : (
         <div className="space-y-4">
           {jobs.map((job) => (
-            <div key={job.id} className="relative">
-              <JobCard job={job} />
+            <div key={job.id} className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
+                      {job.title}
+                    </h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${jobTypeBadgeClass(job.type)}`}>
+                      {jobTypeLabel(job.type)}
+                    </span>
+                    {job.job_type ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
+                        {job.job_type}
+                      </span>
+                    ) : null}
+                  </div>
 
-              <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                    <span>💰 {displaySalary(job)}</span>
+                    {job.location ? <span>📍 {job.location}</span> : null}
+                    <span>🕒 {formatDate(job.created_at)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center gap-2">
                 <Link
                   href={`/jobs/publish?edit=${job.id}`}
-                  className="bg-white/90 text-gray-700 rounded-full px-2 py-1 text-xs ring-1 ring-gray-200 hover:bg-white"
+                  className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-zinc-800 ring-1 ring-zinc-300 bg-white hover:bg-zinc-50 transition"
                 >
                   编辑
                 </Link>
                 <button
                   onClick={() => handleDelete(job.id)}
-                  className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-                  aria-label="delete"
+                  className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-red-600 ring-1 ring-red-200 bg-red-50 hover:bg-red-100 transition"
                 >
-                  ×
+                  删除
                 </button>
               </div>
             </div>
