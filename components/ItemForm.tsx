@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
-import type { SecondhandItemType } from '@/types'
+import type { SecondhandItemType, SecondhandItem } from '@/types'
 
 const SECONDHAND_LOCATIONS = [
   '其它地区',
@@ -28,6 +28,7 @@ type SecondhandLocation = (typeof SECONDHAND_LOCATIONS)[number]
 
 interface Props {
   initialType?: SecondhandItemType
+  editItem?: SecondhandItem | null
 }
 
 interface SellingFormData {
@@ -63,6 +64,50 @@ function getFileExtFromType(mimeType: string) {
   return 'jpg'
 }
 
+function parseLocationFromDescription(description: string): SecondhandLocation {
+  const lines = (description || '').split('\n')
+  for (const line of lines) {
+    const m = line.match(/^所在地区[:：]\s*(.+)\s*$/)
+    const v = m?.[1]?.trim()
+    if (v && (SECONDHAND_LOCATIONS as readonly string[]).includes(v)) return v as SecondhandLocation
+  }
+  return '其它地区'
+}
+
+function parseBudget(description: string): string {
+  const lines = (description || '').split('\n')
+  for (const line of lines) {
+    const m = line.match(/^预算范围[:：]\s*(.+)\s*$/)
+    if (m && m[1]) return m[1].trim()
+  }
+  return ''
+}
+
+function parseContact(description: string): string {
+  const lines = (description || '').split('\n')
+  for (const line of lines) {
+    const m = line.match(/^联系方式[:：]\s*(.+)\s*$/)
+    if (m && m[1]) return m[1].trim()
+  }
+  return ''
+}
+
+function stripMetaLines(description: string) {
+  // Remove formatted meta lines (location/budget/contact) and headings to prefill textarea cleanly
+  const lines = (description || '').split('\n')
+  const filtered = lines.filter((l) => {
+    const line = l.trim()
+    if (!line) return true
+    if (line === '【求购信息】') return false
+    if (line.startsWith('求购物品：')) return false
+    if (line.startsWith('所在地区：') || line.startsWith('所在地区:')) return false
+    if (line.startsWith('预算范围：') || line.startsWith('预算范围:')) return false
+    if (line.startsWith('联系方式：') || line.startsWith('联系方式:')) return false
+    return true
+  })
+  return filtered.join('\n').trim()
+}
+
 function formatBuyingDescription(input: BuyingFormData) {
   const lines: string[] = []
   lines.push('【求购信息】')
@@ -79,8 +124,6 @@ function formatBuyingDescription(input: BuyingFormData) {
 }
 
 function formatSellingDescription(location: SecondhandLocation, description: string) {
-  // secondhand_items currently has no location column in schema docs,
-  // so store as a formatted line in description for compatibility.
   const lines: string[] = []
   if (location) lines.push(`所在地区：${location}`)
   lines.push('')
@@ -88,34 +131,41 @@ function formatSellingDescription(location: SecondhandLocation, description: str
   return lines.join('\n').trim()
 }
 
-export default function ItemForm({ initialType }: Props) {
+export default function ItemForm({ initialType, editItem }: Props) {
   const router = useRouter()
 
   const defaultType: SecondhandItemType = useMemo(() => {
+    if (editItem?.type) return editItem.type
     return initialType === 'buying' ? 'buying' : 'selling'
-  }, [initialType])
+  }, [initialType, editItem?.type])
 
   const [mode, setMode] = useState<SecondhandItemType>(defaultType)
 
-  const [selling, setSelling] = useState<SellingFormData>({
-    title: '',
-    category: pickDefaultCategory(),
-    price: '',
-    description: '',
-    location: '其它地区',
-  })
+  const isEdit = !!editItem
+  const initialLocation = editItem ? parseLocationFromDescription(editItem.description) : '其它地区'
 
-  const [buying, setBuying] = useState<BuyingFormData>({
-    want: '',
-    budget: '',
-    contact: '',
-    description: '',
-    location: '其它地区',
-  })
+  const [selling, setSelling] = useState<SellingFormData>(() => ({
+    title: editItem?.type !== 'buying' ? editItem?.title || '' : '',
+    category: editItem?.type !== 'buying' ? (editItem?.category || pickDefaultCategory()) : pickDefaultCategory(),
+    price: editItem?.type !== 'buying' ? String(editItem?.price ?? '') : '',
+    description: editItem?.type !== 'buying' ? stripMetaLines(editItem?.description || '') : '',
+    location: initialLocation,
+  }))
+
+  const [buying, setBuying] = useState<BuyingFormData>(() => ({
+    want: editItem?.type === 'buying' ? (editItem?.title || '') : '',
+    budget: editItem?.type === 'buying' ? parseBudget(editItem?.description || '') : '',
+    contact: editItem?.type === 'buying' ? parseContact(editItem?.description || '') : '',
+    description: editItem?.type === 'buying' ? stripMetaLines(editItem?.description || '') : '',
+    location: initialLocation,
+  }))
 
   // Optional image upload
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>('')
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>(() => {
+    const existing = editItem?.images?.[0]
+    return existing || ''
+  })
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -166,17 +216,16 @@ export default function ItemForm({ initialType }: Props) {
       uploadedImageUrl = publicData?.publicUrl || ''
     }
 
-    const images = uploadedImageUrl ? [uploadedImageUrl] : []
+    const images = uploadedImageUrl
+      ? [uploadedImageUrl]
+      : isEdit
+        ? (editItem?.images || [])
+        : []
 
     const title =
-      mode === 'buying'
-        ? (buying.want.trim() || '求购')
-        : (selling.title.trim() || '二手商品')
+      mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'
 
-    const category =
-      mode === 'buying'
-        ? pickDefaultCategory()
-        : (selling.category?.trim() || pickDefaultCategory())
+    const category = mode === 'buying' ? pickDefaultCategory() : selling.category?.trim() || pickDefaultCategory()
 
     const price = mode === 'buying' ? 0 : safeNumber(selling.price)
 
@@ -185,17 +234,38 @@ export default function ItemForm({ initialType }: Props) {
         ? formatBuyingDescription(buying)
         : formatSellingDescription(selling.location, selling.description)
 
+    const payload = {
+      type: mode,
+      title,
+      description,
+      price,
+      category,
+      images,
+      status: 'published' as const,
+    }
+
+    if (isEdit && editItem) {
+      const { error: updateError } = await supabase
+        .from('secondhand_items')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', editItem.id)
+        .eq('user_id', user.id)
+
+      if (updateError) {
+        setError(`保存失败：${updateError.message}`)
+        setLoading(false)
+        return
+      }
+
+      router.push('/profile/my-items')
+      return
+    }
+
     const { data, error } = await supabase
       .from('secondhand_items')
       .insert({
+        ...payload,
         user_id: user.id,
-        type: mode,
-        title,
-        description,
-        price,
-        category,
-        images,
-        status: 'published',
         views: 0,
       })
       .select()
@@ -222,10 +292,11 @@ export default function ItemForm({ initialType }: Props) {
           <button
             type="button"
             onClick={() => setMode('selling')}
+            disabled={isEdit}
             className={
               mode === 'selling'
-                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
-                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900'
+                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm disabled:opacity-50'
+                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
             }
           >
             我要出售
@@ -233,15 +304,19 @@ export default function ItemForm({ initialType }: Props) {
           <button
             type="button"
             onClick={() => setMode('buying')}
+            disabled={isEdit}
             className={
               mode === 'buying'
-                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
-                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900'
+                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm disabled:opacity-50'
+                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
             }
           >
             我要求购
           </button>
         </div>
+        {isEdit && (
+          <p className="mt-2 text-xs text-gray-400">编辑模式下不支持切换类型（出售/求购）。</p>
+        )}
       </div>
 
       {/* Location select (both modes) */}
@@ -273,18 +348,14 @@ export default function ItemForm({ initialType }: Props) {
           onChange={(e) => {
             const f = e.target.files?.[0] || null
             setImageFile(f)
-            setImagePreviewUrl(f ? URL.createObjectURL(f) : '')
+            setImagePreviewUrl(f ? URL.createObjectURL(f) : (editItem?.images?.[0] || ''))
           }}
           className="w-full text-sm text-gray-600"
         />
         {imagePreviewUrl && (
           <div className="mt-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imagePreviewUrl}
-              alt="preview"
-              className="h-24 w-24 object-cover rounded-lg border"
-            />
+            <img src={imagePreviewUrl} alt="preview" className="h-24 w-24 object-cover rounded-lg border" />
           </div>
         )}
       </div>
@@ -347,7 +418,7 @@ export default function ItemForm({ initialType }: Props) {
             disabled={loading}
             className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
           >
-            {loading ? '发布中...' : '发布商品'}
+            {loading ? '保存中...' : (isEdit ? '保存修改' : '发布商品')}
           </button>
         </>
       ) : (
@@ -402,7 +473,7 @@ export default function ItemForm({ initialType }: Props) {
             disabled={loading}
             className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
           >
-            {loading ? '发布中...' : '发布求购'}
+            {loading ? '保存中...' : (isEdit ? '保存修改' : '发布求购')}
           </button>
         </>
       )}
