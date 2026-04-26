@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { HousingPostType } from '@/types'
@@ -36,7 +36,7 @@ function safeNumber(s: string): number {
   return Number.isFinite(n) ? n : 0
 }
 
-export default function HousingPublishPage() {
+function HousingPublishClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -232,5 +232,13 @@ export default function HousingPublishPage() {
         </button>
       </form>
     </div>
+  )
+}
+
+export default function HousingPublishPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20 text-gray-500">加载中...</div>}>
+      <HousingPublishClient />
+    </Suspense>
   )
 }
