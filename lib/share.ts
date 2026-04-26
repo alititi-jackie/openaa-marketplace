@@ -7,15 +7,17 @@ export async function shareOpenAA(): Promise<'shared' | 'copied' | 'unsupported'
   const url = OPENAA_SHARE_URL
   const title = OPENAA_SHARE_TITLE
 
+  const nav = typeof window !== 'undefined' ? window.navigator : undefined
+
   try {
-    if (typeof navigator !== 'undefined' && 'share' in navigator) {
+    if (nav && 'share' in nav) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (navigator as any).share({ title, url })
+      await (nav as any).share({ title, url })
       return 'shared'
     }
 
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url)
+    if (nav?.clipboard?.writeText) {
+      await nav.clipboard.writeText(url)
       return 'copied'
     }
 
@@ -37,8 +39,8 @@ export async function shareOpenAA(): Promise<'shared' | 'copied' | 'unsupported'
   } catch {
     // If share failed (user canceled or error), try clipboard
     try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url)
+      if (nav?.clipboard?.writeText) {
+        await nav.clipboard.writeText(url)
         return 'copied'
       }
     } catch {
