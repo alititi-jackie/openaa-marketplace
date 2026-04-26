@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import JobForm from '@/components/JobForm'
@@ -10,7 +10,7 @@ function normalizeType(v: string | null): JobPostingType {
   return v === 'seeking' ? 'seeking' : 'hiring'
 }
 
-export default function PublishJobPage() {
+function PublishJobPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialType = useMemo(() => normalizeType(searchParams.get('type')), [searchParams])
@@ -31,5 +31,13 @@ export default function PublishJobPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">发布信息</h1>
       <JobForm initialType={initialType} />
     </div>
+  )
+}
+
+export default function PublishJobPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20 text-gray-500">加载中...</div>}>
+      <PublishJobPageInner />
+    </Suspense>
   )
 }
