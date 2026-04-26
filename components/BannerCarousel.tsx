@@ -35,10 +35,6 @@ export default function BannerCarousel({ position = 'home' }: Props) {
     fetch(`/api/ads?position=${position}`)
       .then((res) => res.json())
       .then((json) => {
-        // Temporary debug for production verification
-        // eslint-disable-next-line no-console
-        console.log('ads response', position, json)
-
         if (Array.isArray(json.data) && json.data.length > 0) {
           const filtered = json.data.filter((s: AdSlide) => normalizeImageUrl(s?.image_url))
           setSlides(filtered)
