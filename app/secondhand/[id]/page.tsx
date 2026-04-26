@@ -7,6 +7,15 @@ import { supabase } from '@/lib/supabase'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
 
+function parseBudget(description: string): string | null {
+  const lines = (description || '').split('\n')
+  for (const line of lines) {
+    const m = line.match(/^预算范围[:：]\s*(.+)\s*$/)
+    if (m && m[1]) return m[1].trim()
+  }
+  return null
+}
+
 export default function SecondhandDetailPage() {
   const { id } = useParams()
   const router = useRouter()
@@ -36,6 +45,9 @@ export default function SecondhandDetailPage() {
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
   if (!item) return <div className="flex justify-center py-20 text-gray-500">商品不存在</div>
 
+  const isBuying = item.type === 'buying'
+  const budget = isBuying ? parseBudget(item.description) : null
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
@@ -45,19 +57,23 @@ export default function SecondhandDetailPage() {
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {item.images && item.images.length > 0 ? (
           <div className="relative h-64 md:h-96">
-            <Image
-              src={item.images[0]}
-              alt={item.title}
-              fill
-              className="object-cover"
-            />
+            <Image src={item.images[0]} alt={item.title} fill className="object-cover" />
+            {isBuying && (
+              <div className="absolute top-3 left-3">
+                <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded font-semibold">
+                  求购
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="h-64 bg-gray-100 flex items-center justify-center text-6xl">🛍️</div>
         )}
 
         <div className="p-6">
-          <p className="text-2xl font-bold text-[#1976d2]">{formatPrice(item.price)}</p>
+          <p className="text-2xl font-bold text-[#1976d2]">
+            {isBuying ? `预算：${budget || '面议'}` : formatPrice(item.price)}
+          </p>
           <h1 className="text-xl font-semibold text-gray-900 mt-2">{item.title}</h1>
 
           <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
@@ -76,9 +92,7 @@ export default function SecondhandDetailPage() {
               {item.user?.username?.[0]?.toUpperCase() ?? '?'}
             </div>
             <div>
-              <p className="font-medium text-gray-900">
-                {item.user?.username ?? '匿名用户'}
-              </p>
+              <p className="font-medium text-gray-900">{item.user?.username ?? '匿名用户'}</p>
               <p className="text-xs text-gray-500">发布者</p>
             </div>
           </div>
