@@ -6,6 +6,26 @@ import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import type { SecondhandItemType } from '@/types'
 
+const SECONDHAND_LOCATIONS = [
+  '其它地区',
+  '法拉盛',
+  '布鲁克林',
+  '曼哈顿',
+  '皇后区',
+  '布朗士',
+  '长岛',
+  '新泽西',
+  '史丹顿岛',
+  '纽约上州',
+  '费城',
+  '波士顿',
+  '洛杉矶',
+  '旧金山',
+  '芝加哥',
+] as const
+
+type SecondhandLocation = (typeof SECONDHAND_LOCATIONS)[number]
+
 interface Props {
   initialType?: SecondhandItemType
 }
@@ -15,14 +35,15 @@ interface SellingFormData {
   category: string
   price: string
   description: string
+  location: SecondhandLocation
 }
 
 interface BuyingFormData {
   want: string
-  region: string
   budget: string
   contact: string
   description: string
+  location: SecondhandLocation
 }
 
 function pickDefaultCategory() {
@@ -47,7 +68,7 @@ function formatBuyingDescription(input: BuyingFormData) {
   lines.push('【求购信息】')
 
   if (input.want.trim()) lines.push(`求购物品：${input.want.trim()}`)
-  if (input.region.trim()) lines.push(`所在地区：${input.region.trim()}`)
+  if (input.location) lines.push(`所在地区：${input.location}`)
   if (input.budget.trim()) lines.push(`预算范围：${input.budget.trim()}`)
   if (input.contact.trim()) lines.push(`联系方式：${input.contact.trim()}`)
 
@@ -55,6 +76,16 @@ function formatBuyingDescription(input: BuyingFormData) {
   lines.push(input.description.trim())
 
   return lines.join('\n')
+}
+
+function formatSellingDescription(location: SecondhandLocation, description: string) {
+  // secondhand_items currently has no location column in schema docs,
+  // so store as a formatted line in description for compatibility.
+  const lines: string[] = []
+  if (location) lines.push(`所在地区：${location}`)
+  lines.push('')
+  lines.push(description.trim())
+  return lines.join('\n').trim()
 }
 
 export default function ItemForm({ initialType }: Props) {
@@ -71,14 +102,15 @@ export default function ItemForm({ initialType }: Props) {
     category: pickDefaultCategory(),
     price: '',
     description: '',
+    location: '其它地区',
   })
 
   const [buying, setBuying] = useState<BuyingFormData>({
     want: '',
-    region: '',
     budget: '',
     contact: '',
     description: '',
+    location: '其它地区',
   })
 
   // Optional image upload
@@ -115,8 +147,7 @@ export default function ItemForm({ initialType }: Props) {
       const ext = getFileExtFromType(imageFile.type)
       const filePath = `${user.id}/${Date.now()}.${ext}`
 
-      const { error: uploadError } = await supabase
-        .storage
+      const { error: uploadError } = await supabase.storage
         .from('item-images')
         .upload(filePath, imageFile, {
           cacheControl: '3600',
@@ -130,9 +161,7 @@ export default function ItemForm({ initialType }: Props) {
         return
       }
 
-      const { data: publicData } = supabase.storage
-        .from('item-images')
-        .getPublicUrl(filePath)
+      const { data: publicData } = supabase.storage.from('item-images').getPublicUrl(filePath)
 
       uploadedImageUrl = publicData?.publicUrl || ''
     }
@@ -152,7 +181,9 @@ export default function ItemForm({ initialType }: Props) {
     const price = mode === 'buying' ? 0 : safeNumber(selling.price)
 
     const description =
-      mode === 'buying' ? formatBuyingDescription(buying) : selling.description.trim()
+      mode === 'buying'
+        ? formatBuyingDescription(buying)
+        : formatSellingDescription(selling.location, selling.description)
 
     const { data, error } = await supabase
       .from('secondhand_items')
@@ -178,6 +209,8 @@ export default function ItemForm({ initialType }: Props) {
 
     router.push(`/secondhand/${data.id}`)
   }
+
+  const locationValue = mode === 'buying' ? buying.location : selling.location
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
@@ -209,6 +242,26 @@ export default function ItemForm({ initialType }: Props) {
             我要求购
           </button>
         </div>
+      </div>
+
+      {/* Location select (both modes) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">所在地区</label>
+        <select
+          value={locationValue}
+          onChange={(e) => {
+            const val = e.target.value as SecondhandLocation
+            if (mode === 'buying') setBuying((p) => ({ ...p, location: val }))
+            else setSelling((p) => ({ ...p, location: val }))
+          }}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+        >
+          {SECONDHAND_LOCATIONS.map((loc) => (
+            <option key={loc} value={loc}>
+              {loc}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Optional image upload */}
@@ -306,17 +359,6 @@ export default function ItemForm({ initialType }: Props) {
               value={buying.want}
               onChange={(e) => setBuying((p) => ({ ...p, want: e.target.value }))}
               placeholder="例：二手自行车"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">所在地区</label>
-            <input
-              type="text"
-              value={buying.region}
-              onChange={(e) => setBuying((p) => ({ ...p, region: e.target.value }))}
-              placeholder="例：San Jose, CA"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
             />
           </div>
