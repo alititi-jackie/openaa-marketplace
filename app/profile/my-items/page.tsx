@@ -6,6 +6,15 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { SecondhandItem } from '@/types'
 
+type ItemWithOptionalLocation = SecondhandItem & {
+  location?: string | null
+}
+
+function getItemLocation(item: SecondhandItem): string {
+  const location = (item as ItemWithOptionalLocation).location
+  return typeof location === 'string' ? location.trim() : ''
+}
+
 function formatDate(s: string) {
   try {
     return new Date(s).toLocaleDateString('zh-CN', {
@@ -108,50 +117,54 @@ export default function MyItemsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl shadow-sm p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[420px]">
-                      {item.title}
-                    </h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(item.type)}`}>
-                      {typeLabel(item.type)}
-                    </span>
-                    {item.category ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
-                        {item.category}
+          {items.map((item) => {
+            const loc = getItemLocation(item)
+
+            return (
+              <div key={item.id} className="bg-white rounded-2xl shadow-sm p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[420px]">
+                        {item.title}
+                      </h3>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(item.type)}`}
+                      >
+                        {typeLabel(item.type)}
                       </span>
-                    ) : null}
+                      {item.category ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
+                          {item.category}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                      <span>💰 {displayPrice(item)}</span>
+                      <span>🕒 {formatDate(item.created_at)}</span>
+                      {loc ? <span>📍 {loc}</span> : null}
+                    </div>
                   </div>
 
-                  <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-                    <span>💰 {displayPrice(item)}</span>
-                    <span>🕒 {formatDate(item.created_at)}</span>
-                    {'location' in (item as any) && (item as any).location ? (
-                      <span>📍 {(item as any).location}</span>
-                    ) : null}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      href={`/secondhand/publish?edit=${item.id}`}
+                      className="px-3 py-1.5 rounded-lg text-sm bg-zinc-50 hover:bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200 transition"
+                    >
+                      编辑
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="px-3 py-1.5 rounded-lg text-sm bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-red-200 transition"
+                    >
+                      删除
+                    </button>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <Link
-                    href={`/secondhand/publish?edit=${item.id}`}
-                    className="px-3 py-1.5 rounded-lg text-sm bg-zinc-50 hover:bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200 transition"
-                  >
-                    编辑
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="px-3 py-1.5 rounded-lg text-sm bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-red-200 transition"
-                  >
-                    删除
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
