@@ -1,13 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ItemForm from '@/components/ItemForm'
+import type { SecondhandItemType } from '@/types'
+
+function normalizeType(t: string | null): SecondhandItemType {
+  return t === 'buying' ? 'buying' : 'selling'
+}
 
 export default function PublishItemPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [checking, setChecking] = useState(true)
+
+  const initialType = useMemo(() => {
+    return normalizeType(searchParams.get('type'))
+  }, [searchParams])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -20,8 +30,10 @@ export default function PublishItemPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">发布二手商品</h1>
-      <ItemForm />
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        {initialType === 'buying' ? '发布求购信息' : '发布二手商品'}
+      </h1>
+      <ItemForm initialType={initialType} />
     </div>
   )
 }
