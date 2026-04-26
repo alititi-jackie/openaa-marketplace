@@ -107,12 +107,12 @@ export default function MyItemsPage() {
       {items.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
           <div className="text-4xl mb-3">🛍️</div>
-          <p className="text-gray-700 font-medium">暂无发布的二手信息</p>
+          <p className="text-gray-700 font-medium">你还没有发布商品</p>
           <Link
             href="/secondhand/publish"
             className="inline-flex mt-4 bg-[#1976d2] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#1565c0] transition"
           >
-            去发布二手
+            立即发布
           </Link>
         </div>
       ) : (
@@ -121,11 +121,14 @@ export default function MyItemsPage() {
             const loc = getItemLocation(item)
 
             return (
-              <div key={item.id} className="bg-white rounded-2xl shadow-sm p-4">
+              <div
+                key={item.id}
+                className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[420px]">
+                      <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
                         {item.title}
                       </h3>
                       <span
@@ -142,25 +145,25 @@ export default function MyItemsPage() {
 
                     <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
                       <span>💰 {displayPrice(item)}</span>
-                      <span>🕒 {formatDate(item.created_at)}</span>
                       {loc ? <span>📍 {loc}</span> : null}
+                      <span>🕒 {formatDate(item.created_at)}</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Link
-                      href={`/secondhand/publish?edit=${item.id}`}
-                      className="px-3 py-1.5 rounded-lg text-sm bg-zinc-50 hover:bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200 transition"
-                    >
-                      编辑
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="px-3 py-1.5 rounded-lg text-sm bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-red-200 transition"
-                    >
-                      删除
-                    </button>
-                  </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <Link
+                    href={`/secondhand/publish?edit=${item.id}`}
+                    className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-zinc-800 ring-1 ring-zinc-300 bg-white hover:bg-zinc-50 transition"
+                  >
+                    编辑
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-red-600 ring-1 ring-red-200 bg-red-50 hover:bg-red-100 transition"
+                  >
+                    删除
+                  </button>
                 </div>
               </div>
             )
