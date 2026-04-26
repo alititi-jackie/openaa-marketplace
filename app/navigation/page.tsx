@@ -33,7 +33,7 @@ export default function NavigationPage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Top section identical to homepage (includes banner + homepage-style search bar) */}
-      <AppTopSection />
+      <AppTopSection bannerPosition="navigation" />
 
       <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-16">
         {/* Categories */}
