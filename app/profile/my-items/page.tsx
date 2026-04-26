@@ -14,8 +14,13 @@ export default function MyItemsPage() {
 
   useEffect(() => {
     const fetchItems = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/auth/login'); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
 
       const { data } = await supabase
         .from('secondhand_items')
@@ -31,8 +36,27 @@ export default function MyItemsPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('确认删除此商品？')) return
-    await supabase.from('secondhand_items').delete().eq('id', id)
-    setItems(prev => prev.filter(item => item.id !== id))
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    const { error } = await supabase
+      .from('secondhand_items')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      alert(`删除失败：${error.message}`)
+      return
+    }
+
+    setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
@@ -59,15 +83,25 @@ export default function MyItemsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {items.map(item => (
+          {items.map((item) => (
             <div key={item.id} className="relative">
               <SecondhandCard item={item} />
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-              >
-                ×
-              </button>
+
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Link
+                  href={`/secondhand/publish?edit=${item.id}`}
+                  className="bg-white/90 text-gray-700 rounded-full px-2 py-1 text-xs ring-1 ring-gray-200 hover:bg-white"
+                >
+                  编辑
+                </Link>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                  aria-label="delete"
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))}
         </div>
