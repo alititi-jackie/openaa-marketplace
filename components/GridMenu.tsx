@@ -54,7 +54,7 @@ const menuItems = [
   {
     label: '导航',
     Icon: Navigation,
-    href: '/links',
+    href: '/navigation',
     bg: 'bg-cyan-50',
     color: 'text-cyan-500',
     ring: 'ring-cyan-100',
