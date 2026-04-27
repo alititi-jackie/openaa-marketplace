@@ -7,7 +7,7 @@ import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
-type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation'
+type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing'
 
 interface Props {
   position?: BannerPosition
