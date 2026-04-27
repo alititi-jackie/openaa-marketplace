@@ -27,21 +27,27 @@ create table if not exists public.housing_posts (
 alter table public.housing_posts enable row level security;
 
 -- Policies
+-- Supabase/Postgres does not support: create policy if not exists
+-- Use a safe drop+create pattern.
+
 -- 1) Public can read published housing posts
-create policy if not exists "Public can read published housing posts"
+drop policy if exists "Public can read published housing posts" on public.housing_posts;
+create policy "Public can read published housing posts"
   on public.housing_posts
   for select
   using (status = 'published');
 
 -- 2) Authenticated users can insert own posts
-create policy if not exists "Users can insert own housing posts"
+drop policy if exists "Users can insert own housing posts" on public.housing_posts;
+create policy "Users can insert own housing posts"
   on public.housing_posts
   for insert
   to authenticated
   with check (auth.uid() = user_id);
 
 -- 3) Users can update own posts
-create policy if not exists "Users can update own housing posts"
+drop policy if exists "Users can update own housing posts" on public.housing_posts;
+create policy "Users can update own housing posts"
   on public.housing_posts
   for update
   to authenticated
@@ -49,7 +55,8 @@ create policy if not exists "Users can update own housing posts"
   with check (auth.uid() = user_id);
 
 -- 4) Users can delete own posts
-create policy if not exists "Users can delete own housing posts"
+drop policy if exists "Users can delete own housing posts" on public.housing_posts;
+create policy "Users can delete own housing posts"
   on public.housing_posts
   for delete
   to authenticated
