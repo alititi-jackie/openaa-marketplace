@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import type { HousingPostType } from '@/types'
+import type { HousingPost, HousingPostType } from '@/types'
 
 const HOUSING_LOCATIONS = [
   '其它地区',
@@ -31,15 +31,26 @@ function normalizeType(v: string | null): PublishMode {
   return v === 'seeking' ? 'seeking' : 'renting'
 }
 
+function normalizeLocation(v: unknown): HousingLocation {
+  return HOUSING_LOCATIONS.includes(v as HousingLocation) ? (v as HousingLocation) : '其它地区'
+}
+
 function safeNumber(s: string): number {
   const n = parseFloat((s || '').trim())
   return Number.isFinite(n) ? n : 0
+}
+
+function parseEditId(v: string | null): number | null {
+  if (!v) return null
+  const n = parseInt(v, 10)
+  return Number.isFinite(n) && n > 0 ? n : null
 }
 
 function HousingPublishClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const editId = useMemo(() => parseEditId(searchParams.get('edit')), [searchParams])
   const initialType = useMemo(() => normalizeType(searchParams.get('type')), [searchParams])
 
   const [mode, setMode] = useState<PublishMode>(initialType)
@@ -52,13 +63,82 @@ function HousingPublishClient() {
   const [contact, setContact] = useState('')
   const [description, setDescription] = useState('')
 
+  const [checking, setChecking] = useState(true)
+  const [loadingEdit, setLoadingEdit] = useState(false)
+  const [editPost, setEditPost] = useState<HousingPost | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Keep query-driven initial mode in sync on first load
+  const isEditing = !!editPost
+
   useEffect(() => {
-    setMode(initialType)
-  }, [initialType])
+    let cancelled = false
+
+    const run = async () => {
+      setError('')
+      setEditPost(null)
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
+
+      if (!editId) {
+        if (!cancelled) {
+          setMode(initialType)
+          setChecking(false)
+        }
+        return
+      }
+
+      if (!cancelled) {
+        setLoadingEdit(true)
+        setChecking(false)
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from('housing_posts')
+        .select('*')
+        .eq('id', editId)
+        .single()
+
+      if (cancelled) return
+
+      if (fetchError || !data) {
+        setError('信息不存在或已被删除')
+        setLoadingEdit(false)
+        return
+      }
+
+      if (data.user_id !== user.id) {
+        setError('无权限编辑该信息')
+        setLoadingEdit(false)
+        return
+      }
+
+      // Prefill form fields
+      setMode(normalizeType(data.type))
+      setTitle(data.title || '')
+      setLocation(normalizeLocation(data.location))
+      setPrice(data.price > 0 ? String(data.price) : '')
+      setRoomType(data.room_type === '-' ? '' : (data.room_type || ''))
+      setContact(data.contact === '-' ? '' : (data.contact || ''))
+      setDescription(data.description || '')
+
+      setEditPost(data as HousingPost)
+      setLoadingEdit(false)
+    }
+
+    run()
+
+    return () => {
+      cancelled = true
+    }
+  }, [router, editId, initialType])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,6 +158,36 @@ function HousingPublishClient() {
 
     if (!user) {
       router.push('/auth/login')
+      return
+    }
+
+    if (isEditing && editPost) {
+      const updatePayload = {
+        type: mode,
+        title: title.trim() || (mode === 'seeking' ? '求租' : '房屋出租'),
+        description: content,
+        price: safeNumber(price),
+        location: location || '其它地区',
+        room_type: roomType.trim() || '-',
+        contact: contact.trim() || '-',
+        updated_at: new Date().toISOString(),
+      }
+
+      const { data: updated, error: updateError } = await supabase
+        .from('housing_posts')
+        .update(updatePayload)
+        .eq('id', editPost.id)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      if (updateError || !updated) {
+        setError('保存失败：未找到记录或无权限')
+        setLoading(false)
+        return
+      }
+
+      router.push('/profile/my-housing')
       return
     }
 
@@ -107,130 +217,143 @@ function HousingPublishClient() {
     router.push('/housing')
   }
 
+  if (checking) return <div className="flex justify-center py-20 text-gray-500">验证中...</div>
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">发布房屋</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">{editId ? '编辑房屋信息' : '发布房屋'}</h1>
 
       {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>}
 
-      {/* Mode switch */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">发布类型</label>
-        <div className="inline-flex rounded-xl bg-gray-100 p-1">
-          <button
-            type="button"
-            onClick={() => setMode('renting')}
-            className={
-              mode === 'renting'
-                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
-                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900'
-            }
-          >
-            我要出租
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('seeking')}
-            className={
-              mode === 'seeking'
-                ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm'
-                : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900'
-            }
-          >
-            我要求租
-          </button>
-        </div>
-      </div>
+      {loadingEdit ? (
+        <div className="flex justify-center py-20 text-gray-500">加载中...</div>
+      ) : error ? null : (
+        <>
+          {/* Mode switch */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">发布类型</label>
+            <div className="inline-flex rounded-xl bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => { if (!isEditing) setMode('renting') }}
+                disabled={isEditing}
+                className={
+                  mode === 'renting'
+                    ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm disabled:opacity-50'
+                    : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
+                }
+              >
+                我要出租
+              </button>
+              <button
+                type="button"
+                onClick={() => { if (!isEditing) setMode('seeking') }}
+                disabled={isEditing}
+                className={
+                  mode === 'seeking'
+                    ? 'px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm disabled:opacity-50'
+                    : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
+                }
+              >
+                我要求租
+              </button>
+            </div>
+            {isEditing && (
+              <p className="mt-2 text-xs text-gray-400">编辑模式下不支持切换类型（出租/求租）。</p>
+            )}
+          </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={mode === 'seeking' ? '不填默认：求租' : '不填默认：房屋出租'}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={mode === 'seeking' ? '不填默认：求租' : '不填默认：房屋出租'}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">地区</label>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value as HousingLocation)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">地区</label>
+                <select
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value as HousingLocation)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                >
+                  {HOUSING_LOCATIONS.map((loc) => (
+                    <option key={loc} value={loc}>
+                      {loc}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">租金 (USD)</label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  min="0"
+                  placeholder="不填默认：0（面议）"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">房型</label>
+                <input
+                  type="text"
+                  value={roomType}
+                  onChange={(e) => setRoomType(e.target.value)}
+                  placeholder="例：一室一厅 / 主卧 / 次卧（可不填）"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+                <input
+                  type="text"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="微信 / 电话 / 邮箱（可不填）"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 *</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                rows={7}
+                placeholder={
+                  mode === 'seeking'
+                    ? '请描述：期望地区、预算、入住时间、人数、需求、联系方式等（可只写一段内容）'
+                    : '请描述：地址/区域、租金、房型、入住时间、要求、联系方式等（可只写一段内容）'
+                }
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
+              />
+              <p className="mt-2 text-xs text-gray-400">提示：图片功能后续统一优化，本次可不传图。</p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
             >
-              {HOUSING_LOCATIONS.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">租金 (USD)</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              min="0"
-              placeholder="不填默认：0（面议）"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">房型</label>
-            <input
-              type="text"
-              value={roomType}
-              onChange={(e) => setRoomType(e.target.value)}
-              placeholder="例：一室一厅 / 主卧 / 次卧（可不填）"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
-            <input
-              type="text"
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              placeholder="微信 / 电话 / 邮箱（可不填）"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 *</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            rows={7}
-            placeholder={
-              mode === 'seeking'
-                ? '请描述：期望地区、预算、入住时间、人数、需求、联系方式等（可只写一段内容）'
-                : '请描述：地址/区域、租金、房型、入住时间、要求、联系方式等（可只写一段内容）'
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
-          />
-          <p className="mt-2 text-xs text-gray-400">提示：图片功能后续统一优化，本次可不传图。</p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
-        >
-          {loading ? '发布中...' : '发布'}
-        </button>
-      </form>
+              {loading ? (isEditing ? '保存中...' : '发布中...') : isEditing ? '保存修改' : '发布'}
+            </button>
+          </form>
+        </>
+      )}
     </div>
   )
 }

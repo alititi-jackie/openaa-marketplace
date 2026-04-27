@@ -223,14 +223,16 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     }
 
     if (isEditing && editJob) {
-      const { error: updateError } = await supabase
+      const { data: updated, error: updateError } = await supabase
         .from('job_postings')
         .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', editJob.id)
         .eq('user_id', user.id)
+        .select()
+        .single()
 
-      if (updateError) {
-        setError('保存失败，请重试')
+      if (updateError || !updated) {
+        setError('保存失败：未找到记录或无权限')
         setLoading(false)
         return
       }

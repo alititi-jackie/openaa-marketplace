@@ -245,14 +245,16 @@ export default function ItemForm({ initialType, editItem }: Props) {
     }
 
     if (isEdit && editItem) {
-      const { error: updateError } = await supabase
+      const { data: updated, error: updateError } = await supabase
         .from('secondhand_items')
         .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', editItem.id)
         .eq('user_id', user.id)
+        .select()
+        .single()
 
-      if (updateError) {
-        setError(`保存失败：${updateError.message}`)
+      if (updateError || !updated) {
+        setError('保存失败：未找到记录或无权限')
         setLoading(false)
         return
       }
