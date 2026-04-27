@@ -90,8 +90,7 @@ export default function HousingPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      {/* TODO: add housing bannerPosition after BannerCarousel supports it */}
-      <AppTopSection bannerPosition="home" />
+      <AppTopSection bannerPosition="housing" />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">

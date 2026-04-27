@@ -3,7 +3,7 @@ create table if not exists public.ads (
   id           uuid primary key default gen_random_uuid(),
   image_url    text not null,
   link_url     text,
-  position     text not null check (position in ('home', 'jobs', 'secondhand')),
+  position     text not null check (position in ('home', 'jobs', 'secondhand', 'navigation', 'housing')),
   start_date   timestamptz null,
   end_date     timestamptz null,
   is_active    boolean not null default true,
