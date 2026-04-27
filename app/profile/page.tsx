@@ -170,10 +170,9 @@ export default function ProfilePage() {
                   </div>
                 </Link>
 
-                <button
-                  type="button"
-                  disabled
-                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 opacity-60 cursor-not-allowed"
+                <Link
+                  href="/housing/publish"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
@@ -181,10 +180,10 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <div className="text-[13px] font-black text-zinc-900">发布房屋</div>
-                      <div className="text-[11px] text-zinc-500 mt-0.5">即将上线</div>
+                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布房屋</div>
                     </div>
                   </div>
-                </button>
+                </Link>
 
                 <button
                   type="button"
@@ -220,6 +219,14 @@ export default function ProfilePage() {
             className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
           >
             <span className="text-zinc-900">💼 我的招聘</span>
+            <span className="text-zinc-300">›</span>
+          </Link>
+
+          <Link
+            href="/profile/my-housing"
+            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
+          >
+            <span className="text-zinc-900">🏠 我的房屋</span>
             <span className="text-zinc-300">›</span>
           </Link>
 
