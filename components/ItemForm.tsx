@@ -164,11 +164,12 @@ export default function ItemForm({ initialType, editItem }: Props) {
   }))
 
   // Optional multi-image upload (0~3)
+  // - imagePreviewUrls is the single source of truth for what user currently intends to keep.
+  // - imageFiles only tracks newly selected local files (blob: previews) that need upload.
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>(() => {
-    // Edit mode: show existing images as initial previews (remote URLs).
-    // New selections will replace previews.
-    return editItem?.images?.length ? [...editItem.images] : []
+    // Edit mode: start from existing images
+    return editItem?.images?.length ? [...editItem.images].slice(0, 3) : []
   })
   const [imageTip, setImageTip] = useState('')
 
@@ -207,20 +208,23 @@ export default function ItemForm({ initialType, editItem }: Props) {
         ? formatBuyingDescription(buying)
         : formatSellingDescription(selling.location, selling.description)
 
-    // images decision:
-    // - edit + no new selection: keep old editItem.images
-    // - edit + new selection: upload new and overwrite
-    // - new: upload selected (if any)
-    const keepExistingImages = isEdit && imageFiles.length === 0
-
     const basePayload = {
       type: mode,
       title,
       description,
       price,
       category,
-      images: keepExistingImages ? (editItem?.images || []) : [],
+      // images will be determined below (keep existing / remove / overwrite with new)
+      images: [] as string[],
       status: 'published' as const,
+    }
+
+    // Determine desired images on submit
+    // - If user selected new files: overwrite with newly uploaded urls
+    // - Else: use current previews (remote urls after deletions)
+    const overwriteWithNewUploads = imageFiles.length > 0
+    if (!overwriteWithNewUploads) {
+      basePayload.images = imagePreviewUrls.slice(0, 3)
     }
 
     const uploadImagesForPost = async (postId: number) => {
@@ -256,7 +260,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
     try {
       if (isEdit && editItem) {
-        // 1) Update base payload first
+        // 1) Update base payload first (including deletions when no new selection)
         const { data: updatedBase, error: updateError } = await supabase
           .from('secondhand_items')
           .update({ ...basePayload, updated_at: new Date().toISOString() })
@@ -272,7 +276,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
         }
 
         // 2) If user selected new images, upload then overwrite images
-        if (imageFiles.length > 0) {
+        if (overwriteWithNewUploads) {
           let urls: string[] = []
           try {
             urls = await uploadImagesForPost(editItem.id)
@@ -304,13 +308,14 @@ export default function ItemForm({ initialType, editItem }: Props) {
       }
 
       // New post
-      // 1) insert first with empty images
+      // 1) insert first with images = [] (or previews when no uploads? should be empty)
       const { data: inserted, error: insertError } = await supabase
         .from('secondhand_items')
         .insert({
           ...basePayload,
           user_id: user.id,
           views: 0,
+          images: [],
         })
         .select()
         .single()
@@ -427,21 +432,22 @@ export default function ItemForm({ initialType, editItem }: Props) {
             const files = Array.from(e.target.files || [])
             if (files.length === 0) return
 
-            setImageFiles((prev) => {
-              const merged = [...prev, ...files]
-              const kept = merged.slice(0, 3)
-              if (merged.length > 3) setImageTip('最多只能上传 3 张图片，已自动保留前 3 张。')
+            // Merge: existing remote previews + new local selections, total <= 3
+            setImageFiles((prevFiles) => {
+              const mergedFiles = [...prevFiles, ...files]
+              const remainingSlots = Math.max(0, 3 - imagePreviewUrls.length)
+              const keptNewFiles = mergedFiles.slice(0, remainingSlots)
+              if (mergedFiles.length > remainingSlots) {
+                setImageTip('最多只能上传 3 张图片（包含已有图片）。已自动截断超出部分。')
+              }
 
-              // Update previews to match kept files.
-              // Revoke old object URLs (only those that are object urls).
+              // Create blob previews for the newly kept files and append to previews
               setImagePreviewUrls((prevUrls) => {
-                for (const u of prevUrls) {
-                  if (u.startsWith('blob:')) URL.revokeObjectURL(u)
-                }
-                return kept.map((f) => URL.createObjectURL(f))
+                const nextUrls = [...prevUrls, ...keptNewFiles.map((f) => URL.createObjectURL(f))]
+                return nextUrls.slice(0, 3)
               })
 
-              return kept
+              return keptNewFiles
             })
 
             // allow selecting same file again
@@ -461,14 +467,24 @@ export default function ItemForm({ initialType, editItem }: Props) {
                 <button
                   type="button"
                   onClick={() => {
-                    setImageFiles((prev) => {
-                      const next = prev.filter((_, i) => i !== idx)
-                      return next
-                    })
                     setImagePreviewUrls((prev) => {
                       const toRemove = prev[idx]
                       if (toRemove?.startsWith('blob:')) URL.revokeObjectURL(toRemove)
                       return prev.filter((_, i) => i !== idx)
+                    })
+
+                    // If removing a blob preview, also remove corresponding file from imageFiles
+                    setImageFiles((prevFiles) => {
+                      const removedUrl = imagePreviewUrls[idx]
+                      if (!removedUrl?.startsWith('blob:')) return prevFiles
+
+                      // blob previews correspond to the newly selected files in order
+                      const blobIndices = imagePreviewUrls
+                        .map((u, i) => (u.startsWith('blob:') ? i : -1))
+                        .filter((i) => i >= 0)
+                      const blobPosition = blobIndices.indexOf(idx)
+                      if (blobPosition < 0) return prevFiles
+                      return prevFiles.filter((_, i) => i !== blobPosition)
                     })
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center"
@@ -478,21 +494,6 @@ export default function ItemForm({ initialType, editItem }: Props) {
                 </button>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* If no new selection in edit mode, show existing images as preview */}
-        {isEdit && imageFiles.length === 0 && (editItem?.images?.length || 0) > 0 && (
-          <div className="mt-2">
-            <p className="text-xs text-gray-400 mb-2">当前已上传图片（不重新选择则保留）：</p>
-            <div className="grid grid-cols-3 gap-2">
-              {(editItem?.images || []).slice(0, 3).map((url, idx) => (
-                <div key={`${url}-${idx}`} className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`existing-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
