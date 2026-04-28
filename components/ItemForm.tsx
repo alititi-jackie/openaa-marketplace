@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
@@ -160,12 +160,20 @@ export default function ItemForm({ initialType, editItem }: Props) {
     location: initialLocation,
   }))
 
-  // Optional image upload
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>(() => {
-    const existing = editItem?.images?.[0]
-    return existing || ''
-  })
+  // Multi-image upload (0–3 images)
+  const MAX_IMAGES = 3
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(() => editItem?.images || [])
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([])
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
+  const [imageCountError, setImageCountError] = useState('')
+
+  // Track all created object URLs so we can revoke them on unmount
+  const createdObjectUrls = useRef<string[]>([])
+  useEffect(() => {
+    return () => {
+      createdObjectUrls.current.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [])
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -191,18 +199,20 @@ export default function ItemForm({ initialType, editItem }: Props) {
       return
     }
 
-    // 1) Upload optional image (if provided)
-    let uploadedImageUrl = ''
-    if (imageFile) {
-      const ext = getFileExtFromType(imageFile.type)
-      const filePath = `${user.id}/${Date.now()}.${ext}`
+    // 1) Upload new images to post-images bucket under secondhand/
+    const uploadedUrls: string[] = []
+    const ts = Date.now()
+    for (let i = 0; i < newImageFiles.length; i++) {
+      const file = newImageFiles[i]
+      const ext = getFileExtFromType(file.type)
+      const filePath = `secondhand/${user.id}/${ts}_${i}_${Math.random().toString(36).slice(2)}.${ext}`
 
       const { error: uploadError } = await supabase.storage
-        .from('item-images')
-        .upload(filePath, imageFile, {
+        .from('post-images')
+        .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          contentType: imageFile.type || undefined,
+          contentType: file.type || undefined,
         })
 
       if (uploadError) {
@@ -211,16 +221,13 @@ export default function ItemForm({ initialType, editItem }: Props) {
         return
       }
 
-      const { data: publicData } = supabase.storage.from('item-images').getPublicUrl(filePath)
-
-      uploadedImageUrl = publicData?.publicUrl || ''
+      const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
+      uploadedUrls.push(publicData?.publicUrl || '')
     }
 
-    const images = uploadedImageUrl
-      ? [uploadedImageUrl]
-      : isEdit
-        ? (editItem?.images || [])
-        : []
+    const images = isEdit
+      ? [...existingImageUrls, ...uploadedUrls]
+      : uploadedUrls
 
     const title =
       mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'
@@ -341,24 +348,80 @@ export default function ItemForm({ initialType, editItem }: Props) {
         </select>
       </div>
 
-      {/* Optional image upload */}
+      {/* Multi-image upload (0–3 images) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">图片（可选）</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const f = e.target.files?.[0] || null
-            setImageFile(f)
-            setImagePreviewUrl(f ? URL.createObjectURL(f) : (editItem?.images?.[0] || ''))
-          }}
-          className="w-full text-sm text-gray-600"
-        />
-        {imagePreviewUrl && (
-          <div className="mt-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imagePreviewUrl} alt="preview" className="h-24 w-24 object-cover rounded-lg border" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          图片（可选，最多 {MAX_IMAGES} 张）
+        </label>
+
+        {/* Thumbnail previews */}
+        {(existingImageUrls.length > 0 || newImageFiles.length > 0) && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {existingImageUrls.map((url, i) => (
+              <div key={`existing-${i}`} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`图片${i + 1}`} className="h-24 w-24 object-cover rounded-lg border" />
+                <button
+                  type="button"
+                  onClick={() => setExistingImageUrls((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="absolute -top-1 -right-1 bg-white text-gray-600 rounded-full border shadow text-xs w-5 h-5 flex items-center justify-center hover:bg-red-50"
+                  aria-label="删除图片"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            {newImagePreviews.map((preview, i) => (
+              <div key={`new-${i}`} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt={`图片${existingImageUrls.length + i + 1}`} className="h-24 w-24 object-cover rounded-lg border" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewImageFiles((prev) => prev.filter((_, idx) => idx !== i))
+                    setNewImagePreviews((prev) => {
+                      URL.revokeObjectURL(prev[i])
+                      return prev.filter((_, idx) => idx !== i)
+                    })
+                    setImageCountError('')
+                  }}
+                  className="absolute -top-1 -right-1 bg-white text-gray-600 rounded-full border shadow text-xs w-5 h-5 flex items-center justify-center hover:bg-red-50"
+                  aria-label="删除图片"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* File picker – only shown when under the limit */}
+        {existingImageUrls.length + newImageFiles.length < MAX_IMAGES && (
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              const files: File[] = Array.from(e.target.files || [])
+              const total = existingImageUrls.length + newImageFiles.length + files.length
+              if (total > MAX_IMAGES) {
+                setImageCountError(`最多只能上传 ${MAX_IMAGES} 张图片`)
+                e.target.value = ''
+                return
+              }
+              setImageCountError('')
+              const previews = files.map((f) => URL.createObjectURL(f))
+              createdObjectUrls.current.push(...previews)
+              setNewImageFiles((prev) => [...prev, ...files])
+              setNewImagePreviews((prev) => [...prev, ...previews])
+              e.target.value = ''
+            }}
+            className="w-full text-sm text-gray-600"
+          />
+        )}
+
+        {imageCountError && (
+          <p className="mt-1 text-xs text-red-500">{imageCountError}</p>
         )}
       </div>
 
