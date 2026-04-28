@@ -26,6 +26,10 @@ const SECONDHAND_LOCATIONS = [
 
 type SecondhandLocation = (typeof SECONDHAND_LOCATIONS)[number]
 
+type PreviewImage =
+  | { kind: 'remote'; url: string }
+  | { kind: 'local'; url: string; file: File }
+
 interface Props {
   initialType?: SecondhandItemType
   editItem?: SecondhandItem | null
@@ -131,6 +135,10 @@ function formatSellingDescription(location: SecondhandLocation, description: str
   return lines.join('\n').trim()
 }
 
+function uniq(arr: string[]) {
+  return Array.from(new Set(arr))
+}
+
 export default function ItemForm({ initialType, editItem }: Props) {
   const router = useRouter()
 
@@ -163,18 +171,46 @@ export default function ItemForm({ initialType, editItem }: Props) {
     location: initialLocation,
   }))
 
-  // Optional multi-image upload (0~3)
-  // - imagePreviewUrls is the single source of truth for what user currently intends to keep.
-  // - imageFiles only tracks newly selected local files (blob: previews) that need upload.
-  const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>(() => {
-    // Edit mode: start from existing images
-    return editItem?.images?.length ? [...editItem.images].slice(0, 3) : []
+  // Unified preview images state (0~3)
+  const [previewImages, setPreviewImages] = useState<PreviewImage[]>(() => {
+    const existing = Array.isArray(editItem?.images) ? editItem!.images.filter(Boolean) : []
+    return existing.slice(0, 3).map((url) => ({ kind: 'remote', url }))
   })
   const [imageTip, setImageTip] = useState('')
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const uploadLocalFilesForPost = async (userId: string, postId: number, localFiles: File[]) => {
+    if (localFiles.length === 0) return [] as string[]
+
+    const ts = Date.now()
+    const urls: string[] = []
+
+    for (let i = 0; i < localFiles.length; i++) {
+      const file = localFiles[i]
+      const ext = getFileExtFromType(file.type)
+      const n = i + 1
+      const filePath = `secondhand/${userId}/${postId}/${ts}-${n}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type || undefined,
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
+      const publicUrl = publicData?.publicUrl || ''
+      if (!publicUrl) throw new Error('无法获取图片公开链接')
+      urls.push(publicUrl)
+    }
+
+    return urls
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -208,59 +244,27 @@ export default function ItemForm({ initialType, editItem }: Props) {
         ? formatBuyingDescription(buying)
         : formatSellingDescription(selling.location, selling.description)
 
+    const remoteUrls = previewImages
+      .filter((p) => p.kind === 'remote')
+      .map((p) => p.url)
+
+    const localFiles = previewImages
+      .filter((p): p is Extract<PreviewImage, { kind: 'local' }> => p.kind === 'local')
+      .map((p) => p.file)
+
     const basePayload = {
       type: mode,
       title,
       description,
       price,
       category,
-      // images will be determined below (keep existing / remove / overwrite with new)
       images: [] as string[],
       status: 'published' as const,
     }
 
-    // Determine desired images on submit
-    // - If user selected new files: overwrite with newly uploaded urls
-    // - Else: use current previews (remote urls after deletions)
-    const overwriteWithNewUploads = imageFiles.length > 0
-    if (!overwriteWithNewUploads) {
-      basePayload.images = imagePreviewUrls.slice(0, 3)
-    }
-
-    const uploadImagesForPost = async (postId: number) => {
-      if (imageFiles.length === 0) return [] as string[]
-
-      const ts = Date.now()
-      const urls: string[] = []
-
-      for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i]
-        const ext = getFileExtFromType(file.type)
-        const n = i + 1
-        const filePath = `secondhand/${user.id}/${postId}/${ts}-${n}.${ext}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('post-images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-            contentType: file.type || undefined,
-          })
-
-        if (uploadError) throw uploadError
-
-        const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
-        const publicUrl = publicData?.publicUrl || ''
-        if (!publicUrl) throw new Error('无法获取图片公开链接')
-        urls.push(publicUrl)
-      }
-
-      return urls
-    }
-
     try {
       if (isEdit && editItem) {
-        // 1) Update base payload first (including deletions when no new selection)
+        // 1) Update base fields first
         const { data: updatedBase, error: updateError } = await supabase
           .from('secondhand_items')
           .update({ ...basePayload, updated_at: new Date().toISOString() })
@@ -275,11 +279,11 @@ export default function ItemForm({ initialType, editItem }: Props) {
           return
         }
 
-        // 2) If user selected new images, upload then overwrite images
-        if (overwriteWithNewUploads) {
-          let urls: string[] = []
+        // 2) Upload local files (if any)
+        let uploadedUrls: string[] = []
+        if (localFiles.length > 0) {
           try {
-            urls = await uploadImagesForPost(editItem.id)
+            uploadedUrls = await uploadLocalFilesForPost(user.id, editItem.id, localFiles)
           } catch (err: unknown) {
             const message =
               err instanceof Error ? err.message : typeof err === 'string' ? err : '未知错误'
@@ -287,20 +291,23 @@ export default function ItemForm({ initialType, editItem }: Props) {
             setLoading(false)
             return
           }
+        }
 
-          const { data: updatedImages, error: updateImagesError } = await supabase
-            .from('secondhand_items')
-            .update({ images: urls, updated_at: new Date().toISOString() })
-            .eq('id', editItem.id)
-            .eq('user_id', user.id)
-            .select()
-            .single()
+        // 3) Final images: remoteUrls + uploadedUrls (dedupe) <= 3
+        const finalImages = uniq([...remoteUrls, ...uploadedUrls]).slice(0, 3)
 
-          if (updateImagesError || !updatedImages) {
-            setError('保存失败：未找到记录或无权限')
-            setLoading(false)
-            return
-          }
+        const { data: updatedImages, error: updateImagesError } = await supabase
+          .from('secondhand_items')
+          .update({ images: finalImages, updated_at: new Date().toISOString() })
+          .eq('id', editItem.id)
+          .eq('user_id', user.id)
+          .select()
+          .single()
+
+        if (updateImagesError || !updatedImages) {
+          setError('保存失败：未找到记录或无权限')
+          setLoading(false)
+          return
         }
 
         router.push('/profile/my-items')
@@ -308,7 +315,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
       }
 
       // New post
-      // 1) insert first with images = [] (or previews when no uploads? should be empty)
+      // 1) insert first with empty images
       const { data: inserted, error: insertError } = await supabase
         .from('secondhand_items')
         .insert({
@@ -328,11 +335,11 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
       const postId = inserted.id as number
 
-      // 2) upload images if selected
-      if (imageFiles.length > 0) {
-        let urls: string[] = []
+      // 2) upload local files if selected
+      let uploadedUrls: string[] = []
+      if (localFiles.length > 0) {
         try {
-          urls = await uploadImagesForPost(postId)
+          uploadedUrls = await uploadLocalFilesForPost(user.id, postId, localFiles)
         } catch (err: unknown) {
           const message =
             err instanceof Error ? err.message : typeof err === 'string' ? err : '未知错误'
@@ -340,21 +347,22 @@ export default function ItemForm({ initialType, editItem }: Props) {
           setLoading(false)
           return
         }
+      }
 
-        // 3) update images field (must validate by select().single())
-        const { data: updatedImages, error: updateImagesError } = await supabase
-          .from('secondhand_items')
-          .update({ images: urls, updated_at: new Date().toISOString() })
-          .eq('id', postId)
-          .eq('user_id', user.id)
-          .select()
-          .single()
+      // 3) update images (dedupe) and validate
+      const finalImages = uniq(uploadedUrls).slice(0, 3)
+      const { data: updatedImages, error: updateImagesError } = await supabase
+        .from('secondhand_items')
+        .update({ images: finalImages, updated_at: new Date().toISOString() })
+        .eq('id', postId)
+        .eq('user_id', user.id)
+        .select()
+        .single()
 
-        if (updateImagesError || !updatedImages) {
-          setError('保存失败：未找到记录或无权限')
-          setLoading(false)
-          return
-        }
+      if (updateImagesError || !updatedImages) {
+        setError('保存失败：未找到记录或无权限')
+        setLoading(false)
+        return
       }
 
       router.push(`/secondhand/${postId}`)
@@ -432,22 +440,23 @@ export default function ItemForm({ initialType, editItem }: Props) {
             const files = Array.from(e.target.files || [])
             if (files.length === 0) return
 
-            // Merge: existing remote previews + new local selections, total <= 3
-            setImageFiles((prevFiles) => {
-              const mergedFiles = [...prevFiles, ...files]
-              const remainingSlots = Math.max(0, 3 - imagePreviewUrls.length)
-              const keptNewFiles = mergedFiles.slice(0, remainingSlots)
-              if (mergedFiles.length > remainingSlots) {
+            setPreviewImages((prev) => {
+              const remaining = Math.max(0, 3 - prev.length)
+              const allowed = files.slice(0, remaining)
+              if (files.length > remaining) {
                 setImageTip('最多只能上传 3 张图片（包含已有图片）。已自动截断超出部分。')
               }
 
-              // Create blob previews for the newly kept files and append to previews
-              setImagePreviewUrls((prevUrls) => {
-                const nextUrls = [...prevUrls, ...keptNewFiles.map((f) => URL.createObjectURL(f))]
-                return nextUrls.slice(0, 3)
-              })
+              const next: PreviewImage[] = [
+                ...prev,
+                ...allowed.map((file) => ({
+                  kind: 'local' as const,
+                  url: URL.createObjectURL(file),
+                  file,
+                })),
+              ]
 
-              return keptNewFiles
+              return next.slice(0, 3)
             })
 
             // allow selecting same file again
@@ -458,33 +467,21 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
         {imageTip && <p className="mt-1 text-xs text-amber-600">{imageTip}</p>}
 
-        {imagePreviewUrls.length > 0 && (
+        {previewImages.length > 0 && (
           <div className="mt-2 grid grid-cols-3 gap-2">
-            {imagePreviewUrls.slice(0, 3).map((url, idx) => (
-              <div key={`${url}-${idx}`} className="relative">
+            {previewImages.slice(0, 3).map((img, idx) => (
+              <div key={`${img.url}-${idx}`} className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`preview-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
+                <img src={img.url} alt={`preview-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
                 <button
                   type="button"
                   onClick={() => {
-                    setImagePreviewUrls((prev) => {
-                      const toRemove = prev[idx]
-                      if (toRemove?.startsWith('blob:')) URL.revokeObjectURL(toRemove)
+                    setPreviewImages((prev) => {
+                      const target = prev[idx]
+                      if (target?.kind === 'local' && target.url.startsWith('blob:')) {
+                        URL.revokeObjectURL(target.url)
+                      }
                       return prev.filter((_, i) => i !== idx)
-                    })
-
-                    // If removing a blob preview, also remove corresponding file from imageFiles
-                    setImageFiles((prevFiles) => {
-                      const removedUrl = imagePreviewUrls[idx]
-                      if (!removedUrl?.startsWith('blob:')) return prevFiles
-
-                      // blob previews correspond to the newly selected files in order
-                      const blobIndices = imagePreviewUrls
-                        .map((u, i) => (u.startsWith('blob:') ? i : -1))
-                        .filter((i) => i >= 0)
-                      const blobPosition = blobIndices.indexOf(idx)
-                      if (blobPosition < 0) return prevFiles
-                      return prevFiles.filter((_, i) => i !== blobPosition)
                     })
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center"
