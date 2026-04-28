@@ -29,6 +29,9 @@ export default function SecondhandDetailPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const touchStartXRef = useRef<number | null>(null)
 
+  // Lightbox
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
   useEffect(() => {
     const fetchItem = async () => {
       const { data } = await supabase
@@ -49,12 +52,7 @@ export default function SecondhandDetailPage() {
     fetchItem()
   }, [id])
 
-  // Reset active index when item changes
-  useEffect(() => {
-    setActiveIndex(0)
-  }, [item?.id])
-
-  const images = (item?.images || []).filter(Boolean).slice(0, 3)
+  const images = Array.isArray(item?.images) ? item!.images.filter(Boolean) : []
   const imageCount = images.length
   const isAuto = imageCount >= 2
 
@@ -85,17 +83,48 @@ export default function SecondhandDetailPage() {
     }, AUTO_INTERVAL_MS)
   }
 
+  // Keep active index valid when images length changes (e.g., 2 images should never show blank 3rd)
   useEffect(() => {
+    if (imageCount === 0) {
+      setActiveIndex(0)
+      stopAuto()
+      return
+    }
+    setActiveIndex((p) => (p >= imageCount ? 0 : p))
     startAuto()
     return () => stopAuto()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageCount])
+
+  // Pause auto when lightbox is open to avoid switching behind the overlay
+  useEffect(() => {
+    if (lightboxOpen) stopAuto()
+    else startAuto()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen])
+
+  // Close lightbox on ESC
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (imageCount >= 2) {
+        if (e.key === 'ArrowLeft') goPrev()
+        if (e.key === 'ArrowRight') goNext()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, imageCount, activeIndex])
 
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
   if (!item) return <div className="flex justify-center py-20 text-gray-500">商品不存在</div>
 
   const isBuying = item.type === 'buying'
   const budget = isBuying ? parseBudget(item.description) : null
+
+  const currentImage = imageCount > 0 ? images[activeIndex] : ''
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -119,30 +148,34 @@ export default function SecondhandDetailPage() {
               touchStartXRef.current = null
               if (startX != null && endX != null) {
                 const dx = endX - startX
-                // swipe threshold
                 if (Math.abs(dx) > 35) {
                   if (dx > 0) goPrev()
                   else goNext()
+                } else {
+                  // tap -> open lightbox
+                  setLightboxOpen(true)
                 }
+              } else {
+                setLightboxOpen(true)
               }
               startAuto()
             }}
           >
-            <a
-              href={images[activeIndex]}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
               className="block h-full w-full"
+              aria-label="查看大图"
             >
               <Image
-                key={images[activeIndex]}
-                src={images[activeIndex]}
+                key={currentImage}
+                src={currentImage}
                 alt={item.title}
                 fill
                 priority
                 className="object-cover"
               />
-            </a>
+            </button>
 
             {isBuying && (
               <div className="absolute top-3 left-3">
@@ -234,6 +267,75 @@ export default function SecondhandDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && imageCount > 0 && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-5xl h-[80vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-2 left-2 z-10 px-3 py-2 rounded-full bg-black/60 text-white text-sm"
+              aria-label="返回"
+            >
+              ← 返回
+            </button>
+
+            {imageCount >= 2 && (
+              <>
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/55 text-white flex items-center justify-center"
+                  aria-label="上一张"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/55 text-white flex items-center justify-center"
+                  aria-label="下一张"
+                >
+                  ›
+                </button>
+              </>
+            )}
+
+            <Image
+              src={currentImage}
+              alt={item.title}
+              fill
+              className="object-contain"
+            />
+
+            {imageCount >= 2 && (
+              <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2 z-10">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => goTo(idx)}
+                    className={
+                      'h-2.5 w-2.5 rounded-full transition ' +
+                      (idx === activeIndex ? 'bg-white' : 'bg-white/50 hover:bg-white/70')
+                    }
+                    aria-label={`切换到第 ${idx + 1} 张`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
