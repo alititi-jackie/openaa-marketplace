@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -16,11 +16,18 @@ function parseBudget(description: string): string | null {
   return null
 }
 
+const AUTO_INTERVAL_MS = 3500
+
 export default function SecondhandDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const [item, setItem] = useState<SecondhandItem | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Carousel state
+  const [activeIndex, setActiveIndex] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartXRef = useRef<number | null>(null)
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -42,6 +49,48 @@ export default function SecondhandDetailPage() {
     fetchItem()
   }, [id])
 
+  // Reset active index when item changes
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [item?.id])
+
+  const images = (item?.images || []).filter(Boolean).slice(0, 3)
+  const imageCount = images.length
+  const isAuto = imageCount >= 2
+
+  const goTo = (idx: number) => {
+    if (imageCount <= 0) return
+    const next = ((idx % imageCount) + imageCount) % imageCount
+    setActiveIndex(next)
+  }
+
+  const goPrev = () => goTo(activeIndex - 1)
+  const goNext = () => goTo(activeIndex + 1)
+
+  const stopAuto = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
+
+  const startAuto = () => {
+    stopAuto()
+    if (!isAuto) return
+    intervalRef.current = setInterval(() => {
+      setActiveIndex((p) => {
+        const next = p + 1
+        return next >= imageCount ? 0 : next
+      })
+    }, AUTO_INTERVAL_MS)
+  }
+
+  useEffect(() => {
+    startAuto()
+    return () => stopAuto()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageCount])
+
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
   if (!item) return <div className="flex justify-center py-20 text-gray-500">商品不存在</div>
 
@@ -55,14 +104,101 @@ export default function SecondhandDetailPage() {
       </button>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        {item.images && item.images.length > 0 ? (
-          <div className="relative h-64 md:h-96">
-            <Image src={item.images[0]} alt={item.title} fill className="object-cover" />
+        {imageCount > 0 ? (
+          <div
+            className="relative h-64 md:h-96 overflow-hidden"
+            onMouseEnter={stopAuto}
+            onMouseLeave={startAuto}
+            onTouchStart={(e) => {
+              touchStartXRef.current = e.touches?.[0]?.clientX ?? null
+              stopAuto()
+            }}
+            onTouchEnd={(e) => {
+              const startX = touchStartXRef.current
+              const endX = e.changedTouches?.[0]?.clientX ?? null
+              touchStartXRef.current = null
+              if (startX != null && endX != null) {
+                const dx = endX - startX
+                // swipe threshold
+                if (Math.abs(dx) > 35) {
+                  if (dx > 0) goPrev()
+                  else goNext()
+                }
+              }
+              startAuto()
+            }}
+          >
+            <a
+              href={images[activeIndex]}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block h-full w-full"
+            >
+              <Image
+                key={images[activeIndex]}
+                src={images[activeIndex]}
+                alt={item.title}
+                fill
+                priority
+                className="object-cover"
+              />
+            </a>
+
             {isBuying && (
               <div className="absolute top-3 left-3">
-                <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded font-semibold">
-                  求购
-                </span>
+                <span className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded font-semibold">求购</span>
+              </div>
+            )}
+
+            {/* Prev/Next */}
+            {imageCount >= 2 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    stopAuto()
+                    goPrev()
+                    startAuto()
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/55"
+                  aria-label="上一张"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    stopAuto()
+                    goNext()
+                    startAuto()
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/55"
+                  aria-label="下一张"
+                >
+                  ›
+                </button>
+              </>
+            )}
+
+            {/* Dots */}
+            {imageCount >= 2 && (
+              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      stopAuto()
+                      goTo(idx)
+                      startAuto()
+                    }}
+                    className={
+                      'h-2 w-2 rounded-full transition ' +
+                      (idx === activeIndex ? 'bg-white' : 'bg-white/50 hover:bg-white/70')
+                    }
+                    aria-label={`切换到第 ${idx + 1} 张`}
+                  />
+                ))}
               </div>
             )}
           </div>
