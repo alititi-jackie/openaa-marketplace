@@ -146,10 +146,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
   const [selling, setSelling] = useState<SellingFormData>(() => ({
     title: editItem?.type !== 'buying' ? editItem?.title || '' : '',
-    category:
-      editItem?.type !== 'buying'
-        ? (editItem?.category || pickDefaultCategory())
-        : pickDefaultCategory(),
+    category: editItem?.type !== 'buying' ? (editItem?.category || pickDefaultCategory()) : pickDefaultCategory(),
     price: editItem?.type !== 'buying' ? String(editItem?.price ?? '') : '',
     description: editItem?.type !== 'buying' ? stripMetaLines(editItem?.description || '') : '',
     location: initialLocation,
@@ -163,14 +160,12 @@ export default function ItemForm({ initialType, editItem }: Props) {
     location: initialLocation,
   }))
 
-  // Optional multi-image upload (0~3)
-  const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>(() => {
-    // Edit mode: show existing images as initial previews (remote URLs).
-    // New selections will replace previews.
-    return editItem?.images?.length ? [...editItem.images] : []
+  // Optional image upload
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>(() => {
+    const existing = editItem?.images?.[0]
+    return existing || ''
   })
-  const [imageTip, setImageTip] = useState('')
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -196,7 +191,39 @@ export default function ItemForm({ initialType, editItem }: Props) {
       return
     }
 
-    const title = mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'
+    // 1) Upload optional image (if provided)
+    let uploadedImageUrl = ''
+    if (imageFile) {
+      const ext = getFileExtFromType(imageFile.type)
+      const filePath = `${user.id}/${Date.now()}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('item-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: imageFile.type || undefined,
+        })
+
+      if (uploadError) {
+        setError(`图片上传失败：${uploadError.message}`)
+        setLoading(false)
+        return
+      }
+
+      const { data: publicData } = supabase.storage.from('item-images').getPublicUrl(filePath)
+
+      uploadedImageUrl = publicData?.publicUrl || ''
+    }
+
+    const images = uploadedImageUrl
+      ? [uploadedImageUrl]
+      : isEdit
+        ? (editItem?.images || [])
+        : []
+
+    const title =
+      mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'
 
     const category = mode === 'buying' ? pickDefaultCategory() : selling.category?.trim() || pickDefaultCategory()
 
@@ -207,151 +234,52 @@ export default function ItemForm({ initialType, editItem }: Props) {
         ? formatBuyingDescription(buying)
         : formatSellingDescription(selling.location, selling.description)
 
-    // images decision:
-    // - edit + no new selection: keep old editItem.images
-    // - edit + new selection: upload new and overwrite
-    // - new: upload selected (if any)
-    const keepExistingImages = isEdit && imageFiles.length === 0
-
-    const basePayload = {
+    const payload = {
       type: mode,
       title,
       description,
       price,
       category,
-      images: keepExistingImages ? (editItem?.images || []) : [],
+      images,
       status: 'published' as const,
     }
 
-    const uploadImagesForPost = async (postId: number) => {
-      if (imageFiles.length === 0) return [] as string[]
-
-      const ts = Date.now()
-      const urls: string[] = []
-
-      for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i]
-        const ext = getFileExtFromType(file.type)
-        const n = i + 1
-        const filePath = `secondhand/${user.id}/${postId}/${ts}-${n}.${ext}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('post-images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-            contentType: file.type || undefined,
-          })
-
-        if (uploadError) throw uploadError
-
-        const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
-        const publicUrl = publicData?.publicUrl || ''
-        if (!publicUrl) throw new Error('无法获取图片公开链接')
-        urls.push(publicUrl)
-      }
-
-      return urls
-    }
-
-    try {
-      if (isEdit && editItem) {
-        // 1) Update base payload first
-        const { data: updatedBase, error: updateError } = await supabase
-          .from('secondhand_items')
-          .update({ ...basePayload, updated_at: new Date().toISOString() })
-          .eq('id', editItem.id)
-          .eq('user_id', user.id)
-          .select()
-          .single()
-
-        if (updateError || !updatedBase) {
-          setError('保存失败：未找到记录或无权限')
-          setLoading(false)
-          return
-        }
-
-        // 2) If user selected new images, upload then overwrite images
-        if (imageFiles.length > 0) {
-          let urls: string[] = []
-          try {
-            urls = await uploadImagesForPost(editItem.id)
-          } catch (err: any) {
-            setError(`图片上传失败：${err?.message || String(err)}`)
-            setLoading(false)
-            return
-          }
-
-          const { data: updatedImages, error: updateImagesError } = await supabase
-            .from('secondhand_items')
-            .update({ images: urls, updated_at: new Date().toISOString() })
-            .eq('id', editItem.id)
-            .eq('user_id', user.id)
-            .select()
-            .single()
-
-          if (updateImagesError || !updatedImages) {
-            setError('保存失败：未找到记录或无权限')
-            setLoading(false)
-            return
-          }
-        }
-
-        router.push('/profile/my-items')
-        return
-      }
-
-      // New post
-      // 1) insert first with empty images
-      const { data: inserted, error: insertError } = await supabase
+    if (isEdit && editItem) {
+      const { data: updated, error: updateError } = await supabase
         .from('secondhand_items')
-        .insert({
-          ...basePayload,
-          user_id: user.id,
-          views: 0,
-        })
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', editItem.id)
+        .eq('user_id', user.id)
         .select()
         .single()
 
-      if (insertError || !inserted) {
-        setError(`发布失败：${insertError?.message || '未知错误'}`)
+      if (updateError || !updated) {
+        setError('保存失败：未找到记录或无权限')
         setLoading(false)
         return
       }
 
-      const postId = inserted.id as number
-
-      // 2) upload images if selected
-      if (imageFiles.length > 0) {
-        let urls: string[] = []
-        try {
-          urls = await uploadImagesForPost(postId)
-        } catch (err: any) {
-          setError(`图片上传失败：${err?.message || String(err)}`)
-          setLoading(false)
-          return
-        }
-
-        // 3) update images field (must validate by select().single())
-        const { data: updatedImages, error: updateImagesError } = await supabase
-          .from('secondhand_items')
-          .update({ images: urls, updated_at: new Date().toISOString() })
-          .eq('id', postId)
-          .eq('user_id', user.id)
-          .select()
-          .single()
-
-        if (updateImagesError || !updatedImages) {
-          setError('保存失败：未找到记录或无权限')
-          setLoading(false)
-          return
-        }
-      }
-
-      router.push(`/secondhand/${postId}`)
-    } finally {
-      setLoading(false)
+      router.push('/profile/my-items')
+      return
     }
+
+    const { data, error } = await supabase
+      .from('secondhand_items')
+      .insert({
+        ...payload,
+        user_id: user.id,
+        views: 0,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      setError(`发布失败：${error.message}`)
+      setLoading(false)
+      return
+    }
+
+    router.push(`/secondhand/${data.id}`)
   }
 
   const locationValue = mode === 'buying' ? buying.location : selling.location
@@ -388,7 +316,9 @@ export default function ItemForm({ initialType, editItem }: Props) {
             我要求购
           </button>
         </div>
-        {isEdit && <p className="mt-2 text-xs text-gray-400">编辑模式下不支持切换类型（出售/求购）。</p>}
+        {isEdit && (
+          <p className="mt-2 text-xs text-gray-400">编辑模式下不支持切换类型（出售/求购）。</p>
+        )}
       </div>
 
       {/* Location select (both modes) */}
@@ -411,84 +341,23 @@ export default function ItemForm({ initialType, editItem }: Props) {
         </select>
       </div>
 
-      {/* Optional image upload (0~3) */}
+      {/* Optional image upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">图片（可选，最多3张）</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">图片（可选）</label>
         <input
           type="file"
           accept="image/*"
-          multiple
           onChange={(e) => {
-            setImageTip('')
-            const files = Array.from(e.target.files || [])
-            if (files.length === 0) return
-
-            setImageFiles((prev) => {
-              const merged = [...prev, ...files]
-              const kept = merged.slice(0, 3)
-              if (merged.length > 3) setImageTip('最多只能上传 3 张图片，已自动保留前 3 张。')
-
-              // Update previews to match kept files.
-              // Revoke old object URLs (only those that are object urls).
-              setImagePreviewUrls((prevUrls) => {
-                for (const u of prevUrls) {
-                  if (u.startsWith('blob:')) URL.revokeObjectURL(u)
-                }
-                return kept.map((f) => URL.createObjectURL(f))
-              })
-
-              return kept
-            })
-
-            // allow selecting same file again
-            e.currentTarget.value = ''
+            const f = e.target.files?.[0] || null
+            setImageFile(f)
+            setImagePreviewUrl(f ? URL.createObjectURL(f) : (editItem?.images?.[0] || ''))
           }}
           className="w-full text-sm text-gray-600"
         />
-
-        {imageTip && <p className="mt-1 text-xs text-amber-600">{imageTip}</p>}
-
-        {imagePreviewUrls.length > 0 && (
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {imagePreviewUrls.slice(0, 3).map((url, idx) => (
-              <div key={`${url}-${idx}`} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`preview-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageFiles((prev) => {
-                      const next = prev.filter((_, i) => i !== idx)
-                      return next
-                    })
-                    setImagePreviewUrls((prev) => {
-                      const toRemove = prev[idx]
-                      if (toRemove?.startsWith('blob:')) URL.revokeObjectURL(toRemove)
-                      return prev.filter((_, i) => i !== idx)
-                    })
-                  }}
-                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center"
-                  aria-label="删除图片"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* If no new selection in edit mode, show existing images as preview */}
-        {isEdit && imageFiles.length === 0 && (editItem?.images?.length || 0) > 0 && (
+        {imagePreviewUrl && (
           <div className="mt-2">
-            <p className="text-xs text-gray-400 mb-2">当前已上传图片（不重新选择则保留）：</p>
-            <div className="grid grid-cols-3 gap-2">
-              {(editItem?.images || []).slice(0, 3).map((url, idx) => (
-                <div key={`${url}-${idx}`} className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`existing-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
-                </div>
-              ))}
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagePreviewUrl} alt="preview" className="h-24 w-24 object-cover rounded-lg border" />
           </div>
         )}
       </div>
@@ -551,7 +420,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
             disabled={loading}
             className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
           >
-            {loading ? '保存中...' : isEdit ? '保存修改' : '发布商品'}
+            {loading ? '保存中...' : (isEdit ? '保存修改' : '发布商品')}
           </button>
         </>
       ) : (
@@ -606,7 +475,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
             disabled={loading}
             className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
           >
-            {loading ? '保存中...' : isEdit ? '保存修改' : '发布求购'}
+            {loading ? '保存中...' : (isEdit ? '保存修改' : '发布求购')}
           </button>
         </>
       )}
