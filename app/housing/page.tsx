@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import type { HousingPost, HousingPostType } from '@/types'
@@ -155,22 +154,9 @@ export default function HousingPage() {
             {filtered.map((p) => (
               <Link
                 key={p.id}
-                href="#"
+                href={`/housing/${p.id}`}
                 className="block rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden hover:bg-zinc-50 transition"
               >
-                <div className="relative h-48 w-full bg-gray-100">
-                  {p.images && p.images.length > 0 ? (
-                    <Image
-                      src={p.images[0]}
-                      alt={p.title || '房屋图片'}
-                      fill
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div aria-label="无图片" className="flex items-center justify-center h-full text-4xl">🏠</div>
-                  )}
-                </div>
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
