@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Briefcase, ShoppingBag, House, User } from 'lucide-react'
+import { Home, Briefcase, ShoppingBag, HomeIcon, User } from 'lucide-react'
 
 const items = [
   { href: '/', label: '首页', Icon: Home, exact: true },
   { href: '/jobs', label: '招聘', Icon: Briefcase, exact: false },
   { href: '/secondhand', label: '二手', Icon: ShoppingBag, exact: false },
-  { href: '/housing', label: '房屋', Icon: House, exact: false },
+  { href: '/housing', label: '房屋', Icon: HomeIcon, exact: false },
   { href: '/profile', label: '我的', Icon: User, exact: false },
 ] as const
 
