@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import type { HousingPost, HousingPostType } from '@/types'
@@ -155,35 +156,50 @@ export default function HousingPage() {
               <Link
                 key={p.id}
                 href="#"
-                className="block rounded-2xl border border-gray-100 bg-white shadow-sm p-4 hover:bg-zinc-50 transition"
+                className="block rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden hover:bg-zinc-50 transition"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
-                        {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
-                      </h3>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
-                        {typeLabel(p.type)}
-                      </span>
-                      {p.room_type ? (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
-                          {p.room_type}
+                <div className="relative h-48 w-full bg-gray-100">
+                  {p.images && p.images.length > 0 ? (
+                    <Image
+                      src={p.images[0]}
+                      alt={p.title || '房屋图片'}
+                      fill
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div aria-label="无图片" className="flex items-center justify-center h-full text-4xl">🏠</div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
+                          {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
+                        </h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
+                          {typeLabel(p.type)}
                         </span>
+                        {p.room_type ? (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
+                            {p.room_type}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                        <span>💰 {displayPrice(p.price)}</span>
+                        {p.location ? <span>📍 {p.location}</span> : null}
+                        <span>🕒 {formatDate(p.created_at)}</span>
+                      </div>
+
+                      {p.description ? (
+                        <p className="mt-3 text-sm text-gray-600 line-clamp-2 whitespace-pre-wrap">
+                          {p.description}
+                        </p>
                       ) : null}
                     </div>
-
-                    <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-                      <span>💰 {displayPrice(p.price)}</span>
-                      {p.location ? <span>📍 {p.location}</span> : null}
-                      <span>🕒 {formatDate(p.created_at)}</span>
-                    </div>
-
-                    {p.description ? (
-                      <p className="mt-3 text-sm text-gray-600 line-clamp-2 whitespace-pre-wrap">
-                        {p.description}
-                      </p>
-                    ) : null}
                   </div>
                 </div>
               </Link>
