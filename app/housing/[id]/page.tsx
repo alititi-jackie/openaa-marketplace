@@ -128,6 +128,7 @@ export default function HousingDetailPage() {
       </button>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {/* Only render image area when there is at least one valid image */}
         {imageCount > 0 ? (
           <div
             className="relative h-64 md:h-96 overflow-hidden"
@@ -223,9 +224,7 @@ export default function HousingDetailPage() {
               </div>
             )}
           </div>
-        ) : (
-          <div className="h-64 bg-gray-100 flex items-center justify-center text-6xl">🏠</div>
-        )}
+        ) : null}
 
         <div className="p-6">
           <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -281,10 +280,7 @@ export default function HousingDetailPage() {
           aria-modal="true"
           onClick={() => setLightboxOpen(false)}
         >
-          <div
-            className="relative w-full max-w-5xl h-[80vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative w-full max-w-5xl h-[80vh]" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={() => setLightboxOpen(false)}
@@ -315,12 +311,7 @@ export default function HousingDetailPage() {
               </>
             )}
 
-            <Image
-              src={currentImage}
-              alt={post.title}
-              fill
-              className="object-contain"
-            />
+            <Image src={currentImage} alt={post.title} fill className="object-contain" />
 
             {imageCount >= 2 && (
               <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2 z-10">
