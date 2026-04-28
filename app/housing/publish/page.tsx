@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { HousingPost, HousingPostType } from '@/types'
 
+type PreviewImage =
+  | { kind: 'remote'; url: string }
+  | { kind: 'local'; url: string; file: File }
+
 const HOUSING_LOCATIONS = [
   '其它地区',
   '法拉盛',
@@ -46,6 +50,42 @@ function parseEditId(v: string | null): number | null {
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
+function getFileExtFromType(mimeType: string) {
+  const t = (mimeType || '').toLowerCase()
+  if (t.includes('png')) return 'png'
+  if (t.includes('webp')) return 'webp'
+  if (t.includes('gif')) return 'gif'
+  return 'jpg'
+}
+
+function uniq(arr: string[]) {
+  return Array.from(new Set(arr))
+}
+
+async function uploadLocalFilesForPost(userId: string, postId: number, localFiles: File[]): Promise<string[]> {
+  if (localFiles.length === 0) return []
+  const ts = Date.now()
+  const urls: string[] = []
+  for (let i = 0; i < localFiles.length; i++) {
+    const file = localFiles[i]
+    const ext = getFileExtFromType(file.type)
+    const filePath = `housing/${userId}/${postId}/${ts}-${i + 1}.${ext}`
+    const { error: uploadError } = await supabase.storage
+      .from('post-images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || undefined,
+      })
+    if (uploadError) throw uploadError
+    const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
+    const publicUrl = publicData?.publicUrl || ''
+    if (!publicUrl) throw new Error('无法获取图片公开链接')
+    urls.push(publicUrl)
+  }
+  return urls
+}
+
 function HousingPublishClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -69,7 +109,22 @@ function HousingPublishClient() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const [previewImages, setPreviewImages] = useState<PreviewImage[]>([])
+  const [imageTip, setImageTip] = useState('')
+
   const isEditing = !!editPost
+
+  // Revoke blob URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      previewImages.forEach((img) => {
+        if (img.kind === 'local' && img.url.startsWith('blob:')) {
+          URL.revokeObjectURL(img.url)
+        }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -128,6 +183,11 @@ function HousingPublishClient() {
       setRoomType(data.room_type === '-' ? '' : (data.room_type || ''))
       setContact(data.contact === '-' ? '' : (data.contact || ''))
       setDescription(data.description || '')
+      setPreviewImages(
+        (Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [])
+          .slice(0, 3)
+          .map((url) => ({ kind: 'remote' as const, url }))
+      )
 
       setEditPost(data as HousingPost)
       setLoadingEdit(false)
@@ -161,7 +221,28 @@ function HousingPublishClient() {
       return
     }
 
+    const remoteUrls = previewImages.filter((img) => img.kind === 'remote').map((img) => img.url)
+    const localFiles = previewImages
+      .filter((img): img is { kind: 'local'; url: string; file: File } => img.kind === 'local')
+      .map((img) => img.file)
+
     if (isEditing && editPost) {
+      // Upload new local images
+      let uploadedUrls: string[] = []
+      if (localFiles.length > 0) {
+        try {
+          uploadedUrls = await uploadLocalFilesForPost(user.id, editPost.id, localFiles)
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error ? err.message : typeof err === 'string' ? err : '未知错误'
+          setError(`图片上传失败：${message}`)
+          setLoading(false)
+          return
+        }
+      }
+
+      const finalImages = uniq([...remoteUrls, ...uploadedUrls]).slice(0, 3)
+
       const updatePayload = {
         type: mode,
         title: title.trim() || (mode === 'seeking' ? '求租' : '房屋出租'),
@@ -170,6 +251,7 @@ function HousingPublishClient() {
         location: location || '其它地区',
         room_type: roomType.trim() || '-',
         contact: contact.trim() || '-',
+        images: finalImages,
         updated_at: new Date().toISOString(),
       }
 
@@ -191,7 +273,7 @@ function HousingPublishClient() {
       return
     }
 
-    // Lightweight, DB-safe payload
+    // New post: insert first with empty images, then upload, then update
     const payload = {
       type: mode,
       title: title.trim() || (mode === 'seeking' ? '求租' : '房屋出租'),
@@ -200,18 +282,51 @@ function HousingPublishClient() {
       location: location || '其它地区',
       room_type: roomType.trim() || '-',
       contact: contact.trim() || '-',
-      images: [], // images optional; upload comes later
+      images: [],
       status: 'published' as const,
       views: 0,
       user_id: user.id,
     }
 
-    const { error: insertError } = await supabase.from('housing_posts').insert(payload)
+    const { data: inserted, error: insertError } = await supabase
+      .from('housing_posts')
+      .insert(payload)
+      .select()
+      .single()
 
-    if (insertError) {
-      setError(`发布失败：${insertError.message}`)
+    if (insertError || !inserted) {
+      setError(`发布失败：${insertError?.message || '未知错误'}`)
       setLoading(false)
       return
+    }
+
+    const postId = inserted.id as number
+
+    let uploadedUrls: string[] = []
+    if (localFiles.length > 0) {
+      try {
+        uploadedUrls = await uploadLocalFilesForPost(user.id, postId, localFiles)
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : typeof err === 'string' ? err : '未知错误'
+        setError(`图片上传失败：${message}`)
+        setLoading(false)
+        return
+      }
+    }
+
+    if (uploadedUrls.length > 0) {
+      const finalImages = uniq(uploadedUrls).slice(0, 3)
+      const { error: updateImagesError } = await supabase
+        .from('housing_posts')
+        .update({ images: finalImages, updated_at: new Date().toISOString() })
+        .eq('id', postId)
+        .eq('user_id', user.id)
+      if (updateImagesError) {
+        setError(`图片保存失败：${updateImagesError.message}`)
+        setLoading(false)
+        return
+      }
     }
 
     router.push('/housing')
@@ -341,7 +456,71 @@ function HousingPublishClient() {
                 }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
               />
-              <p className="mt-2 text-xs text-gray-400">提示：图片功能后续统一优化，本次可不传图。</p>
+            </div>
+
+            {/* Image upload (0~3) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">图片（可选，最多3张）</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  setImageTip('')
+                  const files = Array.from(e.target.files || [])
+                  if (files.length === 0) return
+
+                  setPreviewImages((prev) => {
+                    const remaining = Math.max(0, 3 - prev.length)
+                    const allowed = files.slice(0, remaining)
+                    if (files.length > remaining) {
+                      setImageTip('最多只能上传 3 张图片（包含已有图片）。已自动截断超出部分。')
+                    }
+                    const next: PreviewImage[] = [
+                      ...prev,
+                      ...allowed.map((file) => ({
+                        kind: 'local' as const,
+                        url: URL.createObjectURL(file),
+                        file,
+                      })),
+                    ]
+                    return next.slice(0, 3)
+                  })
+
+                  // allow selecting same file again
+                  e.currentTarget.value = ''
+                }}
+                className="w-full text-sm text-gray-600"
+              />
+
+              {imageTip && <p className="mt-1 text-xs text-amber-600">{imageTip}</p>}
+
+              {previewImages.length > 0 && (
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {previewImages.slice(0, 3).map((img, idx) => (
+                    <div key={`${img.url}-${idx}`} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.url} alt={`preview-${idx + 1}`} className="h-24 w-full object-cover rounded-lg border" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreviewImages((prev) => {
+                            const target = prev[idx]
+                            if (target?.kind === 'local' && target.url.startsWith('blob:')) {
+                              URL.revokeObjectURL(target.url)
+                            }
+                            return prev.filter((_, i) => i !== idx)
+                          })
+                        }}
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center"
+                        aria-label="删除图片"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button
