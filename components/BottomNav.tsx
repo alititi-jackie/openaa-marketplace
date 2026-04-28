@@ -33,7 +33,7 @@ export default function BottomNav() {
                 active ? 'text-blue-500' : 'text-zinc-600'
               }`}
             >
-              <Icon size={28} strokeWidth={active ? 2.2 : 1.9} />
+              <Icon size={26} strokeWidth={active ? 2.2 : 1.9} />
               <span className="text-[10px] font-semibold">{label}</span>
             </Link>
           )
