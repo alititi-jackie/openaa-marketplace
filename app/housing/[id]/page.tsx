@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
+import PostSafetyNotice from '@/components/PostSafetyNotice'
 import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
@@ -122,7 +123,7 @@ export default function HousingDetailPage() {
   const currentImage = imageCount > 0 ? images[activeIndex] : ''
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
         ← 返回
       </button>
@@ -269,6 +270,8 @@ export default function HousingDetailPage() {
               <p className="font-medium text-gray-900">OpenAA / 发布者</p>
             </div>
           </div>
+
+          <PostSafetyNotice />
         </div>
       </div>
 
