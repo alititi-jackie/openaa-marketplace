@@ -12,14 +12,11 @@ export default function HomePage() {
       {/* 8-grid quick-access menu — sits on a zinc-50 band */}
       <GridMenu />
 
-      {/* Latest posts */}
-      <LatestPostsSection />
-
-      {/* Thin section divider */}
-      <div className="h-2 bg-zinc-50 mt-6" />
-
       {/* DMV + exchange rate info cards */}
       <InfoCardsSection />
+
+      {/* Latest posts */}
+      <LatestPostsSection />
 
       {/* Thin section divider */}
       <div className="h-2 bg-zinc-50 mt-6" />
