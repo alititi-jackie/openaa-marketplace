@@ -44,6 +44,13 @@ function formatSalary(min?: number | null, max?: number | null) {
   return '面议'
 }
 
+const quickLinks = [
+  { label: '招聘', href: '/jobs' },
+  { label: '房屋', href: '/housing' },
+  { label: '二手', href: '/secondhand' },
+  { label: '新闻', href: '/news' },
+] as const
+
 export default function LatestPostsSection() {
   const [jobs, setJobs] = useState<LatestJob[]>([])
   const [items, setItems] = useState<LatestSecondhand[]>([])
@@ -122,10 +129,23 @@ export default function LatestPostsSection() {
   return (
     <section className="pt-6">
       {/* Section header */}
-      <div className="flex items-center px-4 mb-4">
+      <div className="px-4 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-1 h-[18px] bg-blue-500 rounded-full" />
           <h2 className="text-[15px] font-bold text-zinc-800">最新发布</h2>
+        </div>
+
+        {/* Quick nav links (not tabs) */}
+        <div className="mt-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {quickLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="flex-shrink-0 rounded-full bg-zinc-100 px-3 py-1.5 text-[12px] font-semibold text-zinc-700 hover:bg-blue-50 hover:text-blue-700 active:scale-[0.98] transition"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
       </div>
 
