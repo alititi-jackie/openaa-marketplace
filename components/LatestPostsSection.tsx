@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Clock, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { formatDate, formatSalary, formatPrice } from '@/lib/utils'
+import { formatDate, formatPrice } from '@/lib/utils'
 
 type LatestJob = {
   id: string | number
@@ -29,6 +29,19 @@ type LatestHousing = {
   location: string | null
   price?: number | null
   created_at: string | null
+}
+
+function formatSalary(min?: number | null, max?: number | null) {
+  if (typeof min === 'number' && typeof max === 'number') {
+    return `$${min.toLocaleString()}-$${max.toLocaleString()}`
+  }
+  if (typeof min === 'number') {
+    return `$${min.toLocaleString()}+`
+  }
+  if (typeof max === 'number') {
+    return `最高 $${max.toLocaleString()}`
+  }
+  return '面议'
 }
 
 export default function LatestPostsSection() {
@@ -143,9 +156,7 @@ export default function LatestPostsSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">
-                    {formatSalary(job.salary_min ?? null, job.salary_max ?? null)}
-                  </span>
+                  <span className="text-[12px] font-bold text-blue-600">{formatSalary(job.salary_min, job.salary_max)}</span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
                     <span className="text-[10px]">{formatDate(job.created_at ?? '')}</span>
@@ -187,7 +198,7 @@ export default function LatestPostsSection() {
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
                   <span className="text-[12px] font-bold text-blue-600">
-                    {formatPrice(item.price ?? 0)}
+                    {item.price == null ? '面议' : formatPrice(item.price)}
                   </span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
@@ -227,7 +238,9 @@ export default function LatestPostsSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">${housing.price ?? 0}/月</span>
+                  <span className="text-[12px] font-bold text-blue-600">
+                    {housing.price == null ? '租金面议' : `$${housing.price}/月`}
+                  </span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
                     <span className="text-[10px]">{formatDate(housing.created_at ?? '')}</span>
