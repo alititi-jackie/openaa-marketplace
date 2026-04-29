@@ -11,13 +11,12 @@ type Props = {
   className?: string
 }
 
-const BODY_CLASS = 'text-zinc-800 text-base leading-relaxed'
+const CONTACT_CLASS = 'text-zinc-500 text-base leading-relaxed'
 
 export default function PostSafetyNotice({ variant = 'safety', className }: Props) {
   if (variant === 'contact') {
-    // Match description body typography (no card, no background)
     return (
-      <p className={['mt-2', BODY_CLASS, className].filter(Boolean).join(' ')}>
+      <p className={['mt-2', CONTACT_CLASS, className].filter(Boolean).join(' ')}>
         联系对方时，请说明是在 OpenAA 平台看到的信息。谢谢！
       </p>
     )
