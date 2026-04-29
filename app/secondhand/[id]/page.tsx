@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import PostSafetyNotice from '@/components/PostSafetyNotice'
 import { supabase } from '@/lib/supabase'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
@@ -127,7 +128,7 @@ export default function SecondhandDetailPage() {
   const currentImage = imageCount > 0 ? images[activeIndex] : ''
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
         ← 返回
       </button>
@@ -254,6 +255,9 @@ export default function SecondhandDetailPage() {
           <div className="mt-4 pt-4 border-t border-gray-100">
             <h2 className="font-semibold text-gray-900 mb-2">商品描述</h2>
             <p className="text-gray-600 whitespace-pre-wrap">{item.description}</p>
+
+            {/* Contact notice */}
+            <PostSafetyNotice variant="contact" />
           </div>
 
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
@@ -265,6 +269,9 @@ export default function SecondhandDetailPage() {
               <p className="text-xs text-gray-500">发布者</p>
             </div>
           </div>
+
+          {/* Safety notice at bottom */}
+          <PostSafetyNotice variant="safety" />
         </div>
       </div>
 
@@ -310,12 +317,7 @@ export default function SecondhandDetailPage() {
               </>
             )}
 
-            <Image
-              src={currentImage}
-              alt={item.title}
-              fill
-              className="object-contain"
-            />
+            <Image src={currentImage} alt={item.title} fill className="object-contain" />
 
             {imageCount >= 2 && (
               <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2 z-10">
