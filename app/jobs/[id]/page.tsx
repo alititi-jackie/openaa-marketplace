@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatSalary } from '@/lib/utils'
+import PostSafetyNotice from '@/components/PostSafetyNotice'
 import type { JobPosting } from '@/types'
 
 export default function JobDetailPage() {
@@ -36,7 +37,7 @@ export default function JobDetailPage() {
   if (!job) return <div className="flex justify-center py-20 text-gray-500">职位不存在</div>
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
         ← 返回
       </button>
@@ -72,6 +73,8 @@ export default function JobDetailPage() {
         <div className="mt-6 pt-4 border-t border-gray-100">
           <h2 className="font-semibold text-gray-900 mb-3">职位描述</h2>
           <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">{job.description}</p>
+
+          <PostSafetyNotice variant="contact" />
         </div>
 
         <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
@@ -79,12 +82,12 @@ export default function JobDetailPage() {
             {job.user?.username?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div>
-            <p className="font-medium text-gray-900">
-              {job.user?.username ?? '匿名用户'}
-            </p>
+            <p className="font-medium text-gray-900">{job.user?.username ?? '匿名用户'}</p>
             <p className="text-xs text-gray-500">发布者</p>
           </div>
         </div>
+
+        <PostSafetyNotice variant="safety" />
       </div>
     </div>
   )
