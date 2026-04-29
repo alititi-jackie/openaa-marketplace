@@ -92,7 +92,7 @@ export default function GridMenu() {
             >
               <Icon size={25} className={color} strokeWidth={1.7} />
             </div>
-            <span className="text-[11.5px] font-medium text-zinc-600 text-center leading-tight">
+            <span className="text-[14px] font-semibold text-zinc-800 text-center leading-tight">
               {label}
             </span>
           </Link>
