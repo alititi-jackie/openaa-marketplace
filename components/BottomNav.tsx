@@ -7,8 +7,8 @@ import { Home, Briefcase, ShoppingBag, HomeIcon, User } from 'lucide-react'
 const items = [
   { href: '/', label: '首页', Icon: Home, exact: true },
   { href: '/jobs', label: '招聘', Icon: Briefcase, exact: false },
-  { href: '/secondhand', label: '二手', Icon: ShoppingBag, exact: false },
   { href: '/housing', label: '房屋', Icon: HomeIcon, exact: false },
+  { href: '/secondhand', label: '二手', Icon: ShoppingBag, exact: false },
   { href: '/profile', label: '我的', Icon: User, exact: false },
 ] as const
 
@@ -33,8 +33,8 @@ export default function BottomNav() {
                 active ? 'text-blue-500' : 'text-zinc-600'
               }`}
             >
-              <Icon size={26} strokeWidth={active ? 2.2 : 1.9} />
-              <span className="text-[10px] font-semibold">{label}</span>
+              <Icon size={22} strokeWidth={active ? 2 : 1.75} />
+              <span className="text-[12.5px] font-medium leading-none">{label}</span>
             </Link>
           )
         })}
