@@ -5,12 +5,36 @@ import Link from 'next/link'
 import { MapPin, Clock, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatSalary, formatPrice } from '@/lib/utils'
-import type { JobPosting, SecondhandItem, HousingPost } from '@/types'
+
+type LatestJob = {
+  id: string | number
+  title: string | null
+  location: string | null
+  salary_min?: number | null
+  salary_max?: number | null
+  created_at: string | null
+}
+
+type LatestSecondhand = {
+  id: string | number
+  title: string | null
+  category?: string | null
+  price?: number | null
+  created_at: string | null
+}
+
+type LatestHousing = {
+  id: string | number
+  title: string | null
+  location: string | null
+  price?: number | null
+  created_at: string | null
+}
 
 export default function LatestPostsSection() {
-  const [jobs, setJobs] = useState<JobPosting[]>([])
-  const [items, setItems] = useState<SecondhandItem[]>([])
-  const [housings, setHousings] = useState<HousingPost[]>([])
+  const [jobs, setJobs] = useState<LatestJob[]>([])
+  const [items, setItems] = useState<LatestSecondhand[]>([])
+  const [housings, setHousings] = useState<LatestHousing[]>([])
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -34,10 +58,51 @@ export default function LatestPostsSection() {
           .order('created_at', { ascending: false })
           .limit(3),
       ])
-      if (!jobsRes.error) setJobs(jobsRes.data || [])
-      if (!itemsRes.error) setItems(itemsRes.data || [])
-      if (!housingsRes.error) setHousings(housingsRes.data || [])
+
+      if (!jobsRes.error && jobsRes.data) {
+        setJobs(
+          jobsRes.data.map((job) => ({
+            id: job.id,
+            title: job.title,
+            location: job.location,
+            salary_min: job.salary_min,
+            salary_max: job.salary_max,
+            created_at: job.created_at,
+          }))
+        )
+      } else {
+        setJobs([])
+      }
+
+      if (!itemsRes.error && itemsRes.data) {
+        setItems(
+          itemsRes.data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            category: item.category,
+            price: item.price,
+            created_at: item.created_at,
+          }))
+        )
+      } else {
+        setItems([])
+      }
+
+      if (!housingsRes.error && housingsRes.data) {
+        setHousings(
+          housingsRes.data.map((housing) => ({
+            id: housing.id,
+            title: housing.title,
+            location: housing.location,
+            price: housing.price,
+            created_at: housing.created_at,
+          }))
+        )
+      } else {
+        setHousings([])
+      }
     }
+
     fetchAll()
   }, [])
 
@@ -55,10 +120,7 @@ export default function LatestPostsSection() {
       <div className="px-4 mb-5">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-[13px] font-semibold text-zinc-500">最新招聘</h3>
-          <Link
-            href="/jobs"
-            className="flex items-center gap-0.5 text-[12px] text-blue-500 font-medium"
-          >
+          <Link href="/jobs" className="flex items-center gap-0.5 text-[12px] text-blue-500 font-medium">
             更多
             <ChevronRight size={13} />
           </Link>
@@ -82,11 +144,11 @@ export default function LatestPostsSection() {
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
                   <span className="text-[12px] font-bold text-blue-600">
-                    {formatSalary(job.salary_min, job.salary_max)}
+                    {formatSalary(job.salary_min ?? null, job.salary_max ?? null)}
                   </span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(job.created_at)}</span>
+                    <span className="text-[10px]">{formatDate(job.created_at ?? '')}</span>
                   </div>
                 </div>
               </Link>
@@ -125,11 +187,11 @@ export default function LatestPostsSection() {
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
                   <span className="text-[12px] font-bold text-blue-600">
-                    {formatPrice(item.price)}
+                    {formatPrice(item.price ?? 0)}
                   </span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(item.created_at)}</span>
+                    <span className="text-[10px]">{formatDate(item.created_at ?? '')}</span>
                   </div>
                 </div>
               </Link>
@@ -142,10 +204,7 @@ export default function LatestPostsSection() {
       <div className="px-4 mb-2">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-[13px] font-semibold text-zinc-500">最新房屋</h3>
-          <Link
-            href="/housing"
-            className="flex items-center gap-0.5 text-[12px] text-blue-500 font-medium"
-          >
+          <Link href="/housing" className="flex items-center gap-0.5 text-[12px] text-blue-500 font-medium">
             更多
             <ChevronRight size={13} />
           </Link>
@@ -168,12 +227,10 @@ export default function LatestPostsSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">
-                    ${housing.price}/月
-                  </span>
+                  <span className="text-[12px] font-bold text-blue-600">${housing.price ?? 0}/月</span>
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(housing.created_at)}</span>
+                    <span className="text-[10px]">{formatDate(housing.created_at ?? '')}</span>
                   </div>
                 </div>
               </Link>
