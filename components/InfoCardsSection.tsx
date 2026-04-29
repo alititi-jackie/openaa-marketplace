@@ -19,15 +19,15 @@ export default function InfoCardsSection() {
         {/* DMV card */}
         <Link
           href="/dmv"
-          className="rounded-2xl p-3 min-h-[108px] bg-white border border-blue-100 shadow-[0_1px_8px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
+          className="rounded-2xl p-3 min-h-[108px] bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-white/70 ring-1 ring-blue-100 flex items-center justify-center">
                 <Car size={18} className="text-blue-600" strokeWidth={1.8} />
               </div>
 
-              <h3 className="mt-2 text-[13px] font-bold text-zinc-900 leading-snug">DMV 服务</h3>
+              <h3 className="mt-2 text-[14px] font-bold text-zinc-900 leading-snug">DMV 服务</h3>
               <p className="mt-0.5 text-[11px] text-zinc-500 leading-snug line-clamp-2">
                 预约考试 · 笔试题库 · 换驾照
               </p>
@@ -41,23 +41,23 @@ export default function InfoCardsSection() {
         </Link>
 
         {/* Exchange rate card */}
-        <div className="rounded-2xl p-3 min-h-[108px] bg-white border border-zinc-100 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+        <div className="rounded-2xl p-3 min-h-[108px] bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)]">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-white/70 ring-1 ring-emerald-100 flex items-center justify-center">
                 <span className="text-[16px] font-black text-emerald-600 leading-none">$</span>
               </div>
-              <h3 className="mt-2 text-[13px] font-bold text-zinc-900 leading-snug">今日汇率</h3>
+              <h3 className="mt-2 text-[14px] font-bold text-zinc-900 leading-snug">今日汇率</h3>
             </div>
           </div>
 
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-2 space-y-1">
             {rates.map(({ from, to, rate }) => (
               <div key={`${from}-${to}`} className="flex items-center justify-between">
                 <span className="text-[11px] text-zinc-500 font-medium">
-                  {from}/{to}
+                  {from} / {to}
                 </span>
-                <span className="text-[12px] font-bold text-zinc-800">{rate}</span>
+                <span className="text-[18px] font-bold text-zinc-900 leading-none">{rate}</span>
               </div>
             ))}
           </div>
