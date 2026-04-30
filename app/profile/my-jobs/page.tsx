@@ -95,9 +95,17 @@ export default function MyJobsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">我的招聘</h1>
-        <p className="text-sm text-gray-500 mt-1">管理您发布的招聘岗位与求职信息</p>
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">我的招聘</h1>
+          <p className="text-sm text-gray-500 mt-1">管理您发布的招聘岗位与求职信息</p>
+        </div>
+        <Link
+          href="/jobs/publish"
+          className="h-10 px-4 flex items-center text-sm text-blue-600 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 transition"
+        >
+          + 发布招聘
+        </Link>
       </div>
 
       {jobs.length === 0 ? (

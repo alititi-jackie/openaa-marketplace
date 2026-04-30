@@ -93,9 +93,17 @@ export default function MyHousingPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">我的房屋</h1>
-        <p className="text-sm text-gray-500 mt-1">管理您发布的房屋出租与求租信息</p>
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">我的房屋</h1>
+          <p className="text-sm text-gray-500 mt-1">管理您发布的房屋出租与求租信息</p>
+        </div>
+        <Link
+          href="/housing/publish"
+          className="h-10 px-4 flex items-center text-sm text-blue-600 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 transition"
+        >
+          + 发布房屋
+        </Link>
       </div>
 
       {posts.length === 0 ? (

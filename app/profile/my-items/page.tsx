@@ -99,9 +99,17 @@ export default function MyItemsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">我的商品</h1>
-        <p className="text-sm text-gray-500 mt-1">管理您发布的二手出售与求购信息</p>
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">我的商品</h1>
+          <p className="text-sm text-gray-500 mt-1">管理您发布的二手出售与求购信息</p>
+        </div>
+        <Link
+          href="/secondhand/publish"
+          className="h-10 px-4 flex items-center text-sm text-blue-600 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 transition"
+        >
+          + 发布商品
+        </Link>
       </div>
 
       {items.length === 0 ? (
