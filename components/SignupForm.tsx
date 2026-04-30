@@ -134,7 +134,10 @@ export default function SignupForm() {
         <div className="text-4xl mb-4">✅</div>
         <h2 className="text-xl font-bold text-gray-900 mb-3">注册成功！</h2>
         <p className="text-gray-700 text-sm leading-relaxed mb-3">
-          请先打开您的邮箱，点击 OpenAA 发出的确认链接。邮箱确认完成后，请返回 OpenAA 登录页面重新登录。
+          请打开您的邮箱，查收来自 Supabase Auth（noreply@mail.app.supabase.io）的确认邮件，并点击邮件中的 Confirm your mail / 确认邮箱 链接。
+        </p>
+        <p className="text-gray-700 text-sm leading-relaxed mb-3">
+          这是 OpenAA 账号系统发出的邮箱验证邮件。邮箱确认完成后，请返回 OpenAA 登录页面重新登录。
         </p>
         <p className="text-gray-400 text-xs leading-relaxed mb-5">
           如果没有收到确认邮件，请检查垃圾邮件箱，或稍后重新注册/重试。
