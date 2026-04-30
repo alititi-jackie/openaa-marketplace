@@ -10,6 +10,7 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -26,16 +27,38 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
+    setError('')
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setSaving(false)
+      setError('保存失败：未找到记录或无权限')
+      return
+    }
 
-    await supabase.from('users').upsert({
-      id: user.id,
-      username: form.username,
-      bio: form.bio,
-      phone: form.phone,
-      updated_at: new Date().toISOString(),
+    const { data: updated, error: updateError } = await supabase
+      .from('users')
+      .update({
+        username: form.username,
+        bio: form.bio,
+        phone: form.phone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (updateError || !updated) {
+      setSaving(false)
+      setError('保存失败：未找到记录或无权限')
+      return
+    }
+
+    // Sync local state with updated row to avoid UI showing stale values
+    setForm({
+      username: updated.username || '',
+      bio: updated.bio || '',
+      phone: updated.phone || '',
     })
 
     setSaving(false)
@@ -51,6 +74,9 @@ export default function EditProfilePage() {
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
         {success && (
           <div className="bg-green-50 text-green-600 rounded-lg p-3 text-sm">✅ 保存成功！</div>
+        )}
+        {error && (
+          <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm">{error}</div>
         )}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">用户名</label>
