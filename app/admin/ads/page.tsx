@@ -39,6 +39,17 @@ const STATUS_FILTERS: { key: StatusFilter, label: string }[] = [
   { key: 'inactive', label: '已停用' },
 ]
 
+function getPositionLabel(position: string) {
+  const map: Record<string, string> = {
+    home: '首页广告',
+    jobs: '招聘广告',
+    housing: '房屋广告',
+    secondhand: '二手广告',
+    navigation: '导航广告',
+  }
+  return map[position] || position
+}
+
 function AdsAdminContent() {
   const searchParams = useSearchParams()
   const [token, setToken] = useState('')
@@ -418,7 +429,7 @@ function AdsAdminContent() {
                     : (ad.external_url || ad.link_url || '')}
                 </p>
                 <p className="text-xs mt-1">
-                  <span className="font-medium">位置:</span> {ad.position}
+                  <span className="font-medium">位置:</span> {getPositionLabel(ad.position)}
                   {' · '}
                   <span className={`font-medium ${ad.open_mode === 'internal' || ad.link_type === 'internal' ? 'text-purple-600' : 'text-blue-600'}`}>
                     {(ad.open_mode === 'internal' || ad.link_type === 'internal') ? '内部页' : '外部链接'}
