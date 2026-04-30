@@ -27,7 +27,6 @@ function AdsAdminContent() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [linkType, setLinkType] = useState<'external' | 'internal'>('external')
   const [openMode, setOpenMode] = useState<'internal' | 'external_new' | 'external_same'>('external_new')
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
