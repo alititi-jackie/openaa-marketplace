@@ -28,9 +28,9 @@ function typeBadgeClass(t?: string) {
     : 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
 }
 
-function displayPrice(p: number) {
+function displayPrice(p: number): string | null {
   const price = Number(p || 0)
-  if (!Number.isFinite(price) || price <= 0) return '租金请电话咨询'
+  if (!Number.isFinite(price) || price <= 0) return null
   return `$${price}`
 }
 
@@ -111,48 +111,51 @@ export default function MyHousingPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.map((p) => (
-            <div key={p.id} className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
-                      {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
-                    </h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
-                      {typeLabel(p.type)}
-                    </span>
-                    {p.room_type ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
-                        {p.room_type}
+          {posts.map((p) => {
+            const priceStr = displayPrice(p.price)
+            return (
+              <div key={p.id} className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
+                        {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
+                      </h3>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
+                        {typeLabel(p.type)}
                       </span>
-                    ) : null}
-                  </div>
+                      {p.room_type ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
+                          {p.room_type}
+                        </span>
+                      ) : null}
+                    </div>
 
-                  <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-                    <span>💰 {displayPrice(p.price)}</span>
-                    {p.location ? <span>📍 {p.location}</span> : null}
-                    <span>🕒 {formatDate(p.created_at)}</span>
+                    <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                      {priceStr ? <span>💰 {priceStr}</span> : null}
+                      {p.location ? <span>📍 {p.location}</span> : null}
+                      <span>🕒 {formatDate(p.created_at)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-4 flex items-center gap-2">
-                <Link
-                  href={`/housing/publish?edit=${p.id}`}
-                  className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-zinc-800 ring-1 ring-zinc-300 bg-white hover:bg-zinc-50 transition"
-                >
-                  编辑
-                </Link>
-                <button
-                  onClick={() => handleDelete(p.id)}
-                  className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-red-600 ring-1 ring-red-200 bg-red-50 hover:bg-red-100 transition"
-                >
-                  删除
-                </button>
+                <div className="mt-4 flex items-center gap-2">
+                  <Link
+                    href={`/housing/publish?edit=${p.id}`}
+                    className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-zinc-800 ring-1 ring-zinc-300 bg-white hover:bg-zinc-50 transition"
+                  >
+                    编辑
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-red-600 ring-1 ring-red-200 bg-red-50 hover:bg-red-100 transition"
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
