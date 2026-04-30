@@ -30,7 +30,7 @@ function typeBadgeClass(t?: string) {
 
 function displayPrice(p: number) {
   const price = Number(p || 0)
-  if (!Number.isFinite(price) || price <= 0) return '租金面议'
+  if (!Number.isFinite(price) || price <= 0) return '租金请电话咨询'
   return `$${price}`
 }
 
