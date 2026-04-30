@@ -20,6 +20,17 @@ interface Ad {
   created_at: string
 }
 
+type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation'
+
+const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
+  { key: 'all', label: '全部' },
+  { key: 'home', label: '首页广告' },
+  { key: 'jobs', label: '招聘广告' },
+  { key: 'housing', label: '房屋广告' },
+  { key: 'secondhand', label: '二手广告' },
+  { key: 'navigation', label: '导航广告' },
+]
+
 function AdsAdminContent() {
   const searchParams = useSearchParams()
   const [token, setToken] = useState('')
@@ -35,7 +46,12 @@ function AdsAdminContent() {
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [activePosition, setActivePosition] = useState<PositionFilter>('all')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const filteredAds = activePosition === 'all'
+    ? ads
+    : ads.filter((ad) => ad.position === activePosition)
 
   useEffect(() => {
     const qToken = searchParams.get('token')
@@ -312,12 +328,39 @@ function AdsAdminContent() {
       {/* Ad list */}
       <div>
         <h2 className="text-lg font-semibold mb-3">现有广告</h2>
+
+        {/* Position filters */}
+        <div className="-mx-1 mb-3 overflow-x-auto">
+          <div className="flex gap-2 px-1 whitespace-nowrap">
+            {POSITION_FILTERS.map((item) => {
+              const active = activePosition === item.key
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setActivePosition(item.key)}
+                  className={
+                    `px-3 py-1 rounded-full text-xs font-medium border ` +
+                    (active
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
+                  }
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {loading && <p className="text-sm text-gray-500">加载中...</p>}
-        {ads.length === 0 && !loading && (
-          <p className="text-sm text-gray-400">暂无广告</p>
+
+        {!loading && filteredAds.length === 0 && (
+          <p className="text-sm text-gray-400">暂无该分类广告</p>
         )}
+
         <ul className="space-y-3">
-          {ads.map((ad) => (
+          {filteredAds.map((ad) => (
             <li key={ad.id} className="p-4 bg-white rounded-xl border shadow-sm flex gap-3 items-start">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
