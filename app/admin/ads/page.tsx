@@ -31,6 +31,14 @@ const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'navigation', label: '导航广告' },
 ]
 
+type StatusFilter = 'all' | 'active' | 'inactive'
+
+const STATUS_FILTERS: { key: StatusFilter, label: string }[] = [
+  { key: 'all', label: '全部状态' },
+  { key: 'active', label: '启用中' },
+  { key: 'inactive', label: '已停用' },
+]
+
 function AdsAdminContent() {
   const searchParams = useSearchParams()
   const [token, setToken] = useState('')
@@ -47,11 +55,19 @@ function AdsAdminContent() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [activePosition, setActivePosition] = useState<PositionFilter>('all')
+  const [activeStatus, setActiveStatus] = useState<StatusFilter>('all')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const filteredAds = activePosition === 'all'
-    ? ads
-    : ads.filter((ad) => ad.position === activePosition)
+  const filteredAds = ads.filter((ad) => {
+    const matchPosition = activePosition === 'all' ? true : ad.position === activePosition
+    const matchStatus = activeStatus === 'all'
+      ? true
+      : activeStatus === 'active'
+        ? ad.is_active === true
+        : ad.is_active === false
+
+    return matchPosition && matchStatus
+  })
 
   useEffect(() => {
     const qToken = searchParams.get('token')
@@ -329,34 +345,61 @@ function AdsAdminContent() {
       <div>
         <h2 className="text-lg font-semibold mb-3">现有广告</h2>
 
-        {/* Position filters */}
-        <div className="-mx-1 mb-3 overflow-x-auto">
-          <div className="flex gap-2 px-1 whitespace-nowrap">
-            {POSITION_FILTERS.map((item) => {
-              const active = activePosition === item.key
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setActivePosition(item.key)}
-                  className={
-                    `px-3 py-1 rounded-full text-xs font-medium border ` +
-                    (active
-                      ? 'bg-blue-50 text-blue-700 border-blue-200'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
-                  }
-                >
-                  {item.label}
-                </button>
-              )
-            })}
+        {/* Filters */}
+        <div className="space-y-2">
+          {/* Position filters */}
+          <div className="-mx-1 overflow-x-auto">
+            <div className="flex gap-2 px-1 whitespace-nowrap">
+              {POSITION_FILTERS.map((item) => {
+                const active = activePosition === item.key
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => setActivePosition(item.key)}
+                    className={
+                      `px-3 py-1 rounded-full text-xs font-medium border ` +
+                      (active
+                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                        : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
+                    }
+                  >
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Status filters */}
+          <div className="-mx-1 overflow-x-auto">
+            <div className="flex gap-2 px-1 whitespace-nowrap">
+              {STATUS_FILTERS.map((item) => {
+                const active = activeStatus === item.key
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => setActiveStatus(item.key)}
+                    className={
+                      `px-3 py-1 rounded-full text-xs font-medium border ` +
+                      (active
+                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                        : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
+                    }
+                  >
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
 
         {loading && <p className="text-sm text-gray-500">加载中...</p>}
 
         {!loading && filteredAds.length === 0 && (
-          <p className="text-sm text-gray-400">暂无该分类广告</p>
+          <p className="text-sm text-gray-400">暂无符合条件的广告</p>
         )}
 
         <ul className="space-y-3">
