@@ -10,11 +10,9 @@ import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
 
-type HousingPostWithUser = HousingPost & {
-  user?: {
-    username?: string | null
-    avatar_url?: string | null
-  } | null
+type PublisherInfo = {
+  username: string
+  avatar_url: string | null
 }
 
 function typeLabel(t?: string) {
@@ -37,6 +35,7 @@ export default function HousingDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const [post, setPost] = useState<HousingPost | null>(null)
+  const [publisher, setPublisher] = useState<PublisherInfo>({ username: '匿名用户', avatar_url: null })
   const [loading, setLoading] = useState(true)
 
   // Carousel state
@@ -49,15 +48,42 @@ export default function HousingDetailPage() {
 
   useEffect(() => {
     const fetchPost = async () => {
-      const { data } = await supabase
+      setLoading(true)
+      setPost(null)
+      setPublisher({ username: '匿名用户', avatar_url: null })
+
+      const { data: postData } = await supabase
         .from('housing_posts')
-        .select('*, user:users(username, avatar_url)')
+        .select('*')
         .eq('id', id)
         .single()
 
-      if (data) setPost(data)
+      if (!postData) {
+        setLoading(false)
+        return
+      }
+
+      setPost(postData)
       setLoading(false)
+
+      // Publisher info should never block the page.
+      const userId = (postData as HousingPost & { user_id?: string | null }).user_id
+      if (!userId) return
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('username, avatar_url')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (userData?.username) {
+        setPublisher({
+          username: userData.username,
+          avatar_url: userData.avatar_url ?? null,
+        })
+      }
     }
+
     fetchPost()
   }, [id])
 
@@ -118,9 +144,8 @@ export default function HousingDetailPage() {
   const rawPrice = Number(post.price || 0)
   const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0
 
-  const postWithUser = post as HousingPostWithUser
-  const publisherUsername = postWithUser.user?.username || '匿名用户'
-  const publisherAvatarUrl = postWithUser.user?.avatar_url || ''
+  const publisherUsername = publisher.username || '匿名用户'
+  const publisherAvatarUrl = publisher.avatar_url || ''
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
