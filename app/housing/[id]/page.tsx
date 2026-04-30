@@ -10,6 +10,15 @@ import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
 
+type HousingPostWithUser = HousingPost & {
+  user?: {
+    username?: string | null
+    avatar_url?: string | null
+  } | null
+  username?: string | null
+  avatar_url?: string | null
+}
+
 function typeLabel(t?: string) {
   return t === 'seeking' ? '求租' : '出租'
 }
@@ -107,8 +116,10 @@ export default function HousingDetailPage() {
   const rawPrice = Number(post.price || 0)
   const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0
 
-  const publisherUsername = (post as any)?.user?.username ?? (post as any)?.username ?? 'OpenAA'
-  const publisherAvatarUrl = (post as any)?.user?.avatar_url ?? (post as any)?.avatar_url ?? ''
+  const postWithUser = post as HousingPostWithUser
+
+  const publisherUsername = postWithUser.user?.username ?? postWithUser.username ?? 'OpenAA'
+  const publisherAvatarUrl = postWithUser.user?.avatar_url ?? postWithUser.avatar_url ?? ''
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
