@@ -15,8 +15,6 @@ type HousingPostWithUser = HousingPost & {
     username?: string | null
     avatar_url?: string | null
   } | null
-  username?: string | null
-  avatar_url?: string | null
 }
 
 function typeLabel(t?: string) {
@@ -51,7 +49,11 @@ export default function HousingDetailPage() {
 
   useEffect(() => {
     const fetchPost = async () => {
-      const { data } = await supabase.from('housing_posts').select('*').eq('id', id).single()
+      const { data } = await supabase
+        .from('housing_posts')
+        .select('*, user:users(username, avatar_url)')
+        .eq('id', id)
+        .single()
 
       if (data) setPost(data)
       setLoading(false)
@@ -117,9 +119,8 @@ export default function HousingDetailPage() {
   const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0
 
   const postWithUser = post as HousingPostWithUser
-
-  const publisherUsername = postWithUser.user?.username ?? postWithUser.username ?? 'OpenAA'
-  const publisherAvatarUrl = postWithUser.user?.avatar_url ?? postWithUser.avatar_url ?? ''
+  const publisherUsername = postWithUser.user?.username || '匿名用户'
+  const publisherAvatarUrl = postWithUser.user?.avatar_url || ''
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
@@ -241,9 +242,7 @@ export default function HousingDetailPage() {
           <h1 className="text-xl font-semibold text-gray-900">{post.title}</h1>
 
           {hasPrice && (
-            <p className="text-2xl font-bold text-[#1976d2] mt-2">
-              {displayPrice(post.price)}
-            </p>
+            <p className="text-2xl font-bold text-[#1976d2] mt-2">{displayPrice(post.price)}</p>
           )}
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-gray-500">
@@ -267,8 +266,8 @@ export default function HousingDetailPage() {
             </div>
           ) : null}
 
-          {/* Publisher (match jobs detail layout) */}
-          <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
+          {/* Publisher */}
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
             {publisherAvatarUrl ? (
               <Image
                 src={publisherAvatarUrl}
