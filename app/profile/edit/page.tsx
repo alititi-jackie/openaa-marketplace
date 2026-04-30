@@ -4,6 +4,88 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+function validateUsername(username: string): string | null {
+  const trimmed = username.trim()
+
+  if (!trimmed) return '请输入昵称'
+  if (trimmed.length < 2) return '昵称至少需要 2 个字符'
+  if (trimmed.length > 20) return '昵称不能超过 20 个字符'
+
+  const normalizedName = trimmed.toLowerCase().replace(/\s+/g, '')
+
+  const blockedWords = [
+    // 中文
+    '官方',
+    '官方账号',
+    '平台官方',
+    '认证',
+    '认证账号',
+    '管理员',
+    '管理',
+    '版主',
+    '站长',
+    '系统',
+    '平台',
+    '运营',
+    '审核员',
+    '监督员',
+    '客服',
+    '客户服务',
+    '服务热线',
+    '售后',
+    '帮助中心',
+    '举报中心',
+    '投诉中心',
+    'OpenAA',
+    'OpenAA官方',
+    'openaa',
+    '警察',
+    '公安',
+    '政府',
+    '移民局',
+    '税务局',
+    '银行',
+    'DMV',
+    'USCIS',
+    'IRS',
+
+    // 英文
+    'admin',
+    'administrator',
+    'root',
+    'system',
+    'official',
+    'support',
+    'service',
+    'moderator',
+    'staff',
+    'owner',
+    'operator',
+    'helpdesk',
+    'customer service',
+    'customerservice',
+    'openai',
+    'openaa',
+    'bank',
+    'dmv',
+    'uscis',
+    'irs',
+    'government',
+    'police',
+  ]
+
+  const hasBlockedWord = blockedWords.some((word) => {
+    const normalizedWord = word.toLowerCase().replace(/\s+/g, '')
+    return normalizedName.includes(normalizedWord)
+  })
+
+  if (hasBlockedWord) {
+    return '该昵称包含平台保留词，请换一个昵称'
+  }
+
+  return null
+}
+
 export default function EditProfilePage() {
   const router = useRouter()
   const [form, setForm] = useState({ username: '', bio: '', phone: '' })
@@ -28,6 +110,13 @@ export default function EditProfilePage() {
     e.preventDefault()
     setSaving(true)
     setError('')
+
+    const usernameError = validateUsername(form.username)
+    if (usernameError) {
+      setSaving(false)
+      setError(usernameError)
+      return
+    }
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
