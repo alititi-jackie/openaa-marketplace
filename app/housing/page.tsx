@@ -33,9 +33,9 @@ function typeBadgeClass(t?: string) {
     : 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
 }
 
-function displayPrice(p: number) {
+function displayPrice(p: number): string | null {
   const price = Number(p || 0)
-  if (!Number.isFinite(price) || price <= 0) return '租金请电话咨询'
+  if (!Number.isFinite(price) || price <= 0) return null
   return `$${price}`
 }
 
@@ -151,45 +151,48 @@ export default function HousingPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filtered.map((p) => (
-              <Link
-                key={p.id}
-                href={`/housing/${p.id}`}
-                className="block rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden hover:bg-zinc-50 transition"
-              >
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
-                          {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
-                        </h3>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
-                          {typeLabel(p.type)}
-                        </span>
-                        {p.room_type ? (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
-                            {p.room_type}
+            {filtered.map((p) => {
+              const priceStr = displayPrice(p.price)
+              return (
+                <Link
+                  key={p.id}
+                  href={`/housing/${p.id}`}
+                  className="block rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden hover:bg-zinc-50 transition"
+                >
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-gray-900 truncate max-w-[260px] sm:max-w-[520px]">
+                            {p.title || (p.type === 'seeking' ? '求租' : '房屋出租')}
+                          </h3>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadgeClass(p.type)}`}>
+                            {typeLabel(p.type)}
                           </span>
+                          {p.room_type ? (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-600 ring-1 ring-zinc-100">
+                              {p.room_type}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                          {priceStr ? <span>💰 {priceStr}</span> : null}
+                          {p.location ? <span>📍 {p.location}</span> : null}
+                          <span>🕒 {formatDate(p.created_at)}</span>
+                        </div>
+
+                        {p.description ? (
+                          <p className="mt-3 text-sm text-gray-600 line-clamp-2 whitespace-pre-wrap">
+                            {p.description}
+                          </p>
                         ) : null}
                       </div>
-
-                      <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-                        <span>💰 {displayPrice(p.price)}</span>
-                        {p.location ? <span>📍 {p.location}</span> : null}
-                        <span>🕒 {formatDate(p.created_at)}</span>
-                      </div>
-
-                      {p.description ? (
-                        <p className="mt-3 text-sm text-gray-600 line-clamp-2 whitespace-pre-wrap">
-                          {p.description}
-                        </p>
-                      ) : null}
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>

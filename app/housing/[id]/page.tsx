@@ -20,9 +20,9 @@ function typeBadgeClass(t?: string) {
     : 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
 }
 
-function displayPrice(p: number) {
+function displayPrice(p: number): string | null {
   const price = Number(p || 0)
-  if (!Number.isFinite(price) || price <= 0) return '租金请电话咨询'
+  if (!Number.isFinite(price) || price <= 0) return null
   return `$${price} / 月`
 }
 
@@ -226,9 +226,11 @@ export default function HousingDetailPage() {
 
           <h1 className="text-xl font-semibold text-gray-900">{post.title}</h1>
 
-          <p className={hasPrice ? 'text-2xl font-bold text-[#1976d2] mt-2' : 'text-lg font-semibold text-zinc-700 mt-2'}>
-            {displayPrice(post.price)}
-          </p>
+          {hasPrice && (
+            <p className="text-2xl font-bold text-[#1976d2] mt-2">
+              {displayPrice(post.price)}
+            </p>
+          )}
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-gray-500">
             {post.location ? <span>📍 {post.location}</span> : null}

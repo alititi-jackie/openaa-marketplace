@@ -258,9 +258,11 @@ export default function LatestPostsSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">
-                    {housing.price == null ? '租金请电话咨询' : `$${housing.price}/月`}
-                  </span>
+                  {Number.isFinite(Number(housing.price)) && Number(housing.price) > 0 ? (
+                    <span className="text-[12px] font-bold text-blue-600">
+                      ${housing.price}/月
+                    </span>
+                  ) : null}
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
                     <span className="text-[10px]">{formatDate(housing.created_at ?? '')}</span>
