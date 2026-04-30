@@ -107,6 +107,9 @@ export default function HousingDetailPage() {
   const rawPrice = Number(post.price || 0)
   const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0
 
+  const publisherUsername = (post as any)?.user?.username ?? (post as any)?.username ?? 'OpenAA'
+  const publisherAvatarUrl = (post as any)?.user?.avatar_url ?? (post as any)?.avatar_url ?? ''
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
@@ -253,12 +256,24 @@ export default function HousingDetailPage() {
             </div>
           ) : null}
 
-          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">
-              O
-            </div>
+          {/* Publisher (match jobs detail layout) */}
+          <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
+            {publisherAvatarUrl ? (
+              <Image
+                src={publisherAvatarUrl}
+                alt={publisherUsername}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">
+                {publisherUsername?.[0]?.toUpperCase() ?? '?'}
+              </div>
+            )}
             <div>
-              <p className="font-medium text-gray-900">OpenAA / 发布者</p>
+              <p className="font-medium text-gray-900">{publisherUsername}</p>
+              <p className="text-xs text-gray-500">发布者</p>
             </div>
           </div>
 
