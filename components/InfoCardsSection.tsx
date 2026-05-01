@@ -18,7 +18,7 @@ export default function InfoCardsSection() {
       <div className="grid grid-cols-2 gap-2">
         {/* DMV card */}
         <Link
-          href="/dmv"
+          href="https://openaa.com/dmv/ny/practice/"
           className="rounded-2xl p-3 min-h-[108px] bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
         >
           <div className="flex items-start justify-between gap-2">

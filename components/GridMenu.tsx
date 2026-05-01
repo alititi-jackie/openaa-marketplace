@@ -38,7 +38,7 @@ const menuItems = [
   {
     label: 'DMV',
     Icon: Car,
-    href: '/dmv',
+    href: 'https://openaa.com/nav/dmv',
     bg: 'bg-amber-50',
     color: 'text-amber-500',
     ring: 'ring-amber-100',
@@ -54,7 +54,7 @@ const menuItems = [
   {
     label: '导航',
     Icon: Navigation,
-    href: '/navigation',
+    href: 'https://openaa.com/',
     bg: 'bg-cyan-50',
     color: 'text-cyan-500',
     ring: 'ring-cyan-100',
