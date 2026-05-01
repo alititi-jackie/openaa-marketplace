@@ -1,15 +1,17 @@
 'use client'
 
 import type { ComponentType } from 'react'
+import type { LucideProps } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Briefcase, HomeIcon, User } from 'lucide-react'
 
-function PaperPlaneIcon({ size = 22, strokeWidth = 1.75 }: { size?: number; strokeWidth?: number }) {
+function PaperPlaneIcon({ size = 22, strokeWidth = 1.75 }: LucideProps) {
+  const s = typeof size === 'string' ? Number(size) || 22 : (size ?? 22)
   return (
     <svg
-      width={size}
-      height={size}
+      width={s}
+      height={s}
       viewBox="0 0 24 24"
       fill="none"
       stroke="#000000"
@@ -27,7 +29,7 @@ function PaperPlaneIcon({ size = 22, strokeWidth = 1.75 }: { size?: number; stro
 type NavItem = {
   href: string
   label: string
-  Icon: ComponentType<{ size?: number; strokeWidth?: number }>
+  Icon: ComponentType<LucideProps>
   exact: boolean
 }
 
