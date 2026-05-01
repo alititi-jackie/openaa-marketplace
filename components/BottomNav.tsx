@@ -4,27 +4,7 @@ import type { ComponentType } from 'react'
 import type { LucideProps } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Briefcase, HomeIcon, User } from 'lucide-react'
-
-function PaperPlaneIcon({ size = 22, strokeWidth = 1.75 }: LucideProps) {
-  const s = typeof size === 'string' ? Number(size) || 22 : (size ?? 22)
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#000000"
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M22 2L11 13" />
-      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-    </svg>
-  )
-}
+import { Home, Briefcase, HomeIcon, Navigation, User } from 'lucide-react'
 
 type NavItem = {
   href: string
@@ -37,7 +17,7 @@ const items: NavItem[] = [
   { href: '/', label: '首页', Icon: Home, exact: true },
   { href: '/jobs', label: '招聘', Icon: Briefcase, exact: false },
   { href: '/housing', label: '房屋', Icon: HomeIcon, exact: false },
-  { href: 'https://openaa.com/', label: '导航', Icon: PaperPlaneIcon, exact: false },
+  { href: 'https://openaa.com/', label: '导航', Icon: Navigation, exact: false },
   { href: '/profile', label: '我的', Icon: User, exact: false },
 ]
 
