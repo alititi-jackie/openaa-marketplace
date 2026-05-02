@@ -238,6 +238,17 @@ export default function ProfilePage() {
             <span className="text-zinc-300">›</span>
           </Link>
 
+          <Link
+            href="/profile/change-password"
+            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
+          >
+            <div>
+              <div className="text-zinc-900">🔒 修改密码</div>
+              <div className="text-[11px] text-zinc-400 mt-0.5">定期更新密码，保护账号安全</div>
+            </div>
+            <span className="text-zinc-300">›</span>
+          </Link>
+
           {profile ? (
             <button
               onClick={handleLogout}
