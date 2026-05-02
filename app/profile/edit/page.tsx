@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 export default function EditProfilePage() {
@@ -100,6 +101,15 @@ export default function EditProfilePage() {
           {saving ? '保存中...' : '保存更改'}
         </button>
       </form>
+
+      <div className="mt-4 text-center">
+        <Link
+          href="/profile/change-password"
+          className="text-[13px] text-zinc-500 hover:text-zinc-700 transition"
+        >
+          修改密码
+        </Link>
+      </div>
     </div>
   )
 }
