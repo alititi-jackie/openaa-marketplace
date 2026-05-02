@@ -110,8 +110,8 @@ export default function ChangePasswordPage() {
         </form>
 
         <div className="text-center">
-          <Link href="/profile" className="text-[13px] text-zinc-500 hover:text-zinc-700 transition">
-            返回个人中心
+          <Link href="/profile/edit" className="text-[13px] text-zinc-500 hover:text-zinc-700 transition">
+            返回编辑资料
           </Link>
         </div>
       </div>
