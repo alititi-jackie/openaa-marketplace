@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
@@ -17,8 +16,6 @@ type NoticeState = {
 } | null
 
 export default function ChangePasswordPage() {
-  const router = useRouter()
-
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>({ current: '', newPassword: '', confirm: '' })
