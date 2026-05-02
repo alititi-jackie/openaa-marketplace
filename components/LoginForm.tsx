@@ -95,6 +95,12 @@ export default function LoginForm() {
         </button>
       </form>
 
+      <p className="text-center text-sm text-gray-500 mt-3">
+        <Link href="/auth/forgot-password" className="text-[#1976d2] hover:underline">
+          忘记密码？
+        </Link>
+      </p>
+
       <p className="text-center text-sm text-gray-600 mt-4">
         还没有账号？{' '}
         <Link href="/auth/signup" className="text-[#1976d2] hover:underline font-medium">
