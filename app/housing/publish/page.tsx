@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -86,6 +87,8 @@ async function uploadLocalFilesForPost(userId: string, postId: number, localFile
   return urls
 }
 
+type AuthStatus = 'checking' | 'not-logged-in' | 'email-not-verified' | 'ok'
+
 function HousingPublishClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -93,6 +96,7 @@ function HousingPublishClient() {
   const editId = useMemo(() => parseEditId(searchParams.get('edit')), [searchParams])
   const initialType = useMemo(() => normalizeType(searchParams.get('type')), [searchParams])
 
+  const [authStatus, setAuthStatus] = useState<AuthStatus>('checking')
   const [mode, setMode] = useState<PublishMode>(initialType)
 
   // Optional fields
@@ -138,9 +142,16 @@ function HousingPublishClient() {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push('/auth/login')
+        if (!cancelled) setAuthStatus('not-logged-in')
         return
       }
+
+      if (!user.email_confirmed_at) {
+        if (!cancelled) setAuthStatus('email-not-verified')
+        return
+      }
+
+      if (!cancelled) setAuthStatus('ok')
 
       if (!editId) {
         if (!cancelled) {
@@ -332,7 +343,43 @@ function HousingPublishClient() {
     router.push('/housing')
   }
 
-  if (checking) return <div className="flex justify-center py-20 text-gray-500">验证中...</div>
+  if (authStatus === 'checking' || checking) return <div className="flex justify-center py-20 text-gray-500">验证中...</div>
+
+  if (authStatus === 'not-logged-in') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+        <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-md mx-auto text-center">
+          <h1 className="text-xl font-bold text-gray-900 mb-3">请先登录</h1>
+          <p className="text-gray-600 text-sm mb-6">登录后才可以发布信息。</p>
+          <Link
+            href="/auth/login"
+            className="inline-block bg-[#1976d2] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#1565c0] transition"
+          >
+            前往登录
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (authStatus === 'email-not-verified') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+        <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-md mx-auto text-center">
+          <h1 className="text-xl font-bold text-gray-900 mb-3">请先完成邮箱验证</h1>
+          <p className="text-gray-600 text-sm mb-6">
+            为了保障平台信息安全，请先打开注册邮箱，点击 OpenAA 的邮箱确认链接后再发布信息。
+          </p>
+          <Link
+            href="/profile"
+            className="inline-block bg-[#1976d2] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#1565c0] transition"
+          >
+            返回我的页面
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
