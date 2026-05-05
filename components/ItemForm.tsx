@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
+import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import type { SecondhandItemType, SecondhandItem } from '@/types'
 
 const SECONDHAND_LOCATIONS = [
@@ -311,6 +312,13 @@ export default function ItemForm({ initialType, editItem }: Props) {
         }
 
         router.push('/profile/my-items')
+        return
+      }
+
+      // New post: check daily limit before inserting
+      const limitResult = await checkDailyPostLimit(supabase, user.id)
+      if (!limitResult.allowed) {
+        setError(limitResult.message ?? '暂时无法验证发帖次数，请稍后重试。')
         return
       }
 
