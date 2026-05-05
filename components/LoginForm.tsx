@@ -25,7 +25,7 @@ export default function LoginForm() {
       return
     }
 
-    router.push('/')
+    router.push('/profile')
     router.refresh()
   }
 

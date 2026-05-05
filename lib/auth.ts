@@ -31,6 +31,7 @@ export async function signUpWithEmail(email: string, password: string, username:
     password,
     options: {
       data: { username },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== 'undefined' ? window.location.origin : '')}/auth/confirmed`,
     },
   })
   return { data, error }
