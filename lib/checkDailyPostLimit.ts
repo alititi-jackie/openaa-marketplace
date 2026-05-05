@@ -9,18 +9,31 @@ export interface DailyPostLimitResult {
   message?: string
 }
 
-async function getDailyLimit(supabase: SupabaseClient): Promise<number> {
+/**
+ * Fetches the daily post limit from the public API route, which uses the
+ * service role key and therefore bypasses RLS on the site_settings table.
+ * Falls back to DEFAULT_LIMIT only when the fetch itself fails.
+ *
+ * NOTE: uses a relative URL (/api/settings/daily-limit).
+ * This function must only be called from 'use client' components where a
+ * browser base URL is available. All current callers (JobForm, ItemForm,
+ * housing/publish) satisfy this constraint.
+ */
+async function getDailyLimit(): Promise<number> {
   try {
-    const { data, error } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'daily_post_limit')
-      .single()
-
-    if (error || !data) return DEFAULT_LIMIT
-
-    const parsed = parseInt((data as { value: string }).value, 10)
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_LIMIT
+    const res = await fetch('/api/settings/daily-limit', { cache: 'no-store' })
+    if (!res.ok) return DEFAULT_LIMIT
+    const json: unknown = await res.json()
+    if (
+      json !== null &&
+      typeof json === 'object' &&
+      'daily_post_limit' in json &&
+      typeof (json as Record<string, unknown>).daily_post_limit === 'number'
+    ) {
+      const limit = (json as { daily_post_limit: number }).daily_post_limit
+      return Number.isFinite(limit) && limit > 0 ? limit : DEFAULT_LIMIT
+    }
+    return DEFAULT_LIMIT
   } catch {
     return DEFAULT_LIMIT
   }
@@ -37,7 +50,7 @@ export async function checkDailyPostLimit(
   const todayStartISO = todayStart.toISOString()
   const tomorrowStartISO = tomorrowStart.toISOString()
 
-  const limit = await getDailyLimit(supabase)
+  const limit = await getDailyLimit()
 
   try {
     const [jobsResult, housingResult, secondhandResult] = await Promise.all([

@@ -31,7 +31,16 @@ export async function GET(request: NextRequest) {
       .eq('key', 'daily_post_limit')
       .single()
 
-    if (error || !data) {
+    if (error) {
+      // PGRST116 = "no rows found" — table exists but no record yet; return default
+      if ((error as { code?: string }).code === 'PGRST116') {
+        return NextResponse.json({ daily_post_limit: DEFAULT_DAILY_POST_LIMIT })
+      }
+      // Real DB error — surface it so the admin page shows an error, not a silent default
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    if (!data) {
       return NextResponse.json({ daily_post_limit: DEFAULT_DAILY_POST_LIMIT })
     }
 
@@ -39,8 +48,9 @@ export async function GET(request: NextRequest) {
     const limit = Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_DAILY_POST_LIMIT
 
     return NextResponse.json({ daily_post_limit: limit })
-  } catch {
-    return NextResponse.json({ daily_post_limit: DEFAULT_DAILY_POST_LIMIT })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : '读取失败'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
 
@@ -67,14 +77,23 @@ export async function PUT(request: NextRequest) {
   const limit = Math.floor(rawLimit)
   const supabase = getServiceClient()
 
-  const { error } = await supabase.from('site_settings').upsert(
-    { key: 'daily_post_limit', value: String(limit), updated_at: new Date().toISOString() },
-    { onConflict: 'key' }
-  )
+  const { data: upserted, error } = await supabase
+    .from('site_settings')
+    .upsert(
+      {
+        key: 'daily_post_limit',
+        value: String(limit),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'key' },
+    )
+    .select()
+    .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+  if (error || !upserted) {
+    return NextResponse.json({ error: error?.message ?? '保存失败' }, { status: 500 })
   }
 
-  return NextResponse.json({ daily_post_limit: limit })
+  const saved = parseInt((upserted as { value: string }).value, 10)
+  return NextResponse.json({ daily_post_limit: Number.isFinite(saved) && saved > 0 ? saved : limit })
 }
