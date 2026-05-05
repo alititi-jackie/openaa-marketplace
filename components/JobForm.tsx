@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
+import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
@@ -238,6 +239,14 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       }
 
       router.push('/profile/my-jobs')
+      return
+    }
+
+    // New post: check daily limit before inserting
+    const limitResult = await checkDailyPostLimit(supabase, user.id)
+    if (!limitResult.allowed) {
+      setError(limitResult.message ?? '暂时无法验证发帖次数，请稍后重试。')
+      setLoading(false)
       return
     }
 
