@@ -137,21 +137,37 @@ function HousingPublishClient() {
       setError('')
       setEditPost(null)
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      let authedUserId: string | null = null
 
-      if (!user) {
-        if (!cancelled) setAuthStatus('not-logged-in')
+      try {
+        const { data, error: authError } = await supabase.auth.getUser()
+        const user = authError ? null : (data?.user ?? null)
+
+        if (!user) {
+          if (!cancelled) {
+            setAuthStatus('not-logged-in')
+            setChecking(false)
+          }
+          return
+        }
+
+        if (!user.email_confirmed_at) {
+          if (!cancelled) {
+            setAuthStatus('email-not-verified')
+            setChecking(false)
+          }
+          return
+        }
+
+        authedUserId = user.id
+        if (!cancelled) setAuthStatus('ok')
+      } catch {
+        if (!cancelled) {
+          setAuthStatus('not-logged-in')
+          setChecking(false)
+        }
         return
       }
-
-      if (!user.email_confirmed_at) {
-        if (!cancelled) setAuthStatus('email-not-verified')
-        return
-      }
-
-      if (!cancelled) setAuthStatus('ok')
 
       if (!editId) {
         if (!cancelled) {
@@ -180,7 +196,7 @@ function HousingPublishClient() {
         return
       }
 
-      if (data.user_id !== user.id) {
+      if (data.user_id !== authedUserId) {
         setError('无权限编辑该信息')
         setLoadingEdit(false)
         return
