@@ -26,9 +26,12 @@ export default function ForgotPasswordPage() {
     }
 
     setLoading(true)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const redirectTo =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/reset-password`
+        : 'https://app.openaa.com/auth/reset-password'
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${baseUrl}/auth/reset-password`,
+      redirectTo,
     })
     setLoading(false)
 
