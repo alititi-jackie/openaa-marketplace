@@ -28,6 +28,7 @@ const SERVICE_LOCATIONS_PUBLISH = [
   '布鲁克林',
   '曼哈顿',
   '皇后区',
+  '史登岛',
   '新泽西',
   '其它地区',
 ] as const

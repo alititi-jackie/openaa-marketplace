@@ -20,7 +20,7 @@ interface Ad {
   created_at: string
 }
 
-type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation'
+type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation' | 'services'
 
 const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'all', label: '全部' },
@@ -29,6 +29,7 @@ const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'housing', label: '房屋广告' },
   { key: 'secondhand', label: '二手广告' },
   { key: 'navigation', label: '导航广告' },
+  { key: 'services', label: '本地服务广告' },
 ]
 
 type StatusFilter = 'all' | 'active' | 'inactive'
@@ -46,6 +47,7 @@ function getPositionLabel(position: string) {
     housing: '房屋广告',
     secondhand: '二手广告',
     navigation: '导航广告',
+    services: '本地服务广告',
   }
   return map[position] || position
 }
@@ -61,7 +63,7 @@ function AdsAdminContent() {
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
-  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing'>('home')
+  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services'>('home')
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -295,7 +297,7 @@ function AdsAdminContent() {
           <label className="block text-sm font-medium mb-1">位置</label>
           <select
             value={position}
-            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing')}
+            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services')}
             className="w-full border rounded-lg px-3 py-2 text-sm"
           >
             <option value="home">首页 (home)</option>
@@ -303,6 +305,7 @@ function AdsAdminContent() {
             <option value="secondhand">二手 (secondhand)</option>
             <option value="navigation">导航页 (navigation)</option>
             <option value="housing">房屋 (housing)</option>
+            <option value="services">本地服务 (services)</option>
           </select>
         </div>
 

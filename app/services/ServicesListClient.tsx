@@ -25,6 +25,7 @@ export const SERVICE_LOCATIONS = [
   '布鲁克林',
   '曼哈顿',
   '皇后区',
+  '史登岛',
   '新泽西',
   '其它地区',
 ] as const
@@ -115,7 +116,7 @@ export default function ServicesListClient() {
 
   return (
     <div className="min-h-screen bg-white pb-24">
-      <AppTopSection bannerPosition="home" />
+      <AppTopSection bannerPosition="services" />
 
       {/* Header */}
       <div className="px-4 pt-5 pb-3">
