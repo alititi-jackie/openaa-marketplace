@@ -137,9 +137,9 @@ export default function ServicesListClient() {
       </div>
 
       {/* Category filter */}
-      <div className="sticky top-0 z-30 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="sticky top-14 z-40 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-100">
         <div ref={categoryScrollRef} className="overflow-x-auto whitespace-nowrap scrollbar-hide px-4 py-2">
-          <div className="flex gap-2">
+          <div className="flex justify-start gap-2">
           {SERVICE_CATEGORIES.map((cat) => {
             const active = category === cat
             return (
