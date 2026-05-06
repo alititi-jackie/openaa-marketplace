@@ -53,7 +53,7 @@ export async function checkDailyPostLimit(
   const limit = await getDailyLimit()
 
   try {
-    const [jobsResult, housingResult, secondhandResult] = await Promise.all([
+    const [jobsResult, housingResult, secondhandResult, servicesResult] = await Promise.all([
       supabase
         .from('job_postings')
         .select('id', { count: 'exact', head: true })
@@ -72,9 +72,15 @@ export async function checkDailyPostLimit(
         .eq('user_id', userId)
         .gte('created_at', todayStartISO)
         .lt('created_at', tomorrowStartISO),
+      supabase
+        .from('service_posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', todayStartISO)
+        .lt('created_at', tomorrowStartISO),
     ])
 
-    if (jobsResult.error || housingResult.error || secondhandResult.error) {
+    if (jobsResult.error || housingResult.error || secondhandResult.error || servicesResult.error) {
       return {
         allowed: false,
         limit,
@@ -86,7 +92,8 @@ export async function checkDailyPostLimit(
     const used =
       (jobsResult.count ?? 0) +
       (housingResult.count ?? 0) +
-      (secondhandResult.count ?? 0)
+      (secondhandResult.count ?? 0) +
+      (servicesResult.count ?? 0)
 
     if (used >= limit) {
       return {
