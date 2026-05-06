@@ -418,7 +418,7 @@ function HousingPublishClient() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">{editId ? '编辑房屋信息' : '发布房屋'}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">{editId ? '编辑房屋信息' : '发布房源'}</h1>
 
       {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>}
 

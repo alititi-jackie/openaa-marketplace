@@ -179,8 +179,8 @@ export default function ProfilePage() {
                       <Home size={18} className="text-emerald-600" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-black text-zinc-900">发布房屋</div>
-                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布房屋</div>
+                      <div className="text-[13px] font-black text-zinc-900">发布房源</div>
+                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布房源</div>
                     </div>
                   </div>
                 </Link>

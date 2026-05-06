@@ -102,7 +102,7 @@ export default function MyHousingPage() {
           href="/housing/publish"
           className="h-10 px-4 flex items-center text-sm text-blue-600 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 transition"
         >
-          + 发布房屋
+          + 发布房源
         </Link>
       </div>
 
