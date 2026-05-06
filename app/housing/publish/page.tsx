@@ -422,7 +422,7 @@ function HousingPublishClient() {
 
       {loadingEdit ? (
         <div className="flex justify-center py-20 text-gray-500">加载中...</div>
-      ) : error ? null : (
+      ) : (
         <>
           {/* Mode switch */}
           <div className="mb-4">
