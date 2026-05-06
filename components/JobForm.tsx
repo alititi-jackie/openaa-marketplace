@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
@@ -273,6 +274,8 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     router.push(`/jobs/${data.id}`)
   }
 
+  const isDailyLimitError = error.includes('今天发布的信息已达到平台限制')
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
       {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm">{error}</div>}
@@ -530,6 +533,22 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
         {error && (
           <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
             {error}
+          </div>
+        )}
+        {isDailyLimitError && (
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Link
+              href="/profile"
+              className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600"
+            >
+              返回我的页面
+            </Link>
+            <Link
+              href="/"
+              className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600"
+            >
+              返回首页
+            </Link>
           </div>
         )}
       </div>
