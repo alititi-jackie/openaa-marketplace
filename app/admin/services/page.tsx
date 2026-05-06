@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 
 const SERVICE_CATEGORIES_FILTER = [
@@ -19,14 +20,7 @@ const SERVICE_CATEGORIES_FILTER = [
 
 const SERVICE_LOCATIONS_FILTER = [
   '全部',
-  '纽约',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '史登岛',
-  '新泽西',
-  '其它地区',
+  ...LOCATION_OPTIONS,
 ] as const
 
 const STATUS_FILTERS = [

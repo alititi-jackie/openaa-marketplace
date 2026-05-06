@@ -6,28 +6,12 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
+import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
 
-const JOB_LOCATIONS = [
-  '未填写',
-  '其它地区',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '布朗士',
-  '长岛',
-  '新泽西',
-  '史丹顿岛',
-  '纽约上州',
-  '费城',
-  '波士顿',
-  '洛杉矶',
-  '旧金山',
-  '芝加哥',
-] as const
+const JOB_LOCATIONS = LOCATION_OPTIONS
 
 type JobLocation = (typeof JOB_LOCATIONS)[number]
 
@@ -83,7 +67,7 @@ function safeNumber(s: string): number {
 }
 
 function normalizeLocation(v: unknown): JobLocation {
-  return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : '未填写'
+  return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : DEFAULT_LOCATION
 }
 
 export default function JobForm({ initialType = 'hiring', editJob = null }: Props) {
@@ -108,7 +92,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     description: '',
     salary_min: '',
     salary_max: '',
-    location: '未填写',
+    location: DEFAULT_LOCATION,
     job_type: defaultJobType,
     category: defaultCategory,
   })
@@ -117,7 +101,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
   const [seeking, setSeeking] = useState<SeekingFormData>({
     display_name: '',
     desired_role: '',
-    region: '未填写',
+    region: DEFAULT_LOCATION,
     experience: '',
     availability: '',
     contact: '',
@@ -201,7 +185,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             salary_min: safeNumber(hiring.salary_min),
             salary_max: safeNumber(hiring.salary_max),
             // Keep optional UX: always DB-safe value
-            location: hiring.location || '未填写',
+            location: hiring.location || DEFAULT_LOCATION,
             job_type: hiring.job_type?.trim() || defaultJobType,
             category: hiring.category?.trim() || defaultCategory,
             status: 'published' as const,
@@ -217,7 +201,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             salary_min: 0,
             salary_max: 0,
             // Keep optional UX: always DB-safe value
-            location: seeking.region || '未填写',
+            location: seeking.region || DEFAULT_LOCATION,
             job_type: defaultJobType,
             category: defaultCategory,
             status: 'published' as const,
@@ -388,7 +372,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
+            <p className="mt-1 text-xs text-gray-400">默认：纽约 New York</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -471,7 +455,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
+              <p className="mt-1 text-xs text-gray-400">默认：纽约 New York</p>
             </div>
           </div>
 

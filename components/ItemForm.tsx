@@ -6,26 +6,10 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
+import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { SecondhandItemType, SecondhandItem } from '@/types'
 
-const SECONDHAND_LOCATIONS = [
-  '未填写',
-  '其它地区',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '布朗士',
-  '长岛',
-  '新泽西',
-  '史丹顿岛',
-  '纽约上州',
-  '费城',
-  '波士顿',
-  '洛杉矶',
-  '旧金山',
-  '芝加哥',
-] as const
+const SECONDHAND_LOCATIONS = LOCATION_OPTIONS
 
 type SecondhandLocation = (typeof SECONDHAND_LOCATIONS)[number]
 
@@ -78,7 +62,7 @@ function parseLocationFromDescription(description: string): SecondhandLocation {
     const v = m?.[1]?.trim()
     if (v && (SECONDHAND_LOCATIONS as readonly string[]).includes(v)) return v as SecondhandLocation
   }
-  return '未填写'
+  return DEFAULT_LOCATION
 }
 
 function parseBudget(description: string): string {
@@ -153,7 +137,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
   const [mode, setMode] = useState<SecondhandItemType>(defaultType)
 
   const isEdit = !!editItem
-  const initialLocation = editItem ? parseLocationFromDescription(editItem.description) : '未填写'
+  const initialLocation = editItem ? parseLocationFromDescription(editItem.description) : DEFAULT_LOCATION
 
   const [selling, setSelling] = useState<SellingFormData>(() => ({
     title: editItem?.type !== 'buying' ? editItem?.title || '' : '',
