@@ -21,10 +21,15 @@ export function formatDate(dateString: string): string {
   return `${Math.floor(diffDays / 365)}年前`
 }
 
-export function formatSalary(min: number, max: number): string {
-  const minK = min >= 1000 ? `${(min / 1000).toFixed(0)}k` : `${min}`
-  const maxK = max >= 1000 ? `${(max / 1000).toFixed(0)}k` : `${max}`
-  return `$${minK} - $${maxK}/年`
+export function formatSalary(min: number, max: number): string | null {
+  const minVal = min > 0 ? min : 0
+  const maxVal = max > 0 ? max : 0
+  if (minVal === 0 && maxVal === 0) return null
+  const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(0)}k` : `${n}`)
+  if (maxVal > 0 && minVal === 0) return `≤ $${fmt(maxVal)}`
+  if (minVal > 0 && maxVal === 0) return `$${fmt(minVal)}+`
+  if (minVal === maxVal) return `$${fmt(minVal)}`
+  return `$${fmt(minVal)} - $${fmt(maxVal)}/年`
 }
 
 export function truncate(str: string, maxLength: number): string {
