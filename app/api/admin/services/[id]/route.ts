@@ -32,6 +32,11 @@ export async function PATCH(
 
   const { status, is_active } = body as { status?: string; is_active?: boolean }
 
+  const VALID_STATUSES = ['active', 'hidden', 'deleted']
+  if (status !== undefined && !VALID_STATUSES.includes(status)) {
+    return NextResponse.json({ error: '无效的状态值' }, { status: 400 })
+  }
+
   const supabase = getServiceClient()
   const { data, error } = await supabase
     .from('service_posts')

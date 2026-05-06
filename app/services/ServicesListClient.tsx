@@ -53,7 +53,7 @@ function ServiceCard({ post }: { post: ServicePost }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={thumb} alt={post.title} className="w-full h-36 object-cover" />
       ) : (
-        <div className="w-full h-16 bg-zinc-50 flex items-center justify-center text-3xl select-none">
+        <div className="w-full h-16 bg-zinc-50 flex items-center justify-center text-3xl select-none" aria-hidden="true">
           🛠️
         </div>
       )}
