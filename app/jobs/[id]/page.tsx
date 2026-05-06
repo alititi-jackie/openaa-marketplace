@@ -37,6 +37,7 @@ export default function JobDetailPage() {
   if (!job) return <div className="flex justify-center py-20 text-gray-500">职位不存在</div>
 
   const salary = formatSalary(job.salary_min, job.salary_max)
+  const companyName = job.company?.trim() || ''
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
@@ -48,7 +49,9 @@ export default function JobDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
-            {job.company ? <p className="text-lg text-gray-600 mt-1">{job.company}</p> : null}
+            {companyName && companyName !== '匿名发布' ? (
+              <p className="text-lg text-gray-600 mt-1">{companyName}</p>
+            ) : null}
           </div>
           <span className="bg-blue-50 text-[#1976d2] px-3 py-1 rounded-full text-sm font-medium">
             {job.job_type}
