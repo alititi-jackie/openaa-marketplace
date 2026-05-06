@@ -414,6 +414,8 @@ function HousingPublishClient() {
     )
   }
 
+  const isDailyLimitError = error.includes('今天发布的信息已达到平台限制')
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">{editId ? '编辑房屋信息' : '发布房屋'}</h1>
@@ -607,6 +609,22 @@ function HousingPublishClient() {
               {error && (
                 <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
                   {error}
+                </div>
+              )}
+              {isDailyLimitError && (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Link
+                    href="/profile"
+                    className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600"
+                  >
+                    返回我的页面
+                  </Link>
+                  <Link
+                    href="/"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600"
+                  >
+                    返回首页
+                  </Link>
                 </div>
               )}
             </div>
