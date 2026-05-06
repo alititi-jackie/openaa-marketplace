@@ -231,6 +231,14 @@ export default function ProfilePage() {
           </Link>
 
           <Link
+            href="/profile/my-services"
+            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
+          >
+            <span className="text-zinc-900">🛠️ 我的服务</span>
+            <span className="text-zinc-300">›</span>
+          </Link>
+
+          <Link
             href="/profile/edit"
             className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
           >

@@ -86,6 +86,26 @@ export interface HousingPost {
   user?: JoinedUser
 }
 
+export type ServicePostStatus = 'active' | 'hidden' | 'deleted'
+
+export interface ServicePost {
+  id: string
+  user_id: string
+  title: string
+  category: string
+  location: string
+  description: string
+  contact_name: string | null
+  phone: string | null
+  wechat: string | null
+  price_note: string | null
+  images: string[] | null
+  status: ServicePostStatus
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
 export interface ApiResponse<T> {
   data?: T
   error?: string

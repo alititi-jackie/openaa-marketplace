@@ -1,0 +1,208 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import AppTopSection from '@/components/AppTopSection'
+import type { ServicePost } from '@/types'
+
+export const SERVICE_CATEGORIES = [
+  '全部',
+  '装修维修',
+  '搬家运输',
+  '家政清洁',
+  '汽车相关',
+  '专业服务',
+  '电脑手机',
+  '餐饮商业',
+  '其它服务',
+] as const
+
+export const SERVICE_LOCATIONS = [
+  '全部',
+  '纽约',
+  '法拉盛',
+  '布鲁克林',
+  '曼哈顿',
+  '皇后区',
+  '新泽西',
+  '其它地区',
+] as const
+
+function formatDate(s: string | null) {
+  if (!s) return ''
+  try {
+    return new Date(s).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  } catch {
+    return s
+  }
+}
+
+function ServiceCard({ post }: { post: ServicePost }) {
+  const thumb = post.images?.[0] ?? null
+  return (
+    <Link
+      href={`/services/${post.id}`}
+      className="block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition"
+    >
+      {thumb ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={thumb} alt={post.title} className="w-full h-36 object-cover" />
+      ) : (
+        <div className="w-full h-16 bg-zinc-50 flex items-center justify-center text-3xl select-none" aria-hidden="true">
+          🛠️
+        </div>
+      )}
+      <div className="p-3">
+        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+          {post.title}
+        </h3>
+        <p className="mt-1 text-xs text-gray-500">
+          {post.category} · {post.location}
+        </p>
+        <p className="mt-1 text-xs text-gray-600 line-clamp-2">{post.description}</p>
+        {post.price_note ? (
+          <p className="mt-1 text-xs text-blue-600">{post.price_note}</p>
+        ) : null}
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
+          <span className="text-xs text-[#1976d2] font-medium">查看详情 →</span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+export default function ServicesListClient() {
+  const [posts, setPosts] = useState<ServicePost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('全部')
+  const [location, setLocation] = useState('全部')
+
+  const fetchPosts = useCallback(async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('service_posts')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+    setPosts(data || [])
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
+
+  const filtered = posts.filter((p) => {
+    const matchCat = category === '全部' || p.category === category
+    const matchLoc = location === '全部' || p.location === location
+    const q = search.trim().toLowerCase()
+    const matchSearch =
+      !q ||
+      p.title.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.location.toLowerCase().includes(q)
+    return matchCat && matchLoc && matchSearch
+  })
+
+  return (
+    <div className="min-h-screen bg-white pb-24">
+      <AppTopSection bannerPosition="home" />
+
+      {/* Header */}
+      <div className="px-4 pt-5 pb-3">
+        <h1 className="text-xl font-black text-gray-900">本地服务</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          找纽约华人常用服务：装修维修、搬家保洁、汽车驾校、律师会计、电脑手机等。
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="px-4 mb-3">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜索服务标题、介绍、分类..."
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+        />
+      </div>
+
+      {/* Category filter */}
+      <div className="-mx-0 overflow-x-auto px-4 mb-2">
+        <div className="flex gap-2 whitespace-nowrap">
+          {SERVICE_CATEGORIES.map((cat) => {
+            const active = category === cat
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat)}
+                className={
+                  'px-3 py-1.5 rounded-full text-sm font-medium border transition ' +
+                  (active
+                    ? 'bg-[#1976d2] text-white border-[#1976d2]'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
+                }
+              >
+                {cat}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Location filter */}
+      <div className="px-4 mb-4">
+        <select
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1976d2]"
+        >
+          {SERVICE_LOCATIONS.map((loc) => (
+            <option key={loc} value={loc}>
+              {loc === '全部' ? '全部地区' : loc}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* List */}
+      <div className="px-4">
+        {loading ? (
+          <div className="flex justify-center py-16 text-gray-400">加载中...</div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-gray-400">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="text-sm">暂无符合条件的服务信息</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filtered.map((post) => (
+              <ServiceCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Floating publish button */}
+      <div className="fixed bottom-20 right-4 z-50">
+        <Link
+          href="/services/publish"
+          className="flex items-center gap-1.5 bg-[#1976d2] text-white px-4 py-3 rounded-full shadow-lg text-sm font-semibold hover:bg-[#1565c0] transition"
+        >
+          <span className="text-base leading-none">+</span>
+          发布服务
+        </Link>
+      </div>
+    </div>
+  )
+}
