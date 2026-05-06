@@ -12,6 +12,7 @@ type PreviewImage =
   | { kind: 'local'; url: string; file: File }
 
 const HOUSING_LOCATIONS = [
+  '未填写',
   '其它地区',
   '法拉盛',
   '布鲁克林',
@@ -38,7 +39,7 @@ function normalizeType(v: string | null): PublishMode {
 }
 
 function normalizeLocation(v: unknown): HousingLocation {
-  return HOUSING_LOCATIONS.includes(v as HousingLocation) ? (v as HousingLocation) : '其它地区'
+  return HOUSING_LOCATIONS.includes(v as HousingLocation) ? (v as HousingLocation) : '未填写'
 }
 
 function safeNumber(s: string): number {
@@ -102,7 +103,7 @@ function HousingPublishClient() {
 
   // Optional fields
   const [title, setTitle] = useState('')
-  const [location, setLocation] = useState<HousingLocation>('其它地区')
+  const [location, setLocation] = useState<HousingLocation>('未填写')
   const [price, setPrice] = useState('')
   const [roomType, setRoomType] = useState('')
   const [contact, setContact] = useState('')
@@ -440,7 +441,7 @@ function HousingPublishClient() {
                     : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
                 }
               >
-                我要出租
+                发布房源
               </button>
               <button
                 type="button"
@@ -452,7 +453,7 @@ function HousingPublishClient() {
                     : 'px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 disabled:opacity-50'
                 }
               >
-                我要求租
+                求租求购
               </button>
             </div>
             {isEditing && (
@@ -486,7 +487,7 @@ function HousingPublishClient() {
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
+                <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">租金 (USD)</label>
