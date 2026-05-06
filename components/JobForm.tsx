@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
@@ -124,6 +124,14 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const bottomErrorRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (error) {
+      bottomErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [error])
 
   // Edit mode: use DB job.type and prefill fields
   useEffect(() => {
@@ -517,6 +525,14 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
           </div>
         </>
       )}
+
+      <div ref={bottomErrorRef}>
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+      </div>
 
       <button
         type="submit"

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
@@ -116,6 +116,14 @@ function HousingPublishClient() {
 
   const [previewImages, setPreviewImages] = useState<PreviewImage[]>([])
   const [imageTip, setImageTip] = useState('')
+
+  const bottomErrorRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (error) {
+      bottomErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [error])
 
   const isEditing = !!editPost
 
@@ -591,6 +599,14 @@ function HousingPublishClient() {
                       </button>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            <div ref={bottomErrorRef}>
+              {error && (
+                <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+                  {error}
                 </div>
               )}
             </div>

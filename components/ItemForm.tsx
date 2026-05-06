@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
@@ -181,6 +181,16 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const bottomErrorSellRef = useRef<HTMLDivElement | null>(null)
+  const bottomErrorBuyRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (error) {
+      const ref = mode === 'selling' ? bottomErrorSellRef : bottomErrorBuyRef
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [error, mode])
 
   const uploadLocalFilesForPost = async (userId: string, postId: number, localFiles: File[]) => {
     if (localFiles.length === 0) return [] as string[]
@@ -556,6 +566,14 @@ export default function ItemForm({ initialType, editItem }: Props) {
             />
           </div>
 
+          <div ref={bottomErrorSellRef}>
+            {error && (
+              <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -609,6 +627,14 @@ export default function ItemForm({ initialType, editItem }: Props) {
               placeholder="请描述需求、期望成色、交易方式等"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
             />
+          </div>
+
+          <div ref={bottomErrorBuyRef}>
+            {error && (
+              <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
           </div>
 
           <button
