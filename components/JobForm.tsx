@@ -392,7 +392,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最低年薪 (USD)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">最低薪资（USD）</label>
               <input
                 type="number"
                 name="salary_min"
@@ -404,7 +404,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最高年薪 (USD)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">最高薪资（USD）</label>
               <input
                 type="number"
                 name="salary_max"

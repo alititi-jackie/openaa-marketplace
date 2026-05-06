@@ -36,6 +36,8 @@ export default function JobDetailPage() {
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
   if (!job) return <div className="flex justify-center py-20 text-gray-500">职位不存在</div>
 
+  const salary = formatSalary(job.salary_min, job.salary_max)
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
@@ -46,7 +48,7 @@ export default function JobDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
-            <p className="text-lg text-gray-600 mt-1">{job.company}</p>
+            {job.company ? <p className="text-lg text-gray-600 mt-1">{job.company}</p> : null}
           </div>
           <span className="bg-blue-50 text-[#1976d2] px-3 py-1 rounded-full text-sm font-medium">
             {job.job_type}
@@ -54,10 +56,12 @@ export default function JobDetailPage() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="bg-green-50 rounded-lg p-3">
-            <p className="text-xs text-gray-500">薪资范围</p>
-            <p className="font-semibold text-green-600">{formatSalary(job.salary_min, job.salary_max)}</p>
-          </div>
+          {salary ? (
+            <div className="bg-green-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">薪资范围</p>
+              <p className="font-semibold text-green-600">{salary}</p>
+            </div>
+          ) : null}
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">工作地点</p>
             <p className="font-semibold text-gray-900">📍 {job.location}</p>

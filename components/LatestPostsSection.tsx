@@ -31,17 +31,14 @@ type LatestHousing = {
   created_at: string | null
 }
 
-function formatSalary(min?: number | null, max?: number | null) {
-  if (typeof min === 'number' && typeof max === 'number') {
-    return `$${min.toLocaleString()}-$${max.toLocaleString()}`
-  }
-  if (typeof min === 'number') {
-    return `$${min.toLocaleString()}+`
-  }
-  if (typeof max === 'number') {
-    return `最高 $${max.toLocaleString()}`
-  }
-  return '面议'
+function formatSalary(min?: number | null, max?: number | null): string | null {
+  const minVal = (min != null && min > 0) ? min : 0
+  const maxVal = (max != null && max > 0) ? max : 0
+  if (minVal === 0 && maxVal === 0) return null
+  if (minVal > 0 && maxVal === 0) return `$${minVal.toLocaleString()}+`
+  if (maxVal > 0 && minVal === 0) return `≤ $${maxVal.toLocaleString()}`
+  if (minVal === maxVal) return `$${minVal.toLocaleString()}`
+  return `$${minVal.toLocaleString()} - $${maxVal.toLocaleString()}/年`
 }
 
 const quickLinks = [
@@ -162,7 +159,9 @@ export default function LatestPostsSection() {
           <p className="text-[12px] text-zinc-400 py-2">暂无最新信息</p>
         ) : (
           <div className="space-y-2">
-            {jobs.map((job) => (
+            {jobs.map((job) => {
+              const salary = formatSalary(job.salary_min, job.salary_max)
+              return (
               <Link
                 key={job.id}
                 href={`/jobs/${job.id}`}
@@ -176,14 +175,17 @@ export default function LatestPostsSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">{formatSalary(job.salary_min, job.salary_max)}</span>
+                  {salary ? (
+                    <span className="text-[12px] font-bold text-blue-600">{salary}</span>
+                  ) : null}
                   <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
                     <Clock size={9} />
                     <span className="text-[10px]">{formatDate(job.created_at ?? '')}</span>
                   </div>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
