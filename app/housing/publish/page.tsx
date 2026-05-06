@@ -5,30 +5,14 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
+import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { HousingPost, HousingPostType } from '@/types'
 
 type PreviewImage =
   | { kind: 'remote'; url: string }
   | { kind: 'local'; url: string; file: File }
 
-const HOUSING_LOCATIONS = [
-  '未填写',
-  '其它地区',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '布朗士',
-  '长岛',
-  '新泽西',
-  '史丹顿岛',
-  '纽约上州',
-  '费城',
-  '波士顿',
-  '洛杉矶',
-  '旧金山',
-  '芝加哥',
-] as const
+const HOUSING_LOCATIONS = LOCATION_OPTIONS
 
 type HousingLocation = (typeof HOUSING_LOCATIONS)[number]
 
@@ -39,7 +23,7 @@ function normalizeType(v: string | null): PublishMode {
 }
 
 function normalizeLocation(v: unknown): HousingLocation {
-  return HOUSING_LOCATIONS.includes(v as HousingLocation) ? (v as HousingLocation) : '未填写'
+  return HOUSING_LOCATIONS.includes(v as HousingLocation) ? (v as HousingLocation) : DEFAULT_LOCATION
 }
 
 function safeNumber(s: string): number {
@@ -103,7 +87,7 @@ function HousingPublishClient() {
 
   // Optional fields
   const [title, setTitle] = useState('')
-  const [location, setLocation] = useState<HousingLocation>('未填写')
+  const [location, setLocation] = useState<HousingLocation>(DEFAULT_LOCATION)
   const [price, setPrice] = useState('')
   const [roomType, setRoomType] = useState('')
   const [contact, setContact] = useState('')
@@ -285,7 +269,7 @@ function HousingPublishClient() {
         title: title.trim() || (mode === 'seeking' ? '求租' : '房屋出租'),
         description: content,
         price: safeNumber(price),
-        location: location || '其它地区',
+        location: location || DEFAULT_LOCATION,
         room_type: roomType.trim() || '-',
         contact: contact.trim() || '-',
         images: finalImages,
@@ -324,7 +308,7 @@ function HousingPublishClient() {
       title: title.trim() || (mode === 'seeking' ? '求租' : '房屋出租'),
       description: content,
       price: safeNumber(price),
-      location: location || '其它地区',
+      location: location || DEFAULT_LOCATION,
       room_type: roomType.trim() || '-',
       contact: contact.trim() || '-',
       images: [],
@@ -487,7 +471,7 @@ function HousingPublishClient() {
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
+                <p className="mt-1 text-xs text-gray-400">默认：纽约 New York</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">租金 (USD)</label>

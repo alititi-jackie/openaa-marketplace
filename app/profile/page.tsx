@@ -9,7 +9,6 @@ import {
   ShoppingBag,
   Briefcase,
   Home,
-  Megaphone,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ProfileHeader from '@/components/ProfileHeader'
@@ -128,7 +127,7 @@ export default function ProfilePage() {
           >
             <div className="flex items-center gap-2">
               <span className="text-zinc-900 font-medium">🚀 我要发布</span>
-              <span className="text-[11px] text-zinc-400">二手 / 招聘 / 房屋 / 广告合作</span>
+              <span className="text-[11px] text-zinc-400">二手 / 招聘 / 房屋 / 服务</span>
             </div>
             {publishOpen ? (
               <ChevronUp size={18} className="text-zinc-400" />
@@ -185,22 +184,20 @@ export default function ProfilePage() {
                   </div>
                 </Link>
 
-                <button
-                  type="button"
-                  disabled
-                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 opacity-60 cursor-not-allowed"
-                  title="广告合作请联系管理员"
+                <Link
+                  href="/services/publish"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-violet-50 ring-1 ring-violet-100 flex items-center justify-center">
-                      <Megaphone size={18} className="text-violet-600" />
+                    <div className="w-9 h-9 rounded-xl bg-cyan-50 ring-1 ring-cyan-100 flex items-center justify-center">
+                      <span className="text-base leading-none">🛠️</span>
                     </div>
                     <div>
-                      <div className="text-[13px] font-black text-zinc-900">广告合作</div>
-                      <div className="text-[11px] text-zinc-500 mt-0.5">请联系管理员</div>
+                      <div className="text-[13px] font-black text-zinc-900">发布服务</div>
+                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布服务</div>
                     </div>
                   </div>
-                </button>
+                </Link>
               </div>
             </div>
           )}

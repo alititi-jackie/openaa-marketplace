@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
+import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -20,14 +21,7 @@ export const SERVICE_CATEGORIES = [
 
 export const SERVICE_LOCATIONS = [
   '全部',
-  '纽约',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '史登岛',
-  '新泽西',
-  '其它地区',
+  ...LOCATION_OPTIONS,
 ] as const
 
 function formatDate(s: string | null) {
@@ -84,6 +78,7 @@ export default function ServicesListClient() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('全部')
   const [location, setLocation] = useState('全部')
+  const categoryScrollRef = useRef<HTMLDivElement | null>(null)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
@@ -100,6 +95,10 @@ export default function ServicesListClient() {
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts])
+
+  useEffect(() => {
+    categoryScrollRef.current?.scrollTo({ left: 0, behavior: 'auto' })
+  }, [])
 
   const filtered = posts.filter((p) => {
     const matchCat = category === '全部' || p.category === category
@@ -138,8 +137,9 @@ export default function ServicesListClient() {
       </div>
 
       {/* Category filter */}
-      <div className="-mx-0 overflow-x-auto px-4 mb-2">
-        <div className="flex gap-2 whitespace-nowrap">
+      <div className="sticky top-0 z-30 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <div ref={categoryScrollRef} className="overflow-x-auto whitespace-nowrap scrollbar-hide px-4 py-2">
+          <div className="flex gap-2">
           {SERVICE_CATEGORIES.map((cat) => {
             const active = category === cat
             return (
@@ -158,6 +158,7 @@ export default function ServicesListClient() {
               </button>
             )
           })}
+          </div>
         </div>
       </div>
 

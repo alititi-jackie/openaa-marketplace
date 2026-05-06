@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { use } from 'react'
 import { supabase } from '@/lib/supabase'
+import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 
 type PreviewImage =
@@ -22,16 +23,7 @@ const SERVICE_CATEGORIES_PUBLISH = [
   '其它服务',
 ] as const
 
-const SERVICE_LOCATIONS_PUBLISH = [
-  '纽约',
-  '法拉盛',
-  '布鲁克林',
-  '曼哈顿',
-  '皇后区',
-  '史登岛',
-  '新泽西',
-  '其它地区',
-] as const
+const SERVICE_LOCATIONS_PUBLISH = LOCATION_OPTIONS
 
 function getFileExtFromType(mimeType: string) {
   const t = (mimeType || '').toLowerCase()
@@ -88,7 +80,7 @@ export default function ServiceEditPage({
 
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<string>(SERVICE_CATEGORIES_PUBLISH[0])
-  const [location, setLocation] = useState<string>(SERVICE_LOCATIONS_PUBLISH[0])
+  const [location, setLocation] = useState<string>(DEFAULT_LOCATION)
   const [description, setDescription] = useState('')
   const [contactName, setContactName] = useState('')
   const [phone, setPhone] = useState('')
@@ -150,7 +142,11 @@ export default function ServiceEditPage({
       setPost(p)
       setTitle(p.title)
       setCategory(p.category)
-      setLocation(p.location)
+      setLocation(
+        SERVICE_LOCATIONS_PUBLISH.includes(p.location as (typeof SERVICE_LOCATIONS_PUBLISH)[number])
+          ? p.location
+          : DEFAULT_LOCATION
+      )
       setDescription(p.description)
       setContactName(p.contact_name || '')
       setPhone(p.phone || '')

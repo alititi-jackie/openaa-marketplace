@@ -1,3 +1,5 @@
+import { DEFAULT_LOCATION } from './locationOptions'
+
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -38,6 +40,6 @@ export function truncate(str: string, maxLength: number): string {
 }
 
 export function formatJobLocation(location?: string | null): string {
-  if (!location || location.trim() === '') return '未填写'
+  if (!location || location.trim() === '') return DEFAULT_LOCATION
   return location
 }
