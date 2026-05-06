@@ -8,13 +8,16 @@ interface Props {
 
 export default function JobCard({ job }: Props) {
   const salary = formatSalary(job.salary_min, job.salary_max)
+  const companyName = job.company?.trim() || ''
   return (
     <Link href={`/jobs/${job.id}`}>
       <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer border border-gray-100">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 text-lg">{job.title}</h3>
-            {job.company ? <p className="text-gray-600 mt-1">{job.company}</p> : null}
+            {companyName && companyName !== '匿名发布' ? (
+              <p className="text-gray-600 mt-1">{companyName}</p>
+            ) : null}
           </div>
           <span className="text-sm bg-blue-50 text-[#1976d2] px-2 py-1 rounded font-medium ml-2 shrink-0">
             {job.job_type}

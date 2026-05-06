@@ -332,7 +332,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                 name="company"
                 value={hiring.company}
                 onChange={handleHiringChange}
-                placeholder="不填默认：匿名发布"
+                placeholder="不填则不显示公司名称"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
