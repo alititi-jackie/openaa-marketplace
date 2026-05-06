@@ -7,8 +7,8 @@ import AppTopSection from '@/components/AppTopSection'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
-  { key: 'renting', label: '房屋出租' },
-  { key: 'seeking', label: '求租信息' },
+  { key: 'renting', label: '房源信息' },
+  { key: 'seeking', label: '求租求购' },
 ]
 
 function formatDate(s: string) {
@@ -85,8 +85,8 @@ export default function HousingPage() {
     })
   }, [posts, search])
 
-  const pageTitle = activeTab === 'renting' ? '房屋出租' : '求租信息'
-  const publishLabel = activeTab === 'renting' ? '发布出租' : '发布求租'
+  const pageTitle = activeTab === 'renting' ? '房屋租售' : '求租求购'
+  const publishLabel = activeTab === 'renting' ? '发布房源' : '发布求租'
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -131,7 +131,7 @@ export default function HousingPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={activeTab === 'renting' ? '搜索出租信息...' : '搜索求租信息...'}
+            placeholder={activeTab === 'renting' ? '搜索房源信息...' : '搜索求租信息...'}
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
           />
         </div>
