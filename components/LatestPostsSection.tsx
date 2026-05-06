@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Clock, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { formatDate, formatPrice } from '@/lib/utils'
+import { formatDate, formatPrice, formatJobLocation } from '@/lib/utils'
 
 type LatestJob = {
   id: string | number
@@ -171,7 +171,7 @@ export default function LatestPostsSection() {
                   <p className="text-[13px] font-semibold text-zinc-800 truncate">{job.title}</p>
                   <div className="flex items-center gap-1 mt-0.5">
                     <MapPin size={10} className="text-zinc-400 flex-shrink-0" />
-                    <span className="text-[11px] text-zinc-400 truncate">{job.location}</span>
+                    <span className="text-[11px] text-zinc-400 truncate">{formatJobLocation(job.location)}</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end ml-2 flex-shrink-0">

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { formatDate, formatSalary } from '@/lib/utils'
+import { formatDate, formatSalary, formatJobLocation } from '@/lib/utils'
 import type { JobPosting } from '@/types'
 
 interface Props {
@@ -29,7 +29,7 @@ export default function JobCard({ job }: Props) {
         ) : null}
 
         <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
-          <span>📍 {job.location}</span>
+          <span>📍 {formatJobLocation(job.location)}</span>
           <span>·</span>
           <span>{job.category}</span>
         </div>

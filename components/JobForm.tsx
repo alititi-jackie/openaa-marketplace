@@ -11,6 +11,7 @@ import type { JobPosting, JobPostingType } from '@/types'
 type PublishMode = JobPostingType
 
 const JOB_LOCATIONS = [
+  '未填写',
   '其它地区',
   '法拉盛',
   '布鲁克林',
@@ -82,7 +83,7 @@ function safeNumber(s: string): number {
 }
 
 function normalizeLocation(v: unknown): JobLocation {
-  return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : '其它地区'
+  return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : '未填写'
 }
 
 export default function JobForm({ initialType = 'hiring', editJob = null }: Props) {
@@ -107,7 +108,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     description: '',
     salary_min: '',
     salary_max: '',
-    location: '其它地区',
+    location: '未填写',
     job_type: defaultJobType,
     category: defaultCategory,
   })
@@ -116,7 +117,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
   const [seeking, setSeeking] = useState<SeekingFormData>({
     display_name: '',
     desired_role: '',
-    region: '其它地区',
+    region: '未填写',
     experience: '',
     availability: '',
     contact: '',
@@ -200,7 +201,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             salary_min: safeNumber(hiring.salary_min),
             salary_max: safeNumber(hiring.salary_max),
             // Keep optional UX: always DB-safe value
-            location: hiring.location || '其它地区',
+            location: hiring.location || '未填写',
             job_type: hiring.job_type?.trim() || defaultJobType,
             category: hiring.category?.trim() || defaultCategory,
             status: 'published' as const,
@@ -216,7 +217,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             salary_min: 0,
             salary_max: 0,
             // Keep optional UX: always DB-safe value
-            location: seeking.region || '其它地区',
+            location: seeking.region || '未填写',
             job_type: defaultJobType,
             category: defaultCategory,
             status: 'published' as const,
@@ -387,7 +388,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
+            <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -470,7 +471,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-400">不选默认：其它地区</p>
+              <p className="mt-1 text-xs text-gray-400">不选默认：未填写</p>
             </div>
           </div>
 

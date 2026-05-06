@@ -36,3 +36,8 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength) + '...'
 }
+
+export function formatJobLocation(location?: string | null): string {
+  if (!location || location.trim() === '') return '未填写'
+  return location
+}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { formatDate, formatSalary } from '@/lib/utils'
+import { formatDate, formatSalary, formatJobLocation } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import type { JobPosting } from '@/types'
 
@@ -67,7 +67,7 @@ export default function JobDetailPage() {
           ) : null}
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">工作地点</p>
-            <p className="font-semibold text-gray-900">📍 {job.location}</p>
+            <p className="font-semibold text-gray-900">📍 {formatJobLocation(job.location)}</p>
           </div>
         </div>
 
