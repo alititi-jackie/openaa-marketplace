@@ -117,6 +117,8 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
         <h2 className="text-sm font-semibold text-gray-700 mb-2">服务介绍</h2>
         <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{post.description}</p>
+
+        <PostSafetyNotice variant="contact" />
       </div>
 
       {/* Price note */}

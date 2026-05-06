@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import BannerCarousel from '@/components/BannerCarousel'
 import SearchBar from '@/components/SearchBar'
 
-type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing'
+type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services'
 
 interface Props {
   bannerPosition?: BannerPosition
