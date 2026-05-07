@@ -12,8 +12,7 @@ type InstallState =
 // Minimal typing for beforeinstallprompt
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  userChoice: Promise<any>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
 function isIos(): boolean {
@@ -24,12 +23,11 @@ function isIos(): boolean {
 
 function isStandalone(): boolean {
   if (typeof window === 'undefined') return false
-  // iOS
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const iosStandalone = (window.navigator as any).standalone === true
-  // other browsers
-  const displayModeStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches
-  return Boolean(iosStandalone || displayModeStandalone)
+  const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean }
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    navigatorWithStandalone.standalone === true
+  )
 }
 
 export function useA2HS() {
@@ -71,23 +69,29 @@ export function useA2HS() {
 export default function A2HSButton({
   className,
   onIosNeedInstructions,
+  onAlreadyInstalled,
   children,
 }: {
   className?: string
   onIosNeedInstructions?: () => void
+  onAlreadyInstalled?: () => void
   children?: ReactNode
 }) {
   const { state, promptInstall } = useA2HS()
 
   const label = '📲 添加 OpenAA 到手机桌面'
 
-  const disabled = state.kind === 'installed' || state.kind === 'unavailable'
+  const disabled = state.kind === 'unavailable'
 
   return (
     <button
       type="button"
       className={className}
       onClick={async () => {
+        if (isStandalone()) {
+          onAlreadyInstalled?.()
+          return
+        }
         if (state.kind === 'android') {
           await promptInstall()
           return
@@ -99,7 +103,7 @@ export default function A2HSButton({
       }}
       disabled={disabled}
       aria-label={label}
-      title={disabled ? '当前浏览器不支持或已安装' : label}
+      title={disabled ? '当前浏览器不支持' : label}
     >
       {children ?? label}
     </button>
