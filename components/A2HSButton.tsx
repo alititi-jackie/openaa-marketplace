@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { X, PlusSquare } from 'lucide-react'
 
 type InstallState =
@@ -71,9 +71,11 @@ export function useA2HS() {
 export default function A2HSButton({
   className,
   onIosNeedInstructions,
+  children,
 }: {
   className?: string
   onIosNeedInstructions?: () => void
+  children?: ReactNode
 }) {
   const { state, promptInstall } = useA2HS()
 
@@ -99,7 +101,7 @@ export default function A2HSButton({
       aria-label={label}
       title={disabled ? '当前浏览器不支持或已安装' : label}
     >
-      {label}
+      {children ?? label}
     </button>
   )
 }

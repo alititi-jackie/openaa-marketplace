@@ -9,6 +9,8 @@ import {
   ShoppingBag,
   Briefcase,
   Home,
+  PlusSquare,
+  Share2,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ProfileHeader from '@/components/ProfileHeader'
@@ -81,6 +83,44 @@ export default function ProfilePage() {
           <p className="mt-1 text-[12px] text-zinc-500">管理我的信息与发布入口</p>
         </div>
 
+        {/* Growth cards */}
+        <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-3">
+          <A2HSButton
+            onIosNeedInstructions={() => setIosA2hsOpen(true)}
+            className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-100 shadow-[0_8px_24px_rgba(37,99,235,0.12)] hover:shadow-[0_10px_28px_rgba(37,99,235,0.18)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-[0_8px_24px_rgba(37,99,235,0.12)]"
+          >
+            <div className="flex items-start gap-2.5 min-w-0">
+              <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center">
+                <PlusSquare size={18} className="text-blue-600" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13px] font-black text-zinc-900 leading-tight">添加 OpenAA 到手机桌面</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-tight">
+                  一键添加，像 App 一样更方便
+                </div>
+                <div className="text-[12px] font-bold text-blue-600 mt-1.5">立即添加 →</div>
+              </div>
+            </div>
+          </A2HSButton>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-orange-50 to-amber-100 border border-orange-100 shadow-[0_8px_24px_rgba(249,115,22,0.12)] hover:shadow-[0_10px_28px_rgba(249,115,22,0.18)] active:scale-[0.98] transition-all duration-200"
+          >
+            <div className="flex items-start gap-2.5 min-w-0">
+              <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center">
+                <Share2 size={17} className="text-orange-500" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13px] font-black text-zinc-900 leading-tight">分享 OpenAA</div>
+                <div className="text-[11px] text-zinc-500 mt-1 leading-tight">分享给朋友，一起使用</div>
+                <div className="text-[12px] font-bold text-orange-500 mt-1.5">立即分享 →</div>
+              </div>
+            </div>
+          </button>
+        </div>
+
         {profile ? (
           <ProfileHeader profile={profile} />
         ) : (
@@ -99,23 +139,6 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
-
-        {/* Growth cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <A2HSButton
-            onIosNeedInstructions={() => setIosA2hsOpen(true)}
-            className="text-left rounded-2xl p-4 bg-white shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 active:scale-[0.99] transition"
-          />
-
-          <button
-            type="button"
-            onClick={handleShare}
-            className="text-left rounded-2xl p-4 bg-white shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 active:scale-[0.99] transition"
-          >
-            <div className="text-[13px] font-black text-zinc-900">📤 分享 OpenAA</div>
-            <div className="text-[11px] text-zinc-500 mt-1">分享给朋友，一起使用</div>
-          </button>
-        </div>
 
         {/* Menu */}
         <div className="bg-white rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 overflow-hidden">
