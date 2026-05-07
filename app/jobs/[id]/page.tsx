@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatSalary, formatJobLocation } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import DetailBackButton from '@/components/DetailBackButton'
 import type { JobPosting } from '@/types'
 
 export default function JobDetailPage() {
   const { id } = useParams()
-  const router = useRouter()
   const [job, setJob] = useState<JobPosting | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -41,9 +41,7 @@ export default function JobDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
-      <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
-        ← 返回
-      </button>
+      <DetailBackButton fallbackHref="/jobs" />
 
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <div className="flex items-start justify-between">

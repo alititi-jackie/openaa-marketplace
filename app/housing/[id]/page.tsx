@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import DetailBackButton from '@/components/DetailBackButton'
 import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
@@ -33,7 +34,6 @@ function displayPrice(p: number): string | null {
 
 export default function HousingDetailPage() {
   const { id } = useParams()
-  const router = useRouter()
   const [post, setPost] = useState<HousingPost | null>(null)
   const [publisher, setPublisher] = useState<PublisherInfo>({ username: '匿名用户', avatar_url: null })
   const [loading, setLoading] = useState(true)
@@ -149,9 +149,7 @@ export default function HousingDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
-      <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
-        ← 返回
-      </button>
+      <DetailBackButton fallbackHref="/housing" />
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {/* Only render image area when there is at least one valid image */}
