@@ -1,10 +1,5 @@
 import Link from 'next/link'
-import { Car, ChevronRight } from 'lucide-react'
-
-const rates = [
-  { from: 'USD', to: 'CNY', rate: '7.24' },
-  { from: 'CNY', to: 'USD', rate: '0.14' },
-]
+import { AlertTriangle, Car, ChevronRight } from 'lucide-react'
 
 export default function InfoCardsSection() {
   return (
@@ -16,52 +11,47 @@ export default function InfoCardsSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        {/* DMV card */}
+        {/* DMV practice card */}
         <Link
-          href="https://openaa.com/dmv/ny/practice/"
-          className="rounded-2xl p-3 min-h-[108px] bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
+          href="https://openaa.com/dmv/ny/practice/index.html"
+          className="rounded-2xl p-2.5 min-h-[110px] bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-white/70 ring-1 ring-blue-100 flex items-center justify-center">
-                <Car size={18} className="text-blue-600" strokeWidth={1.8} />
+              <div className="w-8 h-8 rounded-lg bg-white/70 ring-1 ring-blue-100 flex items-center justify-center">
+                <Car size={16} className="text-blue-600" strokeWidth={1.8} />
               </div>
-
-              <h3 className="mt-2 text-[14px] font-bold text-zinc-900 leading-snug">DMV 服务</h3>
-              <p className="mt-0.5 text-[11px] text-zinc-500 leading-snug line-clamp-2">
-                预约考试 · 笔试题库 · 换驾照
+              <h3 className="mt-1.5 text-[14px] font-bold text-zinc-900 leading-tight">DMV 笔试模拟</h3>
+              <p className="mt-0.5 text-[11px] text-zinc-500 leading-tight line-clamp-2">
+                纽约 Learner Permit 中文练习
               </p>
             </div>
-
             <div className="flex items-center gap-0.5 text-[11px] font-semibold text-blue-700 flex-shrink-0">
-              进入
+              开始练习
               <ChevronRight size={12} />
             </div>
           </div>
         </Link>
 
-        {/* Exchange rate card */}
-        <div className="rounded-2xl p-3 min-h-[108px] bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)]">
+        {/* Ticket query card */}
+        <Link
+          href="https://openaa.com/dmv/tickets/index.html"
+          className="rounded-2xl p-2.5 min-h-[110px] bg-gradient-to-br from-orange-50 to-rose-100 border border-orange-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
+        >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-white/70 ring-1 ring-emerald-100 flex items-center justify-center">
-                <span className="text-[16px] font-black text-emerald-600 leading-none">$</span>
+              <div className="w-8 h-8 rounded-lg bg-white/70 ring-1 ring-orange-100 flex items-center justify-center">
+                <AlertTriangle size={16} className="text-orange-600" strokeWidth={1.8} />
               </div>
-              <h3 className="mt-2 text-[14px] font-bold text-zinc-900 leading-snug">今日汇率</h3>
+              <h3 className="mt-1.5 text-[14px] font-bold text-zinc-900 leading-tight">罚单查询</h3>
+              <p className="mt-0.5 text-[11px] text-zinc-500 leading-tight line-clamp-2">停车 / 闯红灯 / 超速拍照</p>
+            </div>
+            <div className="flex items-center gap-0.5 text-[11px] font-semibold text-orange-700 flex-shrink-0">
+              点击查询
+              <ChevronRight size={12} />
             </div>
           </div>
-
-          <div className="mt-2 space-y-1">
-            {rates.map(({ from, to, rate }) => (
-              <div key={`${from}-${to}`} className="flex items-center justify-between">
-                <span className="text-[11px] text-zinc-500 font-medium">
-                  {from} / {to}
-                </span>
-                <span className="text-[18px] font-bold text-zinc-900 leading-none">{rate}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        </Link>
       </div>
     </section>
   )
