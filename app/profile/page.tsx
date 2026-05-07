@@ -110,20 +110,19 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 max-[359px]:grid-cols-1 gap-3">
             <A2HSButton
               onIosNeedInstructions={() => setIosA2hsOpen(true)}
-              className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-100 border border-blue-200 shadow-[0_10px_30px_rgba(59,130,246,0.16)] hover:shadow-[0_14px_34px_rgba(59,130,246,0.2)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-[0_10px_30px_rgba(59,130,246,0.16)]"
+              className="text-left rounded-2xl border border-blue-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)] active:scale-[0.98] disabled:opacity-60 disabled:hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
             >
-              <div className="flex items-start gap-2.5 min-w-0">
-                <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/90 shadow-md flex items-center justify-center">
-                  <PlusSquare size={18} className="text-blue-600" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white shadow-sm">
+                    <PlusSquare size={18} className="text-blue-600" />
+                  </div>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[13px] font-extrabold text-slate-900 leading-tight">
-                    添加 OpenAA 到手机桌面
+                  <div className="text-[12px] font-bold leading-tight text-blue-600">OpenAA</div>
+                  <div className="mt-1 text-[13px] font-semibold leading-tight text-slate-900">
+                    添加到桌面
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1 leading-tight">
-                    像 App 一样快速访问
-                  </div>
-                  <div className="text-[12px] font-semibold text-blue-600 mt-1.5">立即添加 →</div>
                 </div>
               </div>
             </A2HSButton>
@@ -131,16 +130,19 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={handleShare}
-              className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-100 border border-orange-100/90 shadow-[0_8px_24px_rgba(249,115,22,0.12)] hover:shadow-[0_10px_28px_rgba(249,115,22,0.18)] active:scale-[0.98] transition-all duration-200"
+              className="text-left rounded-2xl border border-orange-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)] active:scale-[0.98]"
             >
-              <div className="flex items-start gap-2.5 min-w-0">
-                <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center">
-                  <Share2 size={17} className="text-orange-500" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-50">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white shadow-sm">
+                    <Share2 size={17} className="text-orange-500" />
+                  </div>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[13px] font-black text-zinc-900 leading-tight">分享 OpenAA</div>
-                  <div className="text-[11px] text-zinc-500 mt-1 leading-tight">分享给朋友使用</div>
-                  <div className="text-[12px] font-bold text-orange-500 mt-1.5">立即分享 →</div>
+                  <div className="text-[12px] font-bold leading-tight text-blue-600">OpenAA</div>
+                  <div className="mt-1 text-[13px] font-semibold leading-tight text-slate-900">
+                    分享给朋友
+                  </div>
                 </div>
               </div>
             </button>
