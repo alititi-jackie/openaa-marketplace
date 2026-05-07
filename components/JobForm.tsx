@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
+import { JOB_CATEGORIES, JOB_TYPES, DEFAULT_JOB_CATEGORY } from '@/lib/constants'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { JobPosting, JobPostingType } from '@/types'
@@ -79,9 +79,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     return JOB_TYPES.includes('其他') ? '其他' : JOB_TYPES[0]
   }, [])
 
-  const defaultCategory = useMemo(() => {
-    return JOB_CATEGORIES.includes('其他') ? '其他' : JOB_CATEGORIES[0]
-  }, [])
+  const defaultCategory = DEFAULT_JOB_CATEGORY
 
   const [mode, setMode] = useState<PublishMode>(initialType)
 
@@ -338,7 +336,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-400">不选默认：其他</p>
+              <p className="mt-1 text-xs text-gray-400">不选默认：其它职位</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">职位分类</label>
@@ -354,7 +352,7 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-400">不选默认：其他</p>
+              <p className="mt-1 text-xs text-gray-400">不选默认：其它职位</p>
             </div>
           </div>
 
