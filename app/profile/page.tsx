@@ -110,20 +110,20 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 max-[359px]:grid-cols-1 gap-3">
             <A2HSButton
               onIosNeedInstructions={() => setIosA2hsOpen(true)}
-              className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100 border border-blue-100/90 shadow-[0_8px_24px_rgba(37,99,235,0.12)] hover:shadow-[0_10px_28px_rgba(37,99,235,0.18)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-[0_8px_24px_rgba(37,99,235,0.12)]"
+              className="text-left rounded-2xl p-3.5 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-100 border border-blue-200 shadow-[0_10px_30px_rgba(59,130,246,0.16)] hover:shadow-[0_14px_34px_rgba(59,130,246,0.2)] active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-[0_10px_30px_rgba(59,130,246,0.16)]"
             >
               <div className="flex items-start gap-2.5 min-w-0">
-                <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center">
+                <div className="w-9 h-9 shrink-0 rounded-2xl bg-white/90 shadow-md flex items-center justify-center">
                   <PlusSquare size={18} className="text-blue-600" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[13px] font-black text-zinc-900 leading-tight">
+                  <div className="text-[13px] font-extrabold text-slate-900 leading-tight">
                     添加 OpenAA 到手机桌面
                   </div>
                   <div className="text-[11px] text-slate-500 mt-1 leading-tight">
                     像 App 一样快速访问
                   </div>
-                  <div className="text-[12px] font-bold text-blue-600 mt-1.5">立即添加 →</div>
+                  <div className="text-[12px] font-semibold text-blue-600 mt-1.5">立即添加 →</div>
                 </div>
               </div>
             </A2HSButton>
