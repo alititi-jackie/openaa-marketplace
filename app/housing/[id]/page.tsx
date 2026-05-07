@@ -279,7 +279,7 @@ export default function HousingDetailPage() {
             return hasContact ? (
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <h2 className="font-semibold text-gray-900 mb-1">联系方式</h2>
-                <p className="text-gray-600">{post.contact}</p>
+                <p className="text-gray-600">{contactText}</p>
               </div>
             ) : null
           })()}
