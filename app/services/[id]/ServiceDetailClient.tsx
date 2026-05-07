@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import DetailBackButton from '@/components/DetailBackButton'
 import type { ServicePost } from '@/types'
 
 function formatDate(s: string | null) {
@@ -53,10 +54,8 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
-      {/* Back link */}
-      <Link href="/services" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4">
-        ← 本地服务
-      </Link>
+      {/* Back button */}
+      <DetailBackButton fallbackHref="/services" />
 
       {/* Image carousel */}
       {hasImages && (

@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
@@ -21,7 +22,6 @@ const AUTO_INTERVAL_MS = 3500
 
 export default function SecondhandDetailPage() {
   const { id } = useParams()
-  const router = useRouter()
   const [item, setItem] = useState<SecondhandItem | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -129,9 +129,7 @@ export default function SecondhandDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
-      <button onClick={() => router.back()} className="text-[#1976d2] mb-4 flex items-center gap-1">
-        ← 返回
-      </button>
+      <DetailBackButton fallbackHref="/secondhand" />
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {imageCount > 0 ? (
