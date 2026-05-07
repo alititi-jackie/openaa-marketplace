@@ -164,6 +164,13 @@ export default function ServicesListClient() {
             <div
               ref={categoryScrollRef}
               className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              role="region"
+              aria-label="分类筛选"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowLeft') categoryScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })
+                if (e.key === 'ArrowRight') categoryScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })
+              }}
             >
               <div className="flex items-center gap-2">
                 {SERVICE_CATEGORIES.filter((cat) => cat !== '全部').map((cat) => {

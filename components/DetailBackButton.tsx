@@ -10,7 +10,13 @@ export default function DetailBackButton({ fallbackHref }: DetailBackButtonProps
   const router = useRouter()
 
   const handleBack = () => {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
+    // Use document.referrer as a more reliable signal that there is a previous page to return to.
+    // window.history.length > 2 ensures we're not on the first page of a new session.
+    const hasPriorPage =
+      typeof window !== 'undefined' &&
+      (document.referrer !== '' || window.history.length > 2)
+
+    if (hasPriorPage) {
       router.back()
     } else {
       router.push(fallbackHref)
