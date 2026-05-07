@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
@@ -22,6 +22,28 @@ function formatDate(s: string | null) {
 export default function ServiceDetailClient({ post }: { post: ServicePost | null }) {
   const [imgIdx, setImgIdx] = useState(0)
   const [copied, setCopied] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  const images = post?.images?.filter(Boolean) ?? []
+  const imageCount = images.length
+
+  const goPrev = () => setImgIdx((i) => (i - 1 + imageCount) % imageCount)
+  const goNext = () => setImgIdx((i) => (i + 1) % imageCount)
+
+  // Close lightbox on ESC; navigate with arrow keys
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (imageCount >= 2) {
+        if (e.key === 'ArrowLeft') goPrev()
+        if (e.key === 'ArrowRight') goNext()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, imageCount])
 
   if (!post) {
     return (
@@ -38,8 +60,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
     )
   }
 
-  const images = post.images?.filter(Boolean) ?? []
-  const hasImages = images.length > 0
+  const hasImages = imageCount > 0
 
   const handleCopyWechat = async () => {
     if (!post.wechat) return
@@ -60,17 +81,24 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
       {/* Image carousel */}
       {hasImages && (
         <div className="relative mb-4 rounded-2xl overflow-hidden bg-zinc-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={images[imgIdx]}
-            alt={`${post.title} 图片 ${imgIdx + 1}`}
-            className="w-full max-h-72 object-cover"
-          />
-          {images.length > 1 && (
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            className="block w-full"
+            aria-label="查看大图"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[imgIdx]}
+              alt={`${post.title} 图片 ${imgIdx + 1}`}
+              className="w-full max-h-72 object-cover"
+            />
+          </button>
+          {imageCount > 1 && (
             <>
               <button
                 type="button"
-                onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)}
+                onClick={goPrev}
                 className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center text-sm"
                 aria-label="上一张"
               >
@@ -78,7 +106,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
               </button>
               <button
                 type="button"
-                onClick={() => setImgIdx((i) => (i + 1) % images.length)}
+                onClick={goNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center text-sm"
                 aria-label="下一张"
               >
@@ -173,6 +201,73 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
           投诉举报此信息
         </Link>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && imageCount > 0 && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="图片预览"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <div className="relative w-full max-w-5xl h-[80vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-2 left-2 z-10 px-3 py-2 rounded-full bg-black/60 text-white text-sm"
+              aria-label="关闭图片预览"
+            >
+              ← 返回
+            </button>
+
+            {imageCount >= 2 && (
+              <>
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/55 text-white flex items-center justify-center"
+                  aria-label="上一张"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/55 text-white flex items-center justify-center"
+                  aria-label="下一张"
+                >
+                  ›
+                </button>
+              </>
+            )}
+
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[imgIdx]}
+              alt={`${post.title} 图片 ${imgIdx + 1}`}
+              className="absolute inset-0 w-full h-full object-contain"
+            />
+
+            {imageCount >= 2 && (
+              <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2 z-10">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setImgIdx(idx)}
+                    className={
+                      'h-2.5 w-2.5 rounded-full transition ' +
+                      (idx === imgIdx ? 'bg-white' : 'bg-white/50 hover:bg-white/70')
+                    }
+                    aria-label={`切换到第 ${idx + 1} 张`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
