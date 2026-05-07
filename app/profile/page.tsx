@@ -26,6 +26,11 @@ export default function ProfilePage() {
   const [iosA2hsOpen, setIosA2hsOpen] = useState(false)
   const [toast, setToast] = useState<string>('')
 
+  const showToast = (message: string, durationMs = 1800) => {
+    setToast(message)
+    setTimeout(() => setToast(''), durationMs)
+  }
+
   useEffect(() => {
     const fetchProfile = async () => {
       const {
@@ -68,8 +73,7 @@ export default function ProfilePage() {
   const handleShare = async () => {
     const res = await shareOpenAA()
     if (res === 'copied') {
-      setToast('✅ 链接已复制')
-      setTimeout(() => setToast(''), 1800)
+      showToast('✅ 链接已复制')
     }
   }
 
@@ -110,6 +114,9 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 max-[359px]:grid-cols-1 gap-3">
             <A2HSButton
               onIosNeedInstructions={() => setIosA2hsOpen(true)}
+              onAlreadyInstalled={() =>
+                showToast('OpenAA 已经添加到桌面了，无需重复添加。', 2400)
+              }
               className="text-left rounded-2xl border border-blue-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-all duration-200 hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)] active:scale-[0.98] disabled:opacity-60 disabled:hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
             >
               <div className="flex items-center gap-3 min-w-0">
