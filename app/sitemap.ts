@@ -27,6 +27,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/news`,
+      lastModified: now,
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/profile`,
       lastModified: now,
       priority: 0.8,
