@@ -11,6 +11,8 @@ interface Props {
   className?: string
 }
 
+const SCROLL_DISTANCE = 200
+
 function BaseTab({
   label,
   active,
@@ -22,13 +24,11 @@ function BaseTab({
 }) {
   return (
     <span
-      className={
-        (className || '') +
-        ' flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition ' +
-        (active
+      className={`${className ?? ''} flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition ${
+        active
           ? 'bg-[#1976d2] text-white border-[#1976d2]'
-          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-      }
+          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+      }`.trim()}
     >
       {label}
     </span>
@@ -45,9 +45,10 @@ export default function HorizontalCategoryTabs({
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const first = categories[0]
   const rest = categories.slice(1)
+  const containerClass = `sticky top-14 z-40 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-100 ${className ?? ''}`.trim()
 
   return (
-    <div className={'sticky top-14 z-40 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-100 ' + (className || '')}>
+    <div className={containerClass}>
       <div className="flex items-center gap-2 px-4 py-2">
         {getHref ? (
           <Link href={getHref(first)} aria-current={activeCategory === first ? 'page' : undefined}>
@@ -62,7 +63,7 @@ export default function HorizontalCategoryTabs({
         <div className="min-w-0 flex-1 relative flex items-center">
           <button
             type="button"
-            onClick={() => scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
+            onClick={() => scrollRef.current?.scrollBy({ left: -SCROLL_DISTANCE, behavior: 'smooth' })}
             className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition mr-1"
             aria-label="向左滚动"
           >
@@ -76,8 +77,8 @@ export default function HorizontalCategoryTabs({
             aria-label="分类筛选"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'ArrowLeft') scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })
-              if (e.key === 'ArrowRight') scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })
+              if (e.key === 'ArrowLeft') scrollRef.current?.scrollBy({ left: -SCROLL_DISTANCE, behavior: 'smooth' })
+              if (e.key === 'ArrowRight') scrollRef.current?.scrollBy({ left: SCROLL_DISTANCE, behavior: 'smooth' })
             }}
           >
             <div className="flex items-center gap-2">
@@ -101,7 +102,7 @@ export default function HorizontalCategoryTabs({
 
           <button
             type="button"
-            onClick={() => scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
+            onClick={() => scrollRef.current?.scrollBy({ left: SCROLL_DISTANCE, behavior: 'smooth' })}
             className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition ml-1"
             aria-label="向右滚动"
           >

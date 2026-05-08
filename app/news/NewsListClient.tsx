@@ -9,7 +9,7 @@ import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import { supabase } from '@/lib/supabase'
-import { NEWS_FILTER_CATEGORIES, normalizeNewsFilterCategory } from '@/lib/news'
+import { NEWS_FILTER_CATEGORIES, NEWS_PAGE_SIZE, normalizeNewsFilterCategory } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
 function formatDate(value: string | null) {
@@ -39,7 +39,7 @@ export default function NewsListClient() {
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(NEWS_PAGE_SIZE)
 
     if (currentCategory !== '全部') {
       query = query.eq('category', currentCategory)

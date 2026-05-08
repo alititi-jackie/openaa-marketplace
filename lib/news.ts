@@ -13,6 +13,8 @@ export const NEWS_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const NEWS_DEFAULT_SEO_DESCRIPTION =
   'OpenAA 美国华人生活资讯、平台公告、新手指南与实用教程。'
 
+export const NEWS_PAGE_SIZE = 20
+
 export type NewsCategory = (typeof NEWS_CATEGORIES)[number]
 export type NewsFilterCategory = (typeof NEWS_FILTER_CATEGORIES)[number]
 
