@@ -1,9 +1,9 @@
 export const NEWS_CATEGORIES = [
-  '新手指南',
-  '平台公告',
   '本地新闻',
+  '新手指南',
   'DMV教程',
   '生活指南',
+  '平台公告',
 ] as const
 
 export const NEWS_FILTER_CATEGORIES = ['全部', ...NEWS_CATEGORIES] as const
