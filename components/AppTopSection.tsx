@@ -3,11 +3,13 @@
 import Header from '@/components/Header'
 import BannerCarousel from '@/components/BannerCarousel'
 import SearchBar from '@/components/SearchBar'
+import GridMenu from '@/components/GridMenu'
 
 type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news'
 
 interface Props {
   bannerPosition?: BannerPosition
+  showQuickGrid?: boolean
 }
 
 /**
@@ -17,7 +19,7 @@ interface Props {
  * 2) BannerCarousel
  * 3) homepage-style SearchBar
  */
-export default function AppTopSection({ bannerPosition }: Props) {
+export default function AppTopSection({ bannerPosition, showQuickGrid = true }: Props) {
   return (
     <div className="bg-white">
       <Header />
@@ -26,6 +28,8 @@ export default function AppTopSection({ bannerPosition }: Props) {
       <BannerCarousel position={bannerPosition || 'home'} />
 
       <SearchBar />
+
+      {bannerPosition === 'news' && showQuickGrid ? <GridMenu /> : null}
     </div>
   )
 }
