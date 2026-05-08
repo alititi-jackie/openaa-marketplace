@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import AppTopSection from '@/components/AppTopSection'
-import GridMenu from '@/components/GridMenu'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
@@ -59,8 +58,7 @@ export default function NewsListClient() {
 
   return (
     <div className="min-h-screen bg-white pb-24">
-      <AppTopSection bannerPosition="news" />
-      <GridMenu />
+      <AppTopSection bannerPosition="news" showQuickGrid={false} />
 
       <div className="px-4 pt-5 pb-3">
         <h1 className="text-xl font-black text-gray-900">新闻资讯</h1>
