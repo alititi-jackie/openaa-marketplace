@@ -106,6 +106,22 @@ export interface ServicePost {
   updated_at: string | null
 }
 
+export interface NewsPost {
+  id: string
+  title: string
+  slug: string
+  category: string
+  summary: string | null
+  cover_image_url: string | null
+  content: string
+  seo_title: string | null
+  seo_description: string | null
+  is_published: boolean
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface ApiResponse<T> {
   data?: T
   error?: string

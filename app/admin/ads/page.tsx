@@ -20,7 +20,7 @@ interface Ad {
   created_at: string
 }
 
-type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation' | 'services'
+type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation' | 'services' | 'news'
 
 const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'all', label: '全部' },
@@ -30,6 +30,7 @@ const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'secondhand', label: '二手广告' },
   { key: 'navigation', label: '导航广告' },
   { key: 'services', label: '本地服务广告' },
+  { key: 'news', label: '新闻广告' },
 ]
 
 type StatusFilter = 'all' | 'active' | 'inactive'
@@ -48,6 +49,7 @@ function getPositionLabel(position: string) {
     secondhand: '二手广告',
     navigation: '导航广告',
     services: '本地服务广告',
+    news: '新闻广告',
   }
   return map[position] || position
 }
@@ -63,7 +65,7 @@ function AdsAdminContent() {
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
-  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services'>('home')
+  const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news'>('home')
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -297,7 +299,7 @@ function AdsAdminContent() {
           <label className="block text-sm font-medium mb-1">位置</label>
           <select
             value={position}
-            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services')}
+            onChange={(e) => setPosition(e.target.value as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news')}
             className="w-full border rounded-lg px-3 py-2 text-sm"
           >
             <option value="home">首页 (home)</option>
@@ -306,6 +308,7 @@ function AdsAdminContent() {
             <option value="navigation">导航页 (navigation)</option>
             <option value="housing">房屋 (housing)</option>
             <option value="services">本地服务 (services)</option>
+            <option value="news">新闻 (news)</option>
           </select>
         </div>
 

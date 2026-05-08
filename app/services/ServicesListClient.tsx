@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
+import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 
@@ -78,7 +79,6 @@ export default function ServicesListClient() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('全部')
   const [location, setLocation] = useState('全部')
-  const categoryScrollRef = useRef<HTMLDivElement | null>(null)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
@@ -132,80 +132,11 @@ export default function ServicesListClient() {
         />
       </div>
 
-      {/* Category filter */}
-      <div className="sticky top-14 z-40 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-100">
-        <div className="flex items-center gap-2 px-4 py-2">
-          {/* "全部" fixed at left */}
-          <button
-            type="button"
-            onClick={() => setCategory('全部')}
-            className={
-              'flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition ' +
-              (category === '全部'
-                ? 'bg-[#1976d2] text-white border-[#1976d2]'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-            }
-          >
-            全部
-          </button>
-
-          {/* Scrollable other categories + desktop arrows */}
-          <div className="min-w-0 flex-1 relative flex items-center">
-            {/* Left arrow (desktop only) */}
-            <button
-              type="button"
-              onClick={() => categoryScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
-              className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition mr-1"
-              aria-label="向左滚动"
-            >
-              ‹
-            </button>
-
-            <div
-              ref={categoryScrollRef}
-              className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              role="region"
-              aria-label="分类筛选"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowLeft') categoryScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })
-                if (e.key === 'ArrowRight') categoryScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })
-              }}
-            >
-              <div className="flex items-center gap-2">
-                {SERVICE_CATEGORIES.filter((cat) => cat !== '全部').map((cat) => {
-                  const active = category === cat
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCategory(cat)}
-                      className={
-                        'flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition ' +
-                        (active
-                          ? 'bg-[#1976d2] text-white border-[#1976d2]'
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-                      }
-                    >
-                      {cat}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Right arrow (desktop only) */}
-            <button
-              type="button"
-              onClick={() => categoryScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
-              className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition ml-1"
-              aria-label="向右滚动"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      </div>
+      <HorizontalCategoryTabs
+        categories={SERVICE_CATEGORIES}
+        activeCategory={category}
+        onChange={setCategory}
+      />
 
       {/* Location filter */}
       <div className="px-4 mb-4">

@@ -62,7 +62,7 @@ const menuItems = [
   {
     label: '新手指南',
     Icon: BookOpen,
-    href: '/guide',
+    href: '/news?category=新手指南',
     bg: 'bg-orange-50',
     color: 'text-orange-500',
     ring: 'ring-orange-100',
