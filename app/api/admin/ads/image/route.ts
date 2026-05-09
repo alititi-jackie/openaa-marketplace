@@ -57,10 +57,6 @@ export async function DELETE(request: NextRequest) {
   const tokenValid = checkAdminToken(request)
   if (!tokenValid) {
     console.error('[admin ads image delete] invalid admin token', {
-      adId: null,
-      imageUrl: null,
-      isExternalLink: null,
-      updateError: null,
       tokenValid,
     })
     return NextResponse.json({ error: 'Invalid admin token' }, { status: 401 })
@@ -111,7 +107,7 @@ export async function DELETE(request: NextRequest) {
       updateError: adCheckError,
     })
     return NextResponse.json(
-      { error: 'Supabase update failed', details: adCheckError.message || 'Failed to query ad row' },
+      { error: 'Ad lookup failed', details: adCheckError.message || 'Failed to query ad row' },
       { status: 400 }
     )
   }
@@ -160,7 +156,7 @@ export async function DELETE(request: NextRequest) {
   const parsedStorage = parseSupabaseStorageUrl(imageUrl)
   if (!parsedStorage) {
     return NextResponse.json(
-      { error: 'Supabase update failed', details: 'Invalid Supabase Storage image URL' },
+      { error: 'Invalid storage image URL', details: 'Supabase Storage URL parsing failed' },
       { status: 400 }
     )
   }
@@ -174,7 +170,7 @@ export async function DELETE(request: NextRequest) {
   const { count, error: referenceError } = await scopedReferenceQuery
   if (referenceError) {
     return NextResponse.json(
-      { error: 'Supabase update failed', details: referenceError.message || 'Failed checking image references' },
+      { error: 'Failed to check image references', details: referenceError.message || 'Reference query failed' },
       { status: 400 }
     )
   }
