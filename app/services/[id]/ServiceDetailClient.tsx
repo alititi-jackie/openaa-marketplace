@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
+import BackToTopButton from '@/components/BackToTopButton'
 import type { ServicePost } from '@/types'
 
 function formatDate(s: string | null) {
@@ -268,6 +269,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
           </div>
         </div>
       )}
+      <BackToTopButton />
     </div>
   )
 }

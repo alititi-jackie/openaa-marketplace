@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
+import BackToTopButton from '@/components/BackToTopButton'
 import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
@@ -378,6 +379,7 @@ export default function HousingDetailPage() {
           </div>
         </div>
       )}
+      <BackToTopButton />
     </div>
   )
 }

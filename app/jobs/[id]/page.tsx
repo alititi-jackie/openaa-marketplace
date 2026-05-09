@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate, formatSalary, formatJobLocation } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
+import BackToTopButton from '@/components/BackToTopButton'
 import type { JobPosting } from '@/types'
 
 export default function JobDetailPage() {
@@ -94,6 +95,7 @@ export default function JobDetailPage() {
 
         <PostSafetyNotice variant="safety" />
       </div>
+      <BackToTopButton />
     </div>
   )
 }
