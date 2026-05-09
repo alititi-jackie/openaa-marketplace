@@ -240,6 +240,7 @@ function AdsAdminContent() {
 
   async function removeImage() {
     const currentImageUrl = imageUrl.trim()
+    const currentAdId = editingId?.trim() ?? ''
     if (!currentImageUrl) return
     if (!confirm('确定要删除当前广告图片吗？')) return
 
@@ -247,7 +248,7 @@ function AdsAdminContent() {
     setUploadMessage('')
 
     try {
-      const shouldUseApi = Boolean(editingId) || isAdsStorageUrl(currentImageUrl)
+      const shouldUseApi = Boolean(currentAdId)
       if (shouldUseApi) {
         const res = await fetch('/api/admin/ads/image', {
           method: 'DELETE',
@@ -255,7 +256,7 @@ function AdsAdminContent() {
             'x-admin-token': token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ adId: editingId, imageUrl: currentImageUrl }),
+          body: JSON.stringify({ adId: currentAdId, imageUrl: currentImageUrl }),
         })
 
         const json: unknown = await res.json()
@@ -266,10 +267,15 @@ function AdsAdminContent() {
           && Boolean((json as Record<string, unknown>)[field])
         )
         if (!res.ok) {
-          setUploadMessage(
+          const errorMessage =
             json !== null && typeof json === 'object' && 'error' in json
               ? String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')
               : '删除图片失败，请稍后再试'
+          const normalizedErrorMessage = errorMessage.startsWith('删除图片失败')
+            ? errorMessage
+            : `删除图片失败：${errorMessage}`
+          setUploadMessage(
+            normalizedErrorMessage
           )
           return
         }
