@@ -131,7 +131,7 @@ export default function SecondhandPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={activeTab === 'selling' ? '搜索商品...' : '搜索求购...'}
-            className="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            className="flex-1 min-w-[12rem] border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
           />
           <select
             value={category}
