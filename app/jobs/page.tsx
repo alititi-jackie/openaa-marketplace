@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import JobCard from '@/components/JobCard'
+import BackToTopButton from '@/components/BackToTopButton'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import type { JobPosting, JobPostingType } from '@/types'
 
@@ -164,6 +165,7 @@ export default function JobsPage() {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   )
 }

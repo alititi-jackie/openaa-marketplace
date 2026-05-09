@@ -7,6 +7,7 @@ import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
+import BackToTopButton from '@/components/BackToTopButton'
 import { supabase } from '@/lib/supabase'
 import { NEWS_FILTER_CATEGORIES, NEWS_PAGE_SIZE, normalizeNewsFilterCategory } from '@/lib/news'
 import type { NewsPost } from '@/types'
@@ -135,6 +136,7 @@ export default function NewsListClient() {
 
         <OpenAAAttractCard />
       </div>
+      <BackToTopButton />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
+import BackToTopButton from '@/components/BackToTopButton'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 
@@ -181,6 +182,7 @@ export default function ServicesListClient() {
           发布服务
         </Link>
       </div>
+      <BackToTopButton />
     </div>
   )
 }
