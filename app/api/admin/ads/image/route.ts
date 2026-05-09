@@ -90,19 +90,17 @@ export async function DELETE(request: NextRequest) {
 
   let isReusedByOtherAds = false
   if (isStorageImage) {
-    const referenceQuery = supabase
+    const { count, error: referenceError } = await supabase
       .from('ads')
       .select('id', { count: 'exact', head: true })
       .eq('image_url', imageUrl)
-    const scopedReferenceQuery = adId ? referenceQuery.neq('id', adId) : referenceQuery
-    const { count, error: referenceError } = await scopedReferenceQuery
+      .neq('id', adId)
     if (referenceError) {
       return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
     }
     isReusedByOtherAds = Boolean(count && count > 0)
   }
 
-  let imageUrlCleared = false
   const { error: updateError } = await supabase
     .from('ads')
     .update({ image_url: null })
@@ -118,7 +116,7 @@ export async function DELETE(request: NextRequest) {
     })
     return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
   }
-  imageUrlCleared = true
+  const imageUrlCleared = true
 
   let storageDeleteAttempted = false
   let storageFileDeleted = false
