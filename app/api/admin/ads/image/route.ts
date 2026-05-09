@@ -13,8 +13,7 @@ function getServiceClient() {
   )
 }
 
-function checkAdminToken(request: NextRequest): boolean {
-  const token = request.headers.get('x-admin-token')
+function checkAdminToken(token: string): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
@@ -55,7 +54,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing admin token' }, { status: 400 })
   }
 
-  if (!checkAdminToken(request)) {
+  if (!checkAdminToken(adminToken)) {
     return NextResponse.json({ error: '无权限访问' }, { status: 401 })
   }
 
