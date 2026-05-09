@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 
 const ADS_BUCKET = 'ads'
-const ADS_PUBLIC_PREFIX = `/storage/v1/object/public/${ADS_BUCKET}/`
+const SUPABASE_PUBLIC_STORAGE_MARKER = '/storage/v1/object/public/'
 
 function getServiceClient() {
   return createClient(
@@ -19,18 +19,34 @@ function checkAdminToken(request: NextRequest): boolean {
 }
 
 function isAdsStorageUrl(url: string): boolean {
-  return url.includes(ADS_PUBLIC_PREFIX)
+  const parsed = parseSupabaseStorageUrl(url)
+  return parsed?.bucket === ADS_BUCKET
 }
 
-function parseAdsStoragePath(url: string): string | null {
-  const markerIndex = url.indexOf(ADS_PUBLIC_PREFIX)
-  if (markerIndex < 0) return null
+function parseSupabaseStorageUrl(url: string): { bucket: string, objectPath: string } | null {
+  try {
+    const parsedUrl = new URL(url)
+    const markerIndex = parsedUrl.pathname.indexOf(SUPABASE_PUBLIC_STORAGE_MARKER)
+    if (markerIndex < 0) return null
 
-  const rawPath = url.slice(markerIndex + ADS_PUBLIC_PREFIX.length).split('?')[0]
-  const decoded = decodeURIComponent(rawPath).trim().replace(/^\/+/, '')
-  if (!decoded) return null
+    const bucketAndPath = parsedUrl.pathname
+      .slice(markerIndex + SUPABASE_PUBLIC_STORAGE_MARKER.length)
+      .replace(/^\/+/, '')
+    if (!bucketAndPath) return null
 
-  return decoded
+    const firstSlashIndex = bucketAndPath.indexOf('/')
+    if (firstSlashIndex <= 0) return null
+
+    const bucket = bucketAndPath.slice(0, firstSlashIndex).trim()
+    const objectPath = decodeURIComponent(bucketAndPath.slice(firstSlashIndex + 1))
+      .trim()
+      .replace(/^\/+/, '')
+    if (!bucket || !objectPath) return null
+
+    return { bucket, objectPath }
+  } catch {
+    return null
+  }
 }
 
 export async function DELETE(request: NextRequest) {
@@ -58,33 +74,48 @@ export async function DELETE(request: NextRequest) {
   }
 
   const supabase = getServiceClient()
+  const parsedStorage = parseSupabaseStorageUrl(imageUrl)
   const isStorageImage = isAdsStorageUrl(imageUrl)
+  const isExternalLink = !isStorageImage
+  const parsedBucket = parsedStorage?.bucket ?? null
+  const parsedObjectPath = parsedStorage?.objectPath ?? null
 
-  const referenceQuery = supabase
-    .from('ads')
-    .select('id', { count: 'exact', head: true })
-    .eq('image_url', imageUrl)
-  const scopedReferenceQuery = adId ? referenceQuery.neq('id', adId) : referenceQuery
-  const { count, error: referenceError } = await scopedReferenceQuery
-  if (referenceError) {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+  let isReusedByOtherAds = false
+  if (isStorageImage) {
+    const referenceQuery = supabase
+      .from('ads')
+      .select('id', { count: 'exact', head: true })
+      .eq('image_url', imageUrl)
+    const scopedReferenceQuery = adId ? referenceQuery.neq('id', adId) : referenceQuery
+    const { count, error: referenceError } = await scopedReferenceQuery
+    if (referenceError) {
+      return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    }
+    isReusedByOtherAds = Boolean(count && count > 0)
   }
 
-  if (isStorageImage && !count) {
-    const storagePath = parseAdsStoragePath(imageUrl)
-    if (!storagePath) {
-      return NextResponse.json(
-        { error: '无法识别图片路径，请到 Supabase Storage 手动检查' },
-        { status: 400 }
-      )
-    }
+  let storageDeleteAttempted = false
+  let storageFileDeleted = false
 
-    const { error: removeError } = await supabase.storage.from(ADS_BUCKET).remove([storagePath])
+  if (isStorageImage && !isReusedByOtherAds && parsedStorage) {
+    storageDeleteAttempted = true
+    const { error: removeError } = await supabase.storage
+      .from(parsedStorage.bucket)
+      .remove([parsedStorage.objectPath])
     if (removeError) {
-      return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 500 })
+      console.error('[admin ads image delete] storage remove failed', {
+        adId,
+        imageUrl,
+        parsedBucket,
+        parsedObjectPath,
+        supabaseStorageRemoveError: removeError,
+      })
+    } else {
+      storageFileDeleted = true
     }
   }
 
+  let imageUrlCleared = false
   if (adId) {
     const { error: updateError } = await supabase
       .from('ads')
@@ -92,15 +123,28 @@ export async function DELETE(request: NextRequest) {
       .eq('id', adId)
 
     if (updateError) {
+      console.error('[admin ads image delete] update ad image_url failed', {
+        adId,
+        imageUrl,
+        parsedBucket,
+        parsedObjectPath,
+        supabaseUpdateError: updateError,
+      })
       return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
     }
+    imageUrlCleared = true
   }
 
-  if (!isStorageImage) {
-    return NextResponse.json({ message: '外部图片链接已从当前广告移除' })
-  }
-  if (count) {
-    return NextResponse.json({ message: '图片仍被其它广告使用，已仅删除当前广告引用' })
-  }
-  return NextResponse.json({ message: '图片已删除' })
+  const message = storageDeleteAttempted && !storageFileDeleted
+    ? '图片已从广告中移除，Storage 文件清理稍后可再处理'
+    : '图片已删除，可以重新上传或填写外部链接'
+
+  return NextResponse.json({
+    message,
+    imageUrlCleared,
+    storageDeleteAttempted,
+    storageFileDeleted,
+    isExternalLink,
+    isReusedByOtherAds,
+  })
 }
