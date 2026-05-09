@@ -275,6 +275,17 @@ export default function ProfilePage() {
           </Link>
 
           <Link
+            href="/feedback"
+            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
+          >
+            <div>
+              <p className="text-zinc-900">📝 反馈与举报</p>
+              <p className="mt-0.5 text-[11px] text-zinc-500">提交问题、举报虚假信息或提出建议</p>
+            </div>
+            <span className="text-zinc-300">›</span>
+          </Link>
+
+          <Link
             href="/profile/edit"
             className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
           >
