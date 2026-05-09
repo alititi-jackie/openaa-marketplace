@@ -2,43 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Clock, ChevronRight } from 'lucide-react'
+import { MapPin, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { formatDate, formatPrice, formatJobLocation } from '@/lib/utils'
+import { formatJobLocation } from '@/lib/utils'
 
 type LatestJob = {
   id: string | number
   title: string | null
   location: string | null
-  salary_min?: number | null
-  salary_max?: number | null
-  created_at: string | null
 }
 
 type LatestSecondhand = {
   id: string | number
   title: string | null
   category?: string | null
-  price?: number | null
-  created_at: string | null
 }
 
 type LatestHousing = {
   id: string | number
   title: string | null
   location: string | null
-  price?: number | null
-  created_at: string | null
-}
-
-function formatSalary(min?: number | null, max?: number | null): string | null {
-  const minVal = (min != null && min > 0) ? min : 0
-  const maxVal = (max != null && max > 0) ? max : 0
-  if (minVal === 0 && maxVal === 0) return null
-  if (minVal > 0 && maxVal === 0) return `$${minVal.toLocaleString()}+`
-  if (maxVal > 0 && minVal === 0) return `≤ $${maxVal.toLocaleString()}`
-  if (minVal === maxVal) return `$${minVal.toLocaleString()}`
-  return `$${minVal.toLocaleString()} - $${maxVal.toLocaleString()}/年`
 }
 
 const quickLinks = [
@@ -58,22 +41,22 @@ export default function LatestPostsSection() {
       const [jobsRes, itemsRes, housingsRes] = await Promise.all([
         supabase
           .from('job_postings')
-          .select('id, title, location, salary_min, salary_max, created_at')
+          .select('id, title, location')
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(6),
         supabase
           .from('secondhand_items')
-          .select('id, title, category, price, created_at')
+          .select('id, title, category')
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(6),
         supabase
           .from('housing_posts')
-          .select('id, title, location, price, created_at')
+          .select('id, title, location')
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(6),
       ])
 
       if (!jobsRes.error && jobsRes.data) {
@@ -82,9 +65,6 @@ export default function LatestPostsSection() {
             id: job.id,
             title: job.title,
             location: job.location,
-            salary_min: job.salary_min,
-            salary_max: job.salary_max,
-            created_at: job.created_at,
           }))
         )
       } else {
@@ -97,8 +77,6 @@ export default function LatestPostsSection() {
             id: item.id,
             title: item.title,
             category: item.category,
-            price: item.price,
-            created_at: item.created_at,
           }))
         )
       } else {
@@ -111,8 +89,6 @@ export default function LatestPostsSection() {
             id: housing.id,
             title: housing.title,
             location: housing.location,
-            price: housing.price,
-            created_at: housing.created_at,
           }))
         )
       } else {
@@ -158,32 +134,23 @@ export default function LatestPostsSection() {
         {jobs.length === 0 ? (
           <p className="text-[12px] text-zinc-400 py-2">暂无最新信息</p>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {jobs.map((job) => {
-              const salary = formatSalary(job.salary_min, job.salary_max)
+              const loc = formatJobLocation(job.location)
               return (
-              <Link
-                key={job.id}
-                href={`/jobs/${job.id}`}
-                className="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-zinc-800 truncate">{job.title}</p>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <MapPin size={10} className="text-zinc-400 flex-shrink-0" />
-                    <span className="text-[11px] text-zinc-400 truncate">{formatJobLocation(job.location)}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  {salary ? (
-                    <span className="text-[12px] font-bold text-blue-600">{salary}</span>
+                <Link
+                  key={job.id}
+                  href={`/jobs/${job.id}`}
+                  className="flex flex-col bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150 overflow-hidden"
+                >
+                  <p className="text-[13px] font-semibold text-zinc-800 line-clamp-2 break-words">{job.title}</p>
+                  {loc ? (
+                    <div className="flex items-center gap-1 mt-1">
+                      <MapPin size={10} className="text-zinc-400 flex-shrink-0" />
+                      <span className="text-[11px] text-zinc-400 truncate">{loc}</span>
+                    </div>
                   ) : null}
-                  <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
-                    <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(job.created_at ?? '')}</span>
-                  </div>
-                </div>
-              </Link>
+                </Link>
               )
             })}
           </div>
@@ -205,28 +172,17 @@ export default function LatestPostsSection() {
         {items.length === 0 ? (
           <p className="text-[12px] text-zinc-400 py-2">暂无最新信息</p>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {items.map((item) => (
               <Link
                 key={item.id}
                 href={`/secondhand/${item.id}`}
-                className="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150"
+                className="flex flex-col bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150 overflow-hidden"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-zinc-800 truncate">{item.title}</p>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[11px] text-zinc-400 truncate">{item.category}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  <span className="text-[12px] font-bold text-blue-600">
-                    {item.price == null ? '面议' : formatPrice(item.price)}
-                  </span>
-                  <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
-                    <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(item.created_at ?? '')}</span>
-                  </div>
-                </div>
+                <p className="text-[13px] font-semibold text-zinc-800 line-clamp-2 break-words">{item.title}</p>
+                {item.category ? (
+                  <span className="text-[11px] text-zinc-400 truncate mt-1">{item.category}</span>
+                ) : null}
               </Link>
             ))}
           </div>
@@ -245,32 +201,21 @@ export default function LatestPostsSection() {
         {housings.length === 0 ? (
           <p className="text-[12px] text-zinc-400 py-2">暂无最新信息</p>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {housings.map((housing) => (
-              <Link
-                key={housing.id}
-                href={`/housing/${housing.id}`}
-                className="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-zinc-800 truncate">{housing.title}</p>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <MapPin size={10} className="text-zinc-400 flex-shrink-0" />
-                    <span className="text-[11px] text-zinc-400 truncate">{housing.location}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end ml-2 flex-shrink-0">
-                  {Number.isFinite(Number(housing.price)) && Number(housing.price) > 0 ? (
-                    <span className="text-[12px] font-bold text-blue-600">
-                      ${housing.price}/月
-                    </span>
+                <Link
+                  key={housing.id}
+                  href={`/housing/${housing.id}`}
+                  className="flex flex-col bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150 overflow-hidden"
+                >
+                  <p className="text-[13px] font-semibold text-zinc-800 line-clamp-2 break-words">{housing.title}</p>
+                  {housing.location ? (
+                    <div className="flex items-center gap-1 mt-1">
+                      <MapPin size={10} className="text-zinc-400 flex-shrink-0" />
+                      <span className="text-[11px] text-zinc-400 truncate">{housing.location}</span>
+                    </div>
                   ) : null}
-                  <div className="flex items-center gap-0.5 text-zinc-400 mt-0.5">
-                    <Clock size={9} />
-                    <span className="text-[10px]">{formatDate(housing.created_at ?? '')}</span>
-                  </div>
-                </div>
-              </Link>
+                </Link>
             ))}
           </div>
         )}
