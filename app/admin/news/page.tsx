@@ -7,6 +7,7 @@ import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/
 import type { NewsFilterCategory } from '@/lib/news'
 
 type StatusFilter = '全部状态' | '已发布' | '未发布'
+type CoverSource = 'uploaded' | 'external'
 
 const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: '全部状态', label: '全部状态' },
@@ -47,6 +48,10 @@ function formatDate(value: string | null) {
   }
 }
 
+function isNewsCoversUrl(url: string): boolean {
+  return url.includes('/storage/v1/object/public/news-covers/')
+}
+
 export default function AdminNewsPage() {
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
@@ -58,7 +63,9 @@ export default function AdminNewsPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [hasAccess, setHasAccess] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [deletingCover, setDeletingCover] = useState(false)
   const [uploadMessage, setUploadMessage] = useState('')
+  const [coverSourceLock, setCoverSourceLock] = useState<CoverSource | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<NewsFilterCategory>('全部')
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('全部状态')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -120,6 +127,7 @@ export default function AdminNewsPage() {
     setShowForm(true)
     setMessage('')
     setUploadMessage('')
+    setCoverSourceLock(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -139,10 +147,12 @@ export default function AdminNewsPage() {
     setShowForm(true)
     setMessage('')
     setUploadMessage('')
+    setCoverSourceLock(post.cover_image_url ? (isNewsCoversUrl(post.cover_image_url) ? 'uploaded' : 'external') : null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   async function handleCoverImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (coverSourceLock !== null) return
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -186,11 +196,63 @@ export default function AdminNewsPage() {
           ? String((json as Record<string, unknown>).url || '')
           : ''
       setForm((prev) => ({ ...prev, cover_image_url: url }))
+      setCoverSourceLock('uploaded')
       setUploadMessage('封面图上传成功')
     } catch {
       setUploadMessage('上传失败，请重试')
     } finally {
       setUploading(false)
+    }
+  }
+
+  async function removeCoverImage() {
+    const coverImageUrl = form.cover_image_url.trim()
+    if (!coverImageUrl) return
+    if (!confirm('确定要删除当前封面图吗？')) return
+
+    setDeletingCover(true)
+    setUploadMessage('')
+    try {
+      const shouldUseApi = Boolean(editingId) || isNewsCoversUrl(coverImageUrl)
+      if (shouldUseApi) {
+        const res = await fetch('/api/admin/news/cover', {
+          method: 'DELETE',
+          headers: {
+            'x-admin-token': token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ newsId: editingId, coverImageUrl }),
+        })
+        const json: unknown = await res.json()
+        if (res.status === 401) {
+          setHasAccess(false)
+          setMessage('无权限访问')
+          return
+        }
+        if (!res.ok) {
+          setUploadMessage(
+            json !== null && typeof json === 'object' && 'error' in json
+              ? String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')
+              : '删除图片失败，请稍后再试'
+          )
+          return
+        }
+        setUploadMessage(
+          json !== null && typeof json === 'object' && 'message' in json
+            ? String((json as Record<string, unknown>).message || '图片已删除')
+            : '图片已删除'
+        )
+      } else {
+        setUploadMessage('外部图片链接已从当前文章移除')
+      }
+
+      setForm((prev) => ({ ...prev, cover_image_url: '' }))
+      setCoverSourceLock(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    } catch {
+      setUploadMessage('删除图片失败，请稍后再试')
+    } finally {
+      setDeletingCover(false)
     }
   }
 
@@ -243,6 +305,7 @@ export default function AdminNewsPage() {
       setShowForm(false)
       setEditingId(null)
       setForm(emptyForm)
+      setCoverSourceLock(null)
       await fetchPosts(token)
     } else {
       setMessage(
@@ -316,6 +379,9 @@ export default function AdminNewsPage() {
       }),
     [posts]
   )
+
+  const hasCoverImage = form.cover_image_url.trim().length > 0
+  const isCoverLocked = coverSourceLock !== null
 
   const filteredPosts = useMemo(() => {
     return sortedPosts.filter((post) => {
@@ -397,14 +463,20 @@ export default function AdminNewsPage() {
           <div className="space-y-2 rounded-lg border p-3">
             <p className="text-sm font-medium">封面图</p>
             <div className="flex items-center gap-2">
-              <label className="cursor-pointer rounded-lg border bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+              <label
+                className={`rounded-lg border px-3 py-2 text-sm font-medium ${
+                  isCoverLocked
+                    ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                    : 'cursor-pointer bg-gray-50 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
                 {uploading ? '上传中...' : '上传封面图'}
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   className="hidden"
-                  disabled={uploading}
+                  disabled={uploading || isCoverLocked || deletingCover}
                   onChange={handleCoverImageUpload}
                 />
               </label>
@@ -418,10 +490,39 @@ export default function AdminNewsPage() {
             </div>
             <input
               value={form.cover_image_url}
-              onChange={(e) => setForm((prev) => ({ ...prev, cover_image_url: e.target.value }))}
+              onChange={(e) => {
+                if (isCoverLocked) return
+                setForm((prev) => ({ ...prev, cover_image_url: e.target.value }))
+              }}
+              onBlur={() => {
+                const trimmed = form.cover_image_url.trim()
+                if (!trimmed || isCoverLocked) return
+                setForm((prev) => ({ ...prev, cover_image_url: trimmed }))
+                setCoverSourceLock(isNewsCoversUrl(trimmed) ? 'uploaded' : 'external')
+              }}
               placeholder="封面图 URL"
-              className="w-full rounded-lg border px-3 py-2 text-sm"
+              disabled={isCoverLocked || deletingCover}
+              className="w-full rounded-lg border px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-500"
             />
+            {isCoverLocked ? (
+              <p className="text-xs text-amber-700">
+                {coverSourceLock === 'uploaded'
+                  ? '已使用上传图片，如需改用外部链接，请先删除当前图片。'
+                  : '已使用外部图片链接，如需上传图片，请先删除当前图片。'}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500">如需更换封面图，请先删除当前图片。</p>
+            )}
+            {isCoverLocked && hasCoverImage ? (
+              <button
+                type="button"
+                onClick={removeCoverImage}
+                disabled={uploading || deletingCover}
+                className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletingCover ? '删除中...' : '删除图片'}
+              </button>
+            ) : null}
             {form.cover_image_url ? (
               <div className="mt-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -482,6 +583,7 @@ export default function AdminNewsPage() {
                 setEditingId(null)
                 setForm(emptyForm)
                 setUploadMessage('')
+                setCoverSourceLock(null)
                 if (fileInputRef.current) fileInputRef.current.value = ''
               }}
               className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700"
