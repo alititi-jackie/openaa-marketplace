@@ -6,6 +6,7 @@ import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import NewsTipCard from '@/components/NewsTipCard'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
@@ -201,6 +202,8 @@ export default async function NewsDetailPage({
             <p key={`${post.id}-${index}`}>{paragraph}</p>
           ))}
         </article>
+
+        <NewsTipCard />
 
         {previousPost || nextPost ? (
           <div className="mt-7 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">

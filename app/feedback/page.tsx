@@ -4,7 +4,7 @@ import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-const FEEDBACK_TYPES = ['信息举报', '页面错误', '功能建议', '广告合作', '其它问题'] as const
+const FEEDBACK_TYPES = ['信息举报', '页面错误', '功能建议', '新闻线索 / 投稿建议', '广告合作', '其它问题'] as const
 type FeedbackType = (typeof FEEDBACK_TYPES)[number]
 
 function normalizeType(value: string | null): FeedbackType {
