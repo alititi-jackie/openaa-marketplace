@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { NewsPost } from '@/types'
 import { NEWS_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
@@ -48,6 +48,9 @@ export default function AdminNewsPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [hasAccess, setHasAccess] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [uploadMessage, setUploadMessage] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchPosts = useCallback(async (adminToken: string) => {
     setLoading(true)
@@ -105,6 +108,8 @@ export default function AdminNewsPage() {
     setForm(emptyForm)
     setShowForm(true)
     setMessage('')
+    setUploadMessage('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   function startEdit(post: NewsPost) {
@@ -122,6 +127,60 @@ export default function AdminNewsPage() {
     })
     setShowForm(true)
     setMessage('')
+    setUploadMessage('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function handleCoverImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    const allowedExts = ['jpg', 'jpeg', 'png', 'webp']
+    const nameParts = file.name.split('.')
+    const ext = nameParts.length > 1 ? (nameParts.pop() ?? '').toLowerCase() : ''
+    if (!ext || !allowedTypes.includes(file.type) || !allowedExts.includes(ext)) {
+      setUploadMessage('图片格式仅支持 JPG、PNG、WEBP')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadMessage('图片大小不能超过 5MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadMessage('上传中...')
+
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('slug', form.slug.trim())
+
+    try {
+      const res = await fetch('/api/admin/news/upload-cover', {
+        method: 'POST',
+        headers: { 'x-admin-token': token },
+        body: fd,
+      })
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        const errMsg =
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || '上传失败')
+            : '上传失败'
+        setUploadMessage(errMsg)
+        return
+      }
+      const url =
+        json !== null && typeof json === 'object' && 'url' in json
+          ? String((json as Record<string, unknown>).url || '')
+          : ''
+      setForm((prev) => ({ ...prev, cover_image_url: url }))
+      setUploadMessage('封面图上传成功')
+    } catch {
+      setUploadMessage('上传失败，请重试')
+    } finally {
+      setUploading(false)
+    }
   }
 
   async function submitForm(e: React.FormEvent) {
@@ -313,12 +372,52 @@ export default function AdminNewsPage() {
             placeholder="摘要"
             className="w-full rounded-lg border px-3 py-2 text-sm"
           />
-          <input
-            value={form.cover_image_url}
-            onChange={(e) => setForm((prev) => ({ ...prev, cover_image_url: e.target.value }))}
-            placeholder="封面图 URL"
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
+          {/* Cover image upload section */}
+          <div className="space-y-2 rounded-lg border p-3">
+            <p className="text-sm font-medium">封面图</p>
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer rounded-lg border bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                {uploading ? '上传中...' : '上传封面图'}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={handleCoverImageUpload}
+                />
+              </label>
+              {uploadMessage ? (
+                <span
+                  className={`text-xs ${uploadMessage.includes('成功') ? 'text-green-600' : uploadMessage === '上传中...' ? 'text-gray-500' : 'text-red-500'}`}
+                >
+                  {uploadMessage}
+                </span>
+              ) : null}
+            </div>
+            <input
+              value={form.cover_image_url}
+              onChange={(e) => setForm((prev) => ({ ...prev, cover_image_url: e.target.value }))}
+              placeholder="封面图 URL"
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+            />
+            {form.cover_image_url ? (
+              <div className="mt-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={form.cover_image_url}
+                  alt="封面图预览"
+                  className="max-h-40 rounded-lg object-cover"
+                  onError={(e) => {
+                    ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                  }}
+                  onLoad={(e) => {
+                    ;(e.currentTarget as HTMLImageElement).style.display = ''
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
           <textarea
             value={form.content}
             onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
@@ -361,6 +460,8 @@ export default function AdminNewsPage() {
                 setShowForm(false)
                 setEditingId(null)
                 setForm(emptyForm)
+                setUploadMessage('')
+                if (fileInputRef.current) fileInputRef.current.value = ''
               }}
               className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700"
             >
