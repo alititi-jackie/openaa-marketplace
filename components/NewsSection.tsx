@@ -53,7 +53,7 @@ async function getHomeNewsItems() {
     .eq('category', '本地新闻')
     .order('published_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
-    .limit(4)
+    .limit(15)
 
   if (error) {
     console.error('Failed to load homepage local news:', error)
