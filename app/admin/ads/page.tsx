@@ -259,6 +259,12 @@ function AdsAdminContent() {
         })
 
         const json: unknown = await res.json()
+        const getBoolField = (field: string) => (
+          json !== null
+          && typeof json === 'object'
+          && field in json
+          && Boolean((json as Record<string, unknown>)[field])
+        )
         if (!res.ok) {
           setUploadMessage(
             json !== null && typeof json === 'object' && 'error' in json
@@ -268,31 +274,22 @@ function AdsAdminContent() {
           return
         }
 
-        const imageUrlCleared = json !== null
-          && typeof json === 'object'
-          && 'imageUrlCleared' in json
-          && Boolean((json as Record<string, unknown>).imageUrlCleared)
-        if (!imageUrlCleared) {
+        const imageUrlCleared = getBoolField('imageUrlCleared')
+        if (editingId && !imageUrlCleared) {
           setUploadMessage('删除图片失败，请稍后再试')
           return
         }
 
-        const storageDeleteAttempted = json !== null
-          && typeof json === 'object'
-          && 'storageDeleteAttempted' in json
-          && Boolean((json as Record<string, unknown>).storageDeleteAttempted)
-        const storageFileDeleted = json !== null
-          && typeof json === 'object'
-          && 'storageFileDeleted' in json
-          && Boolean((json as Record<string, unknown>).storageFileDeleted)
+        const storageDeleteAttempted = getBoolField('storageDeleteAttempted')
+        const storageFileDeleted = getBoolField('storageFileDeleted')
 
         setUploadMessage(
           storageDeleteAttempted && !storageFileDeleted
-            ? '图片已从广告中移除，Storage 文件清理稍后可再处理。'
-            : '图片已删除，可以重新上传或填写外部链接。'
+            ? '图片已从广告中移除，Storage 文件清理稍后可再处理'
+            : '图片已删除，可以重新上传或填写外部链接'
         )
       } else {
-        setUploadMessage('图片已删除，可以重新上传或填写外部链接。')
+        setUploadMessage('图片已删除，可以重新上传或填写外部链接')
       }
 
       setImageUrl('')

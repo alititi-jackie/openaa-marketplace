@@ -115,7 +115,7 @@ export async function DELETE(request: NextRequest) {
     }
   }
 
-  let imageUrlCleared = !adId
+  let imageUrlCleared = false
   if (adId) {
     const { error: updateError } = await supabase
       .from('ads')
@@ -136,8 +136,8 @@ export async function DELETE(request: NextRequest) {
   }
 
   const message = storageDeleteAttempted && !storageFileDeleted
-    ? '图片已从广告中移除，Storage 文件清理稍后可再处理。'
-    : '图片已删除，可以重新上传或填写外部链接。'
+    ? '图片已从广告中移除，Storage 文件清理稍后可再处理'
+    : '图片已删除，可以重新上传或填写外部链接'
 
   return NextResponse.json({
     message,
