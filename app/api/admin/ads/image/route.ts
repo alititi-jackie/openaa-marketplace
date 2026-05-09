@@ -13,8 +13,7 @@ function getServiceClient() {
   )
 }
 
-function checkAdminToken(request: NextRequest): boolean {
-  const token = request.headers.get('x-admin-token')
+function checkAdminToken(token: string): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
@@ -54,7 +53,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing admin token' }, { status: 400 })
   }
 
-  const tokenValid = checkAdminToken(request)
+  const tokenValid = checkAdminToken(adminToken)
   if (!tokenValid) {
     console.error('[admin ads image delete] invalid admin token', {
       tokenValid,
