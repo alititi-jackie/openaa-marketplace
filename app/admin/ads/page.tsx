@@ -240,6 +240,8 @@ function AdsAdminContent() {
 
   async function removeImage() {
     const currentImageUrl = imageUrl.trim()
+    const currentAdId = editingId?.trim() ?? ''
+    const adminToken = token.trim()
     if (!currentImageUrl) return
     if (!confirm('确定要删除当前广告图片吗？')) return
 
@@ -249,13 +251,23 @@ function AdsAdminContent() {
     try {
       const shouldUseApi = Boolean(editingId) || isAdsStorageUrl(currentImageUrl)
       if (shouldUseApi) {
+        if (!currentAdId) {
+          setUploadMessage('删除图片失败：Missing adId')
+          return
+        }
+
+        if (!adminToken) {
+          setUploadMessage('删除图片失败：Missing admin token')
+          return
+        }
+
         const res = await fetch('/api/admin/ads/image', {
           method: 'DELETE',
           headers: {
-            'x-admin-token': token,
+            'x-admin-token': adminToken,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ adId: editingId, imageUrl: currentImageUrl }),
+          body: JSON.stringify({ adId: currentAdId, imageUrl: currentImageUrl }),
         })
 
         const json: unknown = await res.json()
@@ -268,14 +280,14 @@ function AdsAdminContent() {
         if (!res.ok) {
           setUploadMessage(
             json !== null && typeof json === 'object' && 'error' in json
-              ? String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')
+              ? `删除图片失败：${String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')}`
               : '删除图片失败，请稍后再试'
           )
           return
         }
 
         const imageUrlCleared = getBoolField('imageUrlCleared')
-        if (editingId && !imageUrlCleared) {
+        if (currentAdId && !imageUrlCleared) {
           setUploadMessage('删除图片失败，请稍后再试')
           return
         }
@@ -295,7 +307,7 @@ function AdsAdminContent() {
       setImageUrl('')
       setImageSourceLock(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
-      if (editingId) await fetchAds(token)
+      if (currentAdId) await fetchAds(adminToken)
     } catch {
       setUploadMessage('删除图片失败，请稍后再试')
     } finally {

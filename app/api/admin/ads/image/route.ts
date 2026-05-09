@@ -13,8 +13,7 @@ function getServiceClient() {
   )
 }
 
-function checkAdminToken(request: NextRequest): boolean {
-  const token = request.headers.get('x-admin-token')
+function checkAdminToken(token: string): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
@@ -50,7 +49,12 @@ function parseSupabaseStorageUrl(url: string): { bucket: string, objectPath: str
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!checkAdminToken(request)) {
+  const adminToken = request.headers.get('x-admin-token')?.trim() ?? ''
+  if (!adminToken) {
+    return NextResponse.json({ error: 'Missing admin token' }, { status: 400 })
+  }
+
+  if (!checkAdminToken(adminToken)) {
     return NextResponse.json({ error: '无权限访问' }, { status: 401 })
   }
 
@@ -58,19 +62,23 @@ export async function DELETE(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
   if (body === null || typeof body !== 'object') {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
   const payload = body as Record<string, unknown>
   const imageUrl = typeof payload.imageUrl === 'string' ? payload.imageUrl.trim() : ''
   const adId = typeof payload.adId === 'string' ? payload.adId.trim() : ''
 
+  if (!adId) {
+    return NextResponse.json({ error: 'Missing adId' }, { status: 400 })
+  }
+
   if (!imageUrl) {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    return NextResponse.json({ error: 'Missing imageUrl' }, { status: 400 })
   }
 
   const supabase = getServiceClient()
@@ -94,6 +102,24 @@ export async function DELETE(request: NextRequest) {
     isReusedByOtherAds = Boolean(count && count > 0)
   }
 
+  let imageUrlCleared = false
+  const { error: updateError } = await supabase
+    .from('ads')
+    .update({ image_url: null })
+    .eq('id', adId)
+
+  if (updateError) {
+    console.error('[admin ads image delete] update ad image_url failed', {
+      adId,
+      imageUrl,
+      parsedBucket,
+      parsedObjectPath,
+      supabaseUpdateError: updateError,
+    })
+    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+  }
+  imageUrlCleared = true
+
   let storageDeleteAttempted = false
   let storageFileDeleted = false
 
@@ -115,31 +141,12 @@ export async function DELETE(request: NextRequest) {
     }
   }
 
-  let imageUrlCleared = false
-  if (adId) {
-    const { error: updateError } = await supabase
-      .from('ads')
-      .update({ image_url: null })
-      .eq('id', adId)
-
-    if (updateError) {
-      console.error('[admin ads image delete] update ad image_url failed', {
-        adId,
-        imageUrl,
-        parsedBucket,
-        parsedObjectPath,
-        supabaseUpdateError: updateError,
-      })
-      return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
-    }
-    imageUrlCleared = true
-  }
-
   const message = storageDeleteAttempted && !storageFileDeleted
     ? '图片已从广告中移除，Storage 文件清理稍后可再处理'
     : '图片已删除，可以重新上传或填写外部链接'
 
   return NextResponse.json({
+    success: true,
     message,
     imageUrlCleared,
     storageDeleteAttempted,
