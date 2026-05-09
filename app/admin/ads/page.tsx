@@ -268,13 +268,31 @@ function AdsAdminContent() {
           return
         }
 
+        const imageUrlCleared = json !== null
+          && typeof json === 'object'
+          && 'imageUrlCleared' in json
+          && Boolean((json as Record<string, unknown>).imageUrlCleared)
+        if (!imageUrlCleared) {
+          setUploadMessage('删除图片失败，请稍后再试')
+          return
+        }
+
+        const storageDeleteAttempted = json !== null
+          && typeof json === 'object'
+          && 'storageDeleteAttempted' in json
+          && Boolean((json as Record<string, unknown>).storageDeleteAttempted)
+        const storageFileDeleted = json !== null
+          && typeof json === 'object'
+          && 'storageFileDeleted' in json
+          && Boolean((json as Record<string, unknown>).storageFileDeleted)
+
         setUploadMessage(
-          json !== null && typeof json === 'object' && 'message' in json
-            ? String((json as Record<string, unknown>).message || '图片已删除')
-            : '图片已删除'
+          storageDeleteAttempted && !storageFileDeleted
+            ? '图片已从广告中移除，Storage 文件清理稍后可再处理。'
+            : '图片已删除，可以重新上传或填写外部链接。'
         )
       } else {
-        setUploadMessage('外部图片链接已从当前广告移除')
+        setUploadMessage('图片已删除，可以重新上传或填写外部链接。')
       }
 
       setImageUrl('')
