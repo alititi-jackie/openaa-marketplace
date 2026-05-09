@@ -135,7 +135,7 @@ export default function SecondhandDetailPage() {
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {imageCount > 0 ? (
           <div
-            className="relative h-64 md:h-96 overflow-hidden"
+            className="relative h-64 md:h-96 overflow-hidden bg-zinc-100"
             onMouseEnter={stopAuto}
             onMouseLeave={startAuto}
             onTouchStart={(e) => {
@@ -173,7 +173,7 @@ export default function SecondhandDetailPage() {
                 alt={item.title}
                 fill
                 priority
-                className="object-cover"
+                className="object-contain object-center"
               />
             </button>
 

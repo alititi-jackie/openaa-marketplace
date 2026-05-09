@@ -156,7 +156,7 @@ export default function HousingDetailPage() {
         {/* Only render image area when there is at least one valid image */}
         {imageCount > 0 ? (
           <div
-            className="relative h-64 md:h-96 overflow-hidden"
+            className="relative h-64 md:h-96 overflow-hidden bg-zinc-100"
             onMouseEnter={stopAuto}
             onMouseLeave={startAuto}
             onTouchStart={(e) => {
@@ -193,7 +193,7 @@ export default function HousingDetailPage() {
                 alt={post.title}
                 fill
                 priority
-                className="object-cover"
+                className="object-contain object-center"
               />
             </button>
 

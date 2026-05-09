@@ -76,7 +76,7 @@ export default async function AdDetailPage({
             <img
               src={ad.image_url}
               alt=""
-              className="w-full h-[240px] md:h-[340px] object-cover"
+              className="w-full h-[240px] md:h-[340px] object-contain object-center"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
 
