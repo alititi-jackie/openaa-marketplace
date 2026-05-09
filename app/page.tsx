@@ -3,6 +3,7 @@ import GridMenu from '@/components/GridMenu'
 import LatestPostsSection from '@/components/LatestPostsSection'
 import InfoCardsSection from '@/components/InfoCardsSection'
 import NewsSection from '@/components/NewsSection'
+import BackToTopButton from '@/components/BackToTopButton'
 
 export default function HomePage() {
   return (
@@ -23,6 +24,8 @@ export default function HomePage() {
 
       {/* News section */}
       <NewsSection />
+
+      <BackToTopButton />
     </div>
   )
 }
