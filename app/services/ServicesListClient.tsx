@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import BackToTopButton from '@/components/BackToTopButton'
-import { LOCATION_OPTIONS } from '@/lib/locationOptions'
+import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -19,11 +19,6 @@ export const SERVICE_CATEGORIES = [
   '电脑手机',
   '餐饮商业',
   '其它服务',
-] as const
-
-export const SERVICE_LOCATIONS = [
-  '全部',
-  ...LOCATION_OPTIONS,
 ] as const
 
 function formatDate(s: string | null) {
@@ -79,7 +74,7 @@ export default function ServicesListClient() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('全部')
-  const [location, setLocation] = useState('全部')
+  const [location, setLocation] = useState(ALL_REGIONS)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
@@ -99,7 +94,7 @@ export default function ServicesListClient() {
 
   const filtered = posts.filter((p) => {
     const matchCat = category === '全部' || p.category === category
-    const matchLoc = location === '全部' || p.location === location
+    const matchLoc = location === ALL_REGIONS || p.location === location
     const q = search.trim().toLowerCase()
     const matchSearch =
       !q ||
@@ -141,17 +136,7 @@ export default function ServicesListClient() {
 
       {/* Location filter */}
       <div className="px-4 mb-4">
-        <select
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1976d2]"
-        >
-          {SERVICE_LOCATIONS.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc === '全部' ? '全部地区' : loc}
-            </option>
-          ))}
-        </select>
+        <RegionFilter value={location} onChange={setLocation} />
       </div>
 
       {/* List */}

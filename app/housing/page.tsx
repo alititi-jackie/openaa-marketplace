@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
@@ -45,6 +46,7 @@ export default function HousingPage() {
   const [posts, setPosts] = useState<HousingPost[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [location, setLocation] = useState(ALL_REGIONS)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
@@ -78,13 +80,16 @@ export default function HousingPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return posts
-
     return posts.filter((p) => {
-      const hay = `${p.title || ''} ${p.description || ''} ${p.location || ''} ${p.room_type || ''}`.toLowerCase()
-      return hay.includes(q)
+      const matchSearch =
+        !q ||
+        `${p.title || ''} ${p.description || ''} ${p.location || ''} ${p.room_type || ''}`
+          .toLowerCase()
+          .includes(q)
+      const matchLoc = location === ALL_REGIONS || p.location === location
+      return matchSearch && matchLoc
     })
-  }, [posts, search])
+  }, [posts, search, location])
 
   const pageTitle = activeTab === 'renting' ? '房屋租售' : '求租求购'
   const publishLabel = activeTab === 'renting' ? '发布房源' : '发布求租'
@@ -127,14 +132,15 @@ export default function HousingPage() {
           </div>
         </div>
 
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={activeTab === 'renting' ? '搜索房源信息...' : '搜索求租信息...'}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            className="flex-1 min-w-[12rem] border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
           />
+          <RegionFilter value={location} onChange={setLocation} />
         </div>
 
         {loading ? (
@@ -142,7 +148,7 @@ export default function HousingPage() {
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
             <div className="text-4xl mb-3">🏠</div>
-            <p className="text-gray-700 font-medium">暂无房屋信息</p>
+            <p className="text-gray-700 font-medium">暂无符合条件的房屋信息</p>
             <Link
               href={`/housing/publish?type=${activeTab}`}
               className="inline-flex mt-4 bg-[#1976d2] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#1565c0] transition"
