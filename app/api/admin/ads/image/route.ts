@@ -104,7 +104,7 @@ export async function DELETE(request: NextRequest) {
       adId,
       imageUrl,
       isExternalLink,
-      updateError: adCheckError,
+      checkError: adCheckError,
     })
     return NextResponse.json(
       { error: 'Ad lookup failed', details: adCheckError.message || 'Failed to query ad row' },
@@ -216,7 +216,7 @@ export async function DELETE(request: NextRequest) {
         adId,
         imageUrl,
         isExternalLink,
-        updateError: removeError,
+        removeError,
       })
     } else {
       storageFileDeleted = true
