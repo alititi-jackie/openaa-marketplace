@@ -14,13 +14,24 @@ create table if not exists public.feedback_posts (
   constraint feedback_posts_status_check check (status in ('pending', 'processing', 'resolved', 'ignored'))
 );
 
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-as $$
+do $$
 begin
-  new.updated_at = now();
-  return new;
+  if not exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname = 'set_updated_at'
+  ) then
+    create function public.set_updated_at()
+    returns trigger
+    language plpgsql
+    as $fn$
+    begin
+      new.updated_at = now();
+      return new;
+    end;
+    $fn$;
+  end if;
 end;
 $$;
 

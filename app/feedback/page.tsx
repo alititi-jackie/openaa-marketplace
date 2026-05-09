@@ -50,6 +50,16 @@ function FeedbackPageInner() {
       return
     }
 
+    const trimmedRelatedUrl = relatedUrl.trim()
+    if (trimmedRelatedUrl) {
+      try {
+        new URL(trimmedRelatedUrl)
+      } catch {
+        setErrorMessage('相关链接格式不正确，请输入完整 URL。')
+        return
+      }
+    }
+
     setSubmitting(true)
     try {
       const {
@@ -59,7 +69,7 @@ function FeedbackPageInner() {
       const { error } = await supabase.from('feedback_posts').insert({
         user_id: user?.id ?? null,
         type: trimmedType,
-        related_url: relatedUrl.trim() || null,
+        related_url: trimmedRelatedUrl || null,
         contact: contact.trim() || null,
         content: trimmedContent,
       })
