@@ -8,9 +8,7 @@ export default function NewsTipCard() {
   const handleClick = () => {
     const params = new URLSearchParams()
     params.set('type', '新闻线索 / 投稿建议')
-    if (typeof window !== 'undefined') {
-      params.set('related_url', window.location.href)
-    }
+    params.set('related_url', window.location.href)
     router.push(`/feedback?${params.toString()}`)
   }
 
