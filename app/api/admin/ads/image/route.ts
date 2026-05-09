@@ -118,7 +118,7 @@ export async function DELETE(request: NextRequest) {
   if (isExternalLink) {
     const { data: updatedRow, error: updateError } = await supabase
       .from('ads')
-      .update({ image_url: null })
+      .update({ image_url: '' })
       .eq('id', adId)
       .select('id')
       .maybeSingle()
@@ -177,7 +177,7 @@ export async function DELETE(request: NextRequest) {
 
   const { data: updatedRow, error: updateError } = await supabase
     .from('ads')
-    .update({ image_url: null })
+    .update({ image_url: '' })
     .eq('id', adId)
     .select('id')
     .maybeSingle()

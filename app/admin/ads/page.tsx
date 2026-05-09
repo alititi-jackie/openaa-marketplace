@@ -134,9 +134,10 @@ function AdsAdminContent() {
   }
 
   function startEdit(ad: Ad) {
+    const normalizedImageUrl = (ad.image_url || '').trim()
     setEditingId(ad.id)
-    setImageUrl(ad.image_url || '')
-    setImageSourceLock(ad.image_url ? (isAdsStorageUrl(ad.image_url) ? 'uploaded' : 'external') : null)
+    setImageUrl(normalizedImageUrl)
+    setImageSourceLock(normalizedImageUrl ? (isAdsStorageUrl(normalizedImageUrl) ? 'uploaded' : 'external') : null)
 
     const nextOpenMode = ad.open_mode === 'internal' || ad.open_mode === 'external_new' || ad.open_mode === 'external_same'
       ? ad.open_mode
@@ -459,7 +460,9 @@ function AdsAdminContent() {
     }
   }
 
-  const hasImage = imageUrl.trim().length > 0
+  const trimmedImageUrl = imageUrl.trim()
+  const hasImage = trimmedImageUrl.length > 0
+  const hasPreviewImage = hasImage && isHttpImageUrl(trimmedImageUrl)
   const isImageLocked = imageSourceLock !== null
   const uploadDisabled = uploading || isImageLocked || deletingImage || (hasImage && imageSourceLock !== 'uploaded')
 
@@ -569,11 +572,11 @@ function AdsAdminContent() {
             </button>
           ) : null}
 
-          {imageUrl ? (
+          {hasPreviewImage ? (
             <div className="mt-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={imageUrl}
+                src={trimmedImageUrl}
                 alt="广告图预览"
                 className="max-h-40 rounded-lg object-cover"
                 onError={(e) => {
