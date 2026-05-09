@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
 interface Ad {
   id: string
@@ -21,6 +20,7 @@ interface Ad {
 }
 
 type PositionFilter = 'all' | 'home' | 'jobs' | 'housing' | 'secondhand' | 'navigation' | 'services' | 'news'
+type ImageSourceLock = 'uploaded' | 'external'
 
 const POSITION_FILTERS: { key: PositionFilter, label: string }[] = [
   { key: 'all', label: '全部' },
@@ -54,13 +54,37 @@ function getPositionLabel(position: string) {
   return map[position] || position
 }
 
+function isHttpImageUrl(url: string) {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function isAdsStorageUrl(url: string): boolean {
+  return url.includes('/storage/v1/object/public/ads/')
+}
+
+function toDateTimeLocalValue(value: string | null): string {
+  if (!value) return ''
+  return value.replace(' ', 'T').slice(0, 16)
+}
+
 function AdsAdminContent() {
   const searchParams = useSearchParams()
   const [token, setToken] = useState('')
   const [ads, setAds] = useState<Ad[]>([])
   const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [uploadMessage, setUploadMessage] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [deletingImage, setDeletingImage] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
+  const [imageSourceLock, setImageSourceLock] = useState<ImageSourceLock | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [openMode, setOpenMode] = useState<'internal' | 'external_new' | 'external_same'>('external_new')
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
@@ -93,15 +117,60 @@ function AdsAdminContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  function resetForm() {
+    setEditingId(null)
+    setImageUrl('')
+    setImageSourceLock(null)
+    setOpenMode('external_new')
+    setExternalUrl('')
+    setSlug('')
+    setContent('')
+    setPosition('home')
+    setIsActive(true)
+    setStartDate('')
+    setEndDate('')
+    setUploadMessage('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function startEdit(ad: Ad) {
+    setEditingId(ad.id)
+    setImageUrl(ad.image_url || '')
+    setImageSourceLock(ad.image_url ? (isAdsStorageUrl(ad.image_url) ? 'uploaded' : 'external') : null)
+
+    const nextOpenMode = ad.open_mode === 'internal' || ad.open_mode === 'external_new' || ad.open_mode === 'external_same'
+      ? ad.open_mode
+      : (ad.link_type === 'internal' ? 'internal' : 'external_new')
+
+    setOpenMode(nextOpenMode)
+    setExternalUrl(ad.external_url || ad.link_url || '')
+    setSlug(ad.slug || '')
+    setContent(ad.content || '')
+    setPosition(ad.position as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news')
+    setIsActive(ad.is_active)
+    setStartDate(toDateTimeLocalValue(ad.start_date))
+    setEndDate(toDateTimeLocalValue(ad.end_date))
+    setMessage('')
+    setUploadMessage('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   async function fetchAds(t: string) {
     setLoading(true)
     try {
       const res = await fetch('/api/admin/ads', {
         headers: { 'x-admin-token': t },
       })
-      const json = await res.json()
-      if (json.data) setAds(json.data)
-      else setMessage(json.error || '获取失败')
+      const json: unknown = await res.json()
+      if (json !== null && typeof json === 'object' && 'data' in json && Array.isArray((json as Record<string, unknown>).data)) {
+        setAds((json as { data: Ad[] }).data)
+      } else {
+        setMessage(
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || '获取失败')
+            : '获取失败'
+        )
+      }
     } catch {
       setMessage('网络错误')
     }
@@ -113,61 +182,185 @@ function AdsAdminContent() {
     fetchAds(token)
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!imageFile) { setMessage('请选择图片'); return }
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (imageSourceLock !== null) return
+    const file = e.target.files?.[0]
+    if (!file) return
 
-    // Enforce open_mode requirements
-    if (openMode === 'internal') {
-      if (!slug) { setMessage('请填写页面标识 (slug)'); return }
-    } else {
-      if (!externalUrl) { setMessage('请填写外部链接'); return }
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    const allowedExts = ['jpg', 'jpeg', 'png', 'webp']
+    const fileExt = (file.name.split('.').pop() || '').toLowerCase()
+    if (!fileExt || !allowedTypes.includes(file.type) || !allowedExts.includes(fileExt)) {
+      setUploadMessage('图片格式仅支持 JPG、PNG、WEBP')
+      return
     }
 
-    // Keep existing link_type behavior for compatibility
-    const effectiveLinkType: 'external' | 'internal' = openMode === 'internal' ? 'internal' : 'external'
-    setLoading(true)
-    setMessage('')
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadMessage('图片大小不能超过 5MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadMessage('上传中...')
+
     const form = new FormData()
-    form.append('image', imageFile)
-    form.append('link_type', effectiveLinkType)
-    form.append('open_mode', openMode)
-
-    if (effectiveLinkType === 'external') form.append('external_url', externalUrl)
-    if (effectiveLinkType === 'internal') {
-      form.append('slug', slug)
-      if (content) form.append('content', content)
-    }
-
-    form.append('position', position)
-    form.append('is_active', String(isActive))
-    if (startDate) form.append('start_date', startDate)
-    if (endDate) form.append('end_date', endDate)
+    form.append('file', file)
+    if (slug.trim()) form.append('slug', slug.trim())
 
     try {
-      const res = await fetch('/api/admin/ads', {
+      const res = await fetch('/api/admin/ads/upload-image', {
         method: 'POST',
         headers: { 'x-admin-token': token },
         body: form,
       })
-      const json = await res.json()
-      if (json.data) {
-        setMessage('创建成功')
-        setExternalUrl('')
-        setSlug('')
-        setContent('')
-        setStartDate('')
-        setEndDate('')
-        setImageFile(null)
-        if (fileInputRef.current) fileInputRef.current.value = ''
-        fetchAds(token)
-      } else {
-        setMessage(json.error || '创建失败')
+
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        setUploadMessage(
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || '上传失败')
+            : '上传失败'
+        )
+        return
       }
+
+      const url =
+        json !== null && typeof json === 'object' && 'url' in json
+          ? String((json as Record<string, unknown>).url || '')
+          : ''
+      setImageUrl(url)
+      setImageSourceLock('uploaded')
+      setUploadMessage('广告图片上传成功')
+    } catch {
+      setUploadMessage('上传失败，请重试')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function removeImage() {
+    const currentImageUrl = imageUrl.trim()
+    if (!currentImageUrl) return
+    if (!confirm('确定要删除当前广告图片吗？')) return
+
+    setDeletingImage(true)
+    setUploadMessage('')
+
+    try {
+      const shouldUseApi = Boolean(editingId) || isAdsStorageUrl(currentImageUrl)
+      if (shouldUseApi) {
+        const res = await fetch('/api/admin/ads/image', {
+          method: 'DELETE',
+          headers: {
+            'x-admin-token': token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ adId: editingId, imageUrl: currentImageUrl }),
+        })
+
+        const json: unknown = await res.json()
+        if (!res.ok) {
+          setUploadMessage(
+            json !== null && typeof json === 'object' && 'error' in json
+              ? String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')
+              : '删除图片失败，请稍后再试'
+          )
+          return
+        }
+
+        setUploadMessage(
+          json !== null && typeof json === 'object' && 'message' in json
+            ? String((json as Record<string, unknown>).message || '图片已删除')
+            : '图片已删除'
+        )
+      } else {
+        setUploadMessage('外部图片链接已从当前广告移除')
+      }
+
+      setImageUrl('')
+      setImageSourceLock(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      if (editingId) await fetchAds(token)
+    } catch {
+      setUploadMessage('删除图片失败，请稍后再试')
+    } finally {
+      setDeletingImage(false)
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+
+    const finalImageUrl = imageUrl.trim()
+    if (!finalImageUrl) {
+      setMessage('请上传广告图片或填写外部图片链接')
+      return
+    }
+    if (!isHttpImageUrl(finalImageUrl)) {
+      setMessage('图片链接必须以 http:// 或 https:// 开头')
+      return
+    }
+
+    // Enforce open_mode requirements
+    if (openMode === 'internal') {
+      if (!slug.trim()) {
+        setMessage('请填写页面标识 (slug)')
+        return
+      }
+    } else if (!externalUrl.trim()) {
+      setMessage('请填写外部链接')
+      return
+    }
+
+    const effectiveLinkType: 'external' | 'internal' = openMode === 'internal' ? 'internal' : 'external'
+
+    setSubmitting(true)
+    setMessage('')
+
+    const payload = {
+      image_url: finalImageUrl,
+      link_type: effectiveLinkType,
+      open_mode: openMode,
+      link_url: effectiveLinkType === 'external' ? externalUrl.trim() : null,
+      external_url: effectiveLinkType === 'external' ? externalUrl.trim() : null,
+      slug: effectiveLinkType === 'internal' ? slug.trim() : null,
+      content: effectiveLinkType === 'internal' ? content : null,
+      position,
+      is_active: isActive,
+      start_date: startDate || null,
+      end_date: endDate || null,
+    }
+
+    try {
+      const endpoint = editingId ? `/api/admin/ads/${editingId}` : '/api/admin/ads'
+      const method = editingId ? 'PATCH' : 'POST'
+      const res = await fetch(endpoint, {
+        method,
+        headers: {
+          'x-admin-token': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        setMessage(
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || (editingId ? '更新失败' : '创建失败'))
+            : (editingId ? '更新失败' : '创建失败')
+        )
+        return
+      }
+
+      setMessage(editingId ? '更新成功' : '创建成功')
+      resetForm()
+      fetchAds(token)
     } catch {
       setMessage('网络错误')
+    } finally {
+      setSubmitting(false)
     }
-    setLoading(false)
   }
 
   async function toggleActive(ad: Ad) {
@@ -177,9 +370,15 @@ function AdsAdminContent() {
         headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !ad.is_active }),
       })
-      const json = await res.json()
-      if (json.data) fetchAds(token)
-      else setMessage(json.error || '更新失败')
+      const json: unknown = await res.json()
+      if (json !== null && typeof json === 'object' && 'data' in json) fetchAds(token)
+      else {
+        setMessage(
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || '更新失败')
+            : '更新失败'
+        )
+      }
     } catch {
       setMessage('网络错误')
     }
@@ -192,13 +391,24 @@ function AdsAdminContent() {
         method: 'DELETE',
         headers: { 'x-admin-token': token },
       })
-      const json = await res.json()
-      if (json.success) fetchAds(token)
-      else setMessage(json.error || '删除失败')
+      const json: unknown = await res.json()
+      if (json !== null && typeof json === 'object' && 'success' in json && (json as Record<string, unknown>).success) {
+        fetchAds(token)
+      } else {
+        setMessage(
+          json !== null && typeof json === 'object' && 'error' in json
+            ? String((json as Record<string, unknown>).error || '删除失败')
+            : '删除失败'
+        )
+      }
     } catch {
       setMessage('网络错误')
     }
   }
+
+  const hasImage = imageUrl.trim().length > 0
+  const isImageLocked = imageSourceLock !== null
+  const uploadDisabled = uploading || isImageLocked || deletingImage || (hasImage && imageSourceLock !== 'uploaded')
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -225,19 +435,103 @@ function AdsAdminContent() {
         </div>
       </div>
 
-      {/* Create form */}
+      {/* Create/edit form */}
       <form onSubmit={handleSubmit} className="mb-8 p-4 bg-white rounded-xl border shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">新增广告</h2>
+        <h2 className="text-lg font-semibold">{editingId ? '编辑广告' : '新增广告'}</h2>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">广告图片 *</label>
+        <div className="space-y-2 rounded-lg border p-3">
+          <p className="text-sm font-medium">广告图片 *</p>
+          <div className="flex items-center gap-2">
+            <label
+              className={`rounded-lg border px-3 py-2 text-sm font-medium ${
+                uploadDisabled
+                  ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                  : 'cursor-pointer bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {uploading ? '上传中...' : '上传广告图'}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={uploadDisabled}
+                onChange={handleImageUpload}
+              />
+            </label>
+            {uploadMessage ? (
+              <span
+                className={`text-xs ${uploadMessage.includes('成功') ? 'text-green-600' : uploadMessage === '上传中...' ? 'text-gray-500' : 'text-red-500'}`}
+              >
+                {uploadMessage}
+              </span>
+            ) : null}
+          </div>
+
           <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-gray-600"
+            value={imageUrl}
+            onChange={(e) => {
+              if (isImageLocked) return
+              const value = e.target.value
+              setImageUrl(value)
+              if (!value.trim()) {
+                setImageSourceLock(null)
+                setUploadMessage('')
+              }
+            }}
+            onBlur={() => {
+              const trimmed = imageUrl.trim()
+              if (!trimmed || isImageLocked) return
+              if (!isHttpImageUrl(trimmed)) {
+                setUploadMessage('图片链接必须以 http:// 或 https:// 开头')
+                return
+              }
+              setImageUrl(trimmed)
+              setImageSourceLock(isAdsStorageUrl(trimmed) ? 'uploaded' : 'external')
+              setUploadMessage('')
+            }}
+            placeholder="外部图片 URL（例如 https://img.openaa.com/banners/xxx.jpg）"
+            disabled={isImageLocked || deletingImage}
+            className="w-full rounded-lg border px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-500"
           />
+
+          {isImageLocked ? (
+            <p className="text-xs text-amber-700">
+              {imageSourceLock === 'uploaded'
+                ? '已使用上传图片，如需改用外部链接，请先删除当前图片。'
+                : '已使用外部图片链接，如需上传图片，请先删除当前图片。'}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-500">上传图片与外部链接二选一。若已存在图片，请先删除后再更换。</p>
+          )}
+
+          {isImageLocked && hasImage ? (
+            <button
+              type="button"
+              onClick={removeImage}
+              disabled={uploading || deletingImage}
+              className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deletingImage ? '删除中...' : '删除图片'}
+            </button>
+          ) : null}
+
+          {imageUrl ? (
+            <div className="mt-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt="广告图预览"
+                className="max-h-40 rounded-lg object-cover"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                }}
+                onLoad={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = ''
+                }}
+              />
+            </div>
+          ) : null}
         </div>
 
         {/* Open mode selector */}
@@ -349,13 +643,24 @@ function AdsAdminContent() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50"
-        >
-          {loading ? '处理中...' : '提交广告'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50"
+          >
+            {submitting ? '处理中...' : (editingId ? '保存修改' : '提交广告')}
+          </button>
+          {editingId ? (
+            <button
+              type="button"
+              onClick={resetForm}
+              className="px-4 py-2 border rounded-lg text-sm font-medium text-gray-700"
+            >
+              取消编辑
+            </button>
+          ) : null}
+        </div>
       </form>
 
       {/* Ad list */}
@@ -453,6 +758,13 @@ function AdsAdminContent() {
                 )}
               </div>
               <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => startEdit(ad)}
+                  className="text-xs px-3 py-1 rounded-lg border font-medium"
+                >
+                  编辑
+                </button>
                 <button
                   type="button"
                   onClick={() => toggleActive(ad)}

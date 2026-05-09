@@ -15,6 +15,15 @@ function checkAdminToken(request: NextRequest): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
+function isHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -27,7 +36,7 @@ export async function PATCH(
   const body = await request.json()
 
   // Whitelist allowed fields
-  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content', 'open_mode'] as const
+  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content', 'open_mode', 'image_url'] as const
   type AllowedField = typeof ALLOWED_FIELDS[number]
   const update: Partial<Record<AllowedField, unknown>> = {}
   for (const field of ALLOWED_FIELDS) {
@@ -39,6 +48,14 @@ export async function PATCH(
     if (v !== 'internal' && v !== 'external_new' && v !== 'external_same') {
       return NextResponse.json({ error: 'open_mode must be internal, external_new or external_same' }, { status: 400 })
     }
+  }
+
+  if ('image_url' in update) {
+    const v = update.image_url
+    if (v !== null && (typeof v !== 'string' || !isHttpUrl(v.trim()))) {
+      return NextResponse.json({ error: '图片链接必须以 http:// 或 https:// 开头' }, { status: 400 })
+    }
+    update.image_url = typeof v === 'string' ? v.trim() : null
   }
 
   if (Object.keys(update).length === 0) {
