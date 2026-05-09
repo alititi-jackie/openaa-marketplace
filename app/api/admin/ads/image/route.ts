@@ -13,13 +13,13 @@ function getServiceClient() {
   )
 }
 
-function checkAdminToken(token: string): boolean {
+function checkAdminToken(request: NextRequest): boolean {
+  const token = request.headers.get('x-admin-token')
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
 function isAdsStorageUrl(url: string): boolean {
-  const parsed = parseSupabaseStorageUrl(url)
-  return parsed?.bucket === ADS_BUCKET
+  return url.includes(`/storage/v1/object/public/${ADS_BUCKET}/`)
 }
 
 function parseSupabaseStorageUrl(url: string): { bucket: string, objectPath: string } | null {
@@ -54,8 +54,16 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing admin token' }, { status: 400 })
   }
 
-  if (!checkAdminToken(adminToken)) {
-    return NextResponse.json({ error: '无权限访问' }, { status: 401 })
+  const tokenValid = checkAdminToken(request)
+  if (!tokenValid) {
+    console.error('[admin ads image delete] invalid admin token', {
+      adId: null,
+      imageUrl: null,
+      isExternalLink: null,
+      updateError: null,
+      tokenValid,
+    })
+    return NextResponse.json({ error: 'Invalid admin token' }, { status: 401 })
   }
 
   let body: unknown
@@ -81,49 +89,128 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Missing imageUrl' }, { status: 400 })
   }
 
-  const supabase = getServiceClient()
-  const parsedStorage = parseSupabaseStorageUrl(imageUrl)
-  const isStorageImage = isAdsStorageUrl(imageUrl)
-  const isExternalLink = !isStorageImage
-  const parsedBucket = parsedStorage?.bucket ?? null
-  const parsedObjectPath = parsedStorage?.objectPath ?? null
-
-  let isReusedByOtherAds = false
-  if (isStorageImage) {
-    const referenceQuery = supabase
-      .from('ads')
-      .select('id', { count: 'exact', head: true })
-      .eq('image_url', imageUrl)
-    const scopedReferenceQuery = adId ? referenceQuery.neq('id', adId) : referenceQuery
-    const { count, error: referenceError } = await scopedReferenceQuery
-    if (referenceError) {
-      return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
-    }
-    isReusedByOtherAds = Boolean(count && count > 0)
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: 'Supabase service role missing' }, { status: 500 })
   }
 
-  let imageUrlCleared = false
-  const { error: updateError } = await supabase
+  const isStorageImage = isAdsStorageUrl(imageUrl)
+  const isExternalLink = !isStorageImage
+  const supabase = getServiceClient()
+
+  const { data: adExists, error: adCheckError } = await supabase
+    .from('ads')
+    .select('id')
+    .eq('id', adId)
+    .maybeSingle()
+
+  if (adCheckError) {
+    console.error('[admin ads image delete] ad lookup failed', {
+      adId,
+      imageUrl,
+      isExternalLink,
+      updateError: adCheckError,
+    })
+    return NextResponse.json(
+      { error: 'Supabase update failed', details: adCheckError.message || 'Failed to query ad row' },
+      { status: 400 }
+    )
+  }
+
+  if (!adExists) {
+    return NextResponse.json({ error: 'Ad not found' }, { status: 404 })
+  }
+
+  if (isExternalLink) {
+    const { data: updatedRow, error: updateError } = await supabase
+      .from('ads')
+      .update({ image_url: null })
+      .eq('id', adId)
+      .select('id')
+      .maybeSingle()
+
+    if (updateError) {
+      console.error('[admin ads image delete] clear external image_url failed', {
+        adId,
+        imageUrl,
+        isExternalLink,
+        updateError,
+      })
+      return NextResponse.json(
+        { error: 'Failed to clear ad image_url', details: updateError.message || 'Supabase update returned error' },
+        { status: 400 }
+      )
+    }
+
+    if (!updatedRow) {
+      return NextResponse.json(
+        { error: 'Failed to clear ad image_url', details: 'Supabase returned no updated rows' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      message: '图片已删除，可以重新上传或填写外部链接',
+      imageUrlCleared: true,
+      isExternalLink: true,
+      storageDeleteAttempted: false,
+      storageFileDeleted: false,
+    })
+  }
+
+  const parsedStorage = parseSupabaseStorageUrl(imageUrl)
+  if (!parsedStorage) {
+    return NextResponse.json(
+      { error: 'Supabase update failed', details: 'Invalid Supabase Storage image URL' },
+      { status: 400 }
+    )
+  }
+
+  let isReusedByOtherAds = false
+  const referenceQuery = supabase
+    .from('ads')
+    .select('id', { count: 'exact', head: true })
+    .eq('image_url', imageUrl)
+  const scopedReferenceQuery = adId ? referenceQuery.neq('id', adId) : referenceQuery
+  const { count, error: referenceError } = await scopedReferenceQuery
+  if (referenceError) {
+    return NextResponse.json(
+      { error: 'Supabase update failed', details: referenceError.message || 'Failed checking image references' },
+      { status: 400 }
+    )
+  }
+  isReusedByOtherAds = Boolean(count && count > 0)
+
+  const { data: updatedRow, error: updateError } = await supabase
     .from('ads')
     .update({ image_url: null })
     .eq('id', adId)
+    .select('id')
+    .maybeSingle()
 
   if (updateError) {
     console.error('[admin ads image delete] update ad image_url failed', {
       adId,
       imageUrl,
-      parsedBucket,
-      parsedObjectPath,
-      supabaseUpdateError: updateError,
+      isExternalLink,
+      updateError,
     })
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Failed to clear ad image_url', details: updateError.message || 'Supabase update returned error' },
+      { status: 400 }
+    )
   }
-  imageUrlCleared = true
+
+  if (!updatedRow) {
+    return NextResponse.json(
+      { error: 'Failed to clear ad image_url', details: 'Supabase returned no updated rows' },
+      { status: 400 }
+    )
+  }
 
   let storageDeleteAttempted = false
   let storageFileDeleted = false
 
-  if (isStorageImage && !isReusedByOtherAds && parsedStorage) {
+  if (!isReusedByOtherAds) {
     storageDeleteAttempted = true
     const { error: removeError } = await supabase.storage
       .from(parsedStorage.bucket)
@@ -132,9 +219,8 @@ export async function DELETE(request: NextRequest) {
       console.error('[admin ads image delete] storage remove failed', {
         adId,
         imageUrl,
-        parsedBucket,
-        parsedObjectPath,
-        supabaseStorageRemoveError: removeError,
+        isExternalLink,
+        updateError: removeError,
       })
     } else {
       storageFileDeleted = true
@@ -146,9 +232,8 @@ export async function DELETE(request: NextRequest) {
     : '图片已删除，可以重新上传或填写外部链接'
 
   return NextResponse.json({
-    success: true,
     message,
-    imageUrlCleared,
+    imageUrlCleared: true,
     storageDeleteAttempted,
     storageFileDeleted,
     isExternalLink,

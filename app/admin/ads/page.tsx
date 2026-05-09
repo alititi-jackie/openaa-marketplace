@@ -271,6 +271,14 @@ function AdsAdminContent() {
         })
 
         const json: unknown = await res.json()
+        const getTextField = (field: string) => (
+          json !== null
+          && typeof json === 'object'
+          && field in json
+          && typeof (json as Record<string, unknown>)[field] === 'string'
+            ? String((json as Record<string, unknown>)[field] || '').trim()
+            : ''
+        )
         const getBoolField = (field: string) => (
           json !== null
           && typeof json === 'object'
@@ -278,10 +286,28 @@ function AdsAdminContent() {
           && Boolean((json as Record<string, unknown>)[field])
         )
         if (!res.ok) {
+          const apiError = getTextField('error')
+          const apiDetails = getTextField('details')
+          const defaultErrorMessage = '删除图片失败，请稍后再试'
+
+          if (apiError && apiDetails) {
+            setUploadMessage(`删除图片失败：${apiError} - ${apiDetails}`)
+            return
+          }
+
+          if (apiError) {
+            setUploadMessage(
+              apiError === defaultErrorMessage
+                ? defaultErrorMessage
+                : `删除图片失败：${apiError}`
+            )
+            return
+          }
+
           setUploadMessage(
-            json !== null && typeof json === 'object' && 'error' in json
-              ? `删除图片失败：${String((json as Record<string, unknown>).error || '删除图片失败，请稍后再试')}`
-              : '删除图片失败，请稍后再试'
+            apiDetails
+              ? `删除图片失败：${apiDetails}`
+              : defaultErrorMessage
           )
           return
         }
