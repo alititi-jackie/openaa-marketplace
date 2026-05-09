@@ -1,61 +1,80 @@
 import Link from 'next/link'
+import { createClient } from '@supabase/supabase-js'
 import { Clock, ChevronRight } from 'lucide-react'
+import type { NewsPost } from '@/types'
 
-interface NewsItem {
-  id: number
+type HomeNewsItem = Pick<
+  NewsPost,
+  'id' | 'title' | 'slug' | 'category' | 'summary' | 'content' | 'published_at' | 'created_at'
+>
+
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !anonKey) return null
+  return createClient(url, anonKey)
+}
+
+function formatDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}/${mm}/${dd}`
+}
+
+function getSummary(item: HomeNewsItem) {
+  if (item.summary && item.summary.trim()) return item.summary.trim()
+  const plain = item.content
+    .replace(/[#*_`>\-\[\]\(\)]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!plain) return '更多内容正在整理中'
+  return plain.length > 60 ? `${plain.slice(0, 60)}...` : plain
+}
+
+interface NewsUiItem {
+  id: string
+  slug: string
   title: string
   category: string
   time: string
   summary: string
-  badgeBg: string
-  badgeText: string
-  dot: string
 }
 
-const newsItems: NewsItem[] = [
-  {
-    id: 1,
-    title: '纽约市宣布新一轮华人社区扶持计划',
-    summary: '市长办公室发布公告，将向法拉盛、日落公园等华人聚居区提供新一轮社区资金支持。',
-    category: '社会',
-    time: '1小时前',
-    badgeBg: 'bg-blue-50',
-    badgeText: 'text-blue-600',
-    dot: 'bg-blue-400',
-  },
-  {
-    id: 2,
-    title: '法拉盛多家新餐厅盛大开业，美食再升级',
-    summary: '近期法拉盛商圈迎来多家新式中餐与港式茶餐厅，特色小吃种类丰富，吸引大批食客。',
-    category: '生活',
-    time: '3小时前',
-    badgeBg: 'bg-emerald-50',
-    badgeText: 'text-emerald-600',
-    dot: 'bg-emerald-400',
-  },
-  {
-    id: 3,
-    title: 'DMV 驾照笔试题库 2024 年版更新通知',
-    summary: 'DMV 官方发布最新笔试题库更新，新增多道关于新交通法规的考题，备考请注意更新。',
-    category: 'DMV',
-    time: '6小时前',
-    badgeBg: 'bg-amber-50',
-    badgeText: 'text-amber-600',
-    dot: 'bg-amber-400',
-  },
-  {
-    id: 4,
-    title: '纽约年底租房市场分析：哪些区域性价比最高？',
-    summary: '本文整理了皇后区、布鲁克林及布朗克斯各区 2024 年 Q4 租金走势与性价比对比报告。',
-    category: '房屋',
-    time: '1天前',
-    badgeBg: 'bg-violet-50',
-    badgeText: 'text-violet-600',
-    dot: 'bg-violet-400',
-  },
-]
+async function getHomeNewsItems() {
+  const supabase = getSupabaseClient()
+  if (!supabase) return [] as NewsUiItem[]
+  const { data, error } = await supabase
+    .from('news_posts')
+    .select('id, title, slug, category, summary, content, published_at, created_at')
+    .eq('is_published', true)
+    .eq('category', '本地新闻')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(4)
 
-export default function NewsSection() {
+  if (error) {
+    console.error('Failed to load homepage local news:', error)
+    return [] as NewsUiItem[]
+  }
+
+  const rows = (data as HomeNewsItem[] | null) ?? []
+  return rows
+    .filter((item) => !!item.slug)
+    .map((item) => ({
+      id: item.id,
+      slug: item.slug,
+      title: item.title,
+      category: item.category,
+      time: formatDate(item.published_at ?? item.created_at),
+      summary: getSummary(item),
+    }))
+}
+
+export default async function NewsSection() {
+  const newsItems = await getHomeNewsItems()
   return (
     <section className="pt-6 pb-4">
       {/* Section header */}
@@ -74,54 +93,61 @@ export default function NewsSection() {
       </div>
 
       {/* News list */}
-      <div className="px-4 space-y-2.5">
-        {newsItems.map((item, idx) => (
-          <Link
-            key={item.id}
-            href="/news"
-            className="flex gap-3 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.99] transition-transform duration-150"
-          >
-            {/* Left: rank */}
-            <div className="flex-shrink-0 w-6 flex flex-col items-center pt-0.5 gap-1.5">
-              <span
-                className={`text-[12px] font-black tabular-nums ${
-                  idx === 0
-                    ? 'text-rose-500'
-                    : idx === 1
-                    ? 'text-orange-400'
-                    : idx === 2
-                    ? 'text-amber-400'
-                    : 'text-zinc-300'
-                }`}
-              >
-                {String(idx + 1).padStart(2, '0')}
-              </span>
-              <div className={`w-1 h-1 rounded-full flex-shrink-0 ${item.dot}`} />
-            </div>
-
-            {/* Right: content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
+      {newsItems.length === 0 ? (
+        <div className="px-4">
+          <div className="rounded-2xl border border-zinc-100/70 bg-zinc-50 py-10 text-center">
+            <p className="text-sm font-semibold text-zinc-700">暂无本地新闻</p>
+            <p className="mt-1 text-xs text-zinc-500">更多内容正在整理中</p>
+          </div>
+        </div>
+      ) : (
+        <div className="px-4 space-y-2.5">
+          {newsItems.map((item, idx) => (
+            <Link
+              key={item.id}
+              href={`/news/${item.slug}`}
+              className="flex gap-3 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.99] transition-transform duration-150"
+            >
+              {/* Left: rank */}
+              <div className="flex-shrink-0 w-6 flex flex-col items-center pt-0.5 gap-1.5">
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeBg} ${item.badgeText}`}
+                  className={`text-[12px] font-black tabular-nums ${
+                    idx === 0
+                      ? 'text-rose-500'
+                      : idx === 1
+                      ? 'text-orange-400'
+                      : idx === 2
+                      ? 'text-amber-400'
+                      : 'text-zinc-300'
+                  }`}
                 >
-                  {item.category}
+                  {String(idx + 1).padStart(2, '0')}
                 </span>
-                <div className="flex items-center gap-0.5 text-zinc-400">
-                  <Clock size={10} />
-                  <span className="text-[10px]">{item.time}</span>
-                </div>
+                <div className="w-1 h-1 rounded-full flex-shrink-0 bg-blue-400" />
               </div>
-              <p className="text-[13px] font-semibold text-zinc-800 line-clamp-1 leading-snug">
-                {item.title}
-              </p>
-              <p className="text-[11px] text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
-                {item.summary}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
+
+              {/* Right: content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                    {item.category}
+                  </span>
+                  <div className="flex items-center gap-0.5 text-zinc-400">
+                    <Clock size={10} />
+                    <span className="text-[10px]">{item.time}</span>
+                  </div>
+                </div>
+                <p className="text-[13px] font-semibold text-zinc-800 line-clamp-1 leading-snug">
+                  {item.title}
+                </p>
+                <p className="text-[11px] text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                  {item.summary}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
