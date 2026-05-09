@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
+import BackToTopButton from '@/components/BackToTopButton'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
@@ -196,6 +197,7 @@ export default function HousingPage() {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   )
 }

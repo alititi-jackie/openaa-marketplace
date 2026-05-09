@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import SecondhandCard from '@/components/SecondhandCard'
+import BackToTopButton from '@/components/BackToTopButton'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import type { SecondhandItem, SecondhandItemType } from '@/types'
 
@@ -146,6 +147,7 @@ export default function SecondhandPage() {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   )
 }
