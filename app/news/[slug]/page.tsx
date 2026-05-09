@@ -11,8 +11,11 @@ import type { NewsPost } from '@/types'
 
 const NEWS_SITE_URL = 'https://app.openaa.com'
 
-type NewsNavPost = Pick<NewsPost, 'id' | 'slug' | 'title' | 'published_at' | 'category'>
-type NewsRelatedPost = Pick<NewsPost, 'id' | 'slug' | 'title' | 'summary' | 'published_at' | 'category'>
+type NewsNavPost = Pick<NewsPost, 'id' | 'slug' | 'title' | 'published_at' | 'created_at' | 'category'>
+type NewsRelatedPost = Pick<
+  NewsPost,
+  'id' | 'slug' | 'title' | 'summary' | 'published_at' | 'created_at' | 'category'
+>
 
 function getSupabaseClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
@@ -40,7 +43,7 @@ async function getNewsDetailContext(slug: string) {
 
   const { data: orderedPosts } = await supabase
     .from('news_posts')
-    .select('id, slug, title, published_at, category')
+    .select('id, slug, title, published_at, created_at, category')
     .eq('is_published', true)
     .order('published_at', { ascending: false })
     .order('created_at', { ascending: false })
@@ -55,7 +58,7 @@ async function getNewsDetailContext(slug: string) {
 
   const { data: sameCategory } = await supabase
     .from('news_posts')
-    .select('id, slug, title, summary, published_at, category')
+    .select('id, slug, title, summary, published_at, created_at, category')
     .eq('is_published', true)
     .eq('category', post.category)
     .neq('slug', slug)
@@ -66,7 +69,10 @@ async function getNewsDetailContext(slug: string) {
   const relatedPosts: NewsRelatedPost[] = (sameCategory as NewsRelatedPost[] | null) || []
 
   if (relatedPosts.length < 3) {
-    const fallback = ordered.filter((item) => !relatedPosts.some((related) => related.slug === item.slug)).slice(0, 3 - relatedPosts.length)
+    const relatedSlugSet = new Set(relatedPosts.map((related) => related.slug))
+    const fallback = ordered
+      .filter((item) => !relatedSlugSet.has(item.slug))
+      .slice(0, 3 - relatedPosts.length)
     relatedPosts.push(
       ...fallback.map((item) => ({
         ...item,
@@ -146,14 +152,16 @@ export default async function NewsDetailPage({
     .split(/\n+/)
     .map((part) => part.trim())
     .filter(Boolean)
+  const publishedSource = post.published_at || post.created_at
+  const modifiedSource = post.updated_at && post.updated_at !== publishedSource ? post.updated_at : null
   const canonicalUrl = `${NEWS_SITE_URL}/news/${post.slug}`
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: post.title,
     description: post.seo_description || post.summary || NEWS_DEFAULT_SEO_DESCRIPTION,
-    datePublished: post.published_at || post.created_at,
-    dateModified: post.updated_at || post.created_at,
+    datePublished: publishedSource,
+    dateModified: post.updated_at || publishedSource,
     articleSection: post.category,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
@@ -180,8 +188,8 @@ export default async function NewsDetailPage({
         </p>
         <h1 className="mt-2 text-2xl font-black leading-tight text-zinc-900">{post.title}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-400">
-          <p>发布时间：{formatDate(post.published_at || post.created_at)}</p>
-          <p>更新时间：{formatDate(post.updated_at || post.created_at)}</p>
+          <p>发布时间：{formatDate(publishedSource)}</p>
+          <p>更新时间：{modifiedSource ? formatDate(modifiedSource) : '暂无更新'}</p>
         </div>
 
         <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-100">
@@ -235,7 +243,9 @@ export default async function NewsDetailPage({
                   {related.summary ? (
                     <p className="mt-1 text-xs text-zinc-600 line-clamp-2">{related.summary}</p>
                   ) : null}
-                  <p className="mt-2 text-xs text-zinc-400">{formatDate(related.published_at)}</p>
+                  <p className="mt-2 text-xs text-zinc-400">
+                    {formatDate(related.published_at || related.created_at)}
+                  </p>
                 </Link>
               ))}
             </div>
