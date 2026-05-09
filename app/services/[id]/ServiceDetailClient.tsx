@@ -81,18 +81,18 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
 
       {/* Image carousel */}
       {hasImages && (
-        <div className="relative mb-4 rounded-2xl overflow-hidden bg-zinc-100">
+        <div className="relative h-64 md:h-80 mb-4 rounded-2xl overflow-hidden bg-zinc-100">
           <button
             type="button"
             onClick={() => setLightboxOpen(true)}
-            className="block w-full"
+            className="block w-full h-full"
             aria-label="查看大图"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[imgIdx]}
               alt={`${post.title} 图片 ${imgIdx + 1}`}
-              className="w-full max-h-72 object-cover"
+              className="w-full h-full object-contain object-center"
             />
           </button>
           {imageCount > 1 && (
