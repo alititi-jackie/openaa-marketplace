@@ -153,7 +153,8 @@ export default async function NewsDetailPage({
     .map((part) => part.trim())
     .filter(Boolean)
   const publishedSource = post.published_at || post.created_at
-  const modifiedSource = post.updated_at && post.updated_at !== publishedSource ? post.updated_at : null
+  const lastModifiedDate =
+    post.updated_at && post.updated_at !== publishedSource ? post.updated_at : null
   const canonicalUrl = `${NEWS_SITE_URL}/news/${post.slug}`
   const structuredData = {
     '@context': 'https://schema.org',
@@ -161,7 +162,7 @@ export default async function NewsDetailPage({
     headline: post.title,
     description: post.seo_description || post.summary || NEWS_DEFAULT_SEO_DESCRIPTION,
     datePublished: publishedSource,
-    dateModified: post.updated_at || publishedSource,
+    dateModified: lastModifiedDate || publishedSource,
     articleSection: post.category,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
@@ -189,7 +190,7 @@ export default async function NewsDetailPage({
         <h1 className="mt-2 text-2xl font-black leading-tight text-zinc-900">{post.title}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-400">
           <p>发布时间：{formatDate(publishedSource)}</p>
-          <p>更新时间：{modifiedSource ? formatDate(modifiedSource) : '暂无更新'}</p>
+          <p>更新时间：{lastModifiedDate ? formatDate(lastModifiedDate) : '暂无更新'}</p>
         </div>
 
         <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-100">
