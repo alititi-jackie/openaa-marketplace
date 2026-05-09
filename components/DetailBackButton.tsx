@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation'
 
 interface DetailBackButtonProps {
   fallbackHref: string
+  label?: string
 }
 
-export default function DetailBackButton({ fallbackHref }: DetailBackButtonProps) {
+export default function DetailBackButton({ fallbackHref, label = '← 返回' }: DetailBackButtonProps) {
   const router = useRouter()
 
   const handleBack = () => {
@@ -29,7 +30,7 @@ export default function DetailBackButton({ fallbackHref }: DetailBackButtonProps
       onClick={handleBack}
       className="sticky top-14 z-30 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-sm text-blue-600 shadow-sm border border-blue-100 backdrop-blur mb-4"
     >
-      ← 返回
+      {label}
     </button>
   )
 }

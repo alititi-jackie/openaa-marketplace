@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
+import DetailBackButton from '@/components/DetailBackButton'
+import BackToTopButton from '@/components/BackToTopButton'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
@@ -87,11 +88,9 @@ export default async function NewsDetailPage({
   return (
     <div className="min-h-screen bg-white pb-24">
       <div className="px-4 pt-5">
-        <Link href="/news" className="text-sm font-medium text-blue-600">
-          ← 返回新闻列表
-        </Link>
+        <DetailBackButton fallbackHref="/news" label="← 返回新闻列表" />
 
-        <p className="mt-4 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+        <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
           {post.category}
         </p>
         <h1 className="mt-2 text-2xl font-black leading-tight text-zinc-900">{post.title}</h1>
@@ -111,6 +110,7 @@ export default async function NewsDetailPage({
           <OpenAAAttractCard />
         </div>
       </div>
+      <BackToTopButton />
     </div>
   )
 }

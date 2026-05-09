@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
+import BackToTopButton from '@/components/BackToTopButton'
 import { supabase } from '@/lib/supabase'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
@@ -336,6 +337,7 @@ export default function SecondhandDetailPage() {
           </div>
         </div>
       )}
+      <BackToTopButton />
     </div>
   )
 }
