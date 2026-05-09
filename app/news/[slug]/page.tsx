@@ -182,7 +182,7 @@ export default async function NewsDetailPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
-        <DetailBackButton fallbackHref="/news" label="← 返回新闻列表" />
+        <DetailBackButton fallbackHref="/news" label="← 返回" />
 
         <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
           {post.category}
