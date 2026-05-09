@@ -18,6 +18,11 @@ function checkAdminToken(request: NextRequest): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
+function getStringField(value: unknown): string {
+  if (typeof value === 'string') return value.trim()
+  return ''
+}
+
 function isAdsStorageUrl(url: string): boolean {
   const parsed = parseSupabaseStorageUrl(url)
   return parsed?.bucket === ADS_BUCKET
@@ -50,27 +55,34 @@ function parseSupabaseStorageUrl(url: string): { bucket: string, objectPath: str
 }
 
 export async function DELETE(request: NextRequest) {
+  const adminToken = request.headers.get('x-admin-token')?.trim() ?? ''
+  if (!adminToken) {
+    return NextResponse.json({ error: 'Missing admin token' }, { status: 400 })
+  }
+
   if (!checkAdminToken(request)) {
     return NextResponse.json({ error: '无权限访问' }, { status: 401 })
   }
 
-  let body: unknown
+  let payload: Record<string, unknown> = {}
   try {
-    body = await request.json()
+    const body = await request.json()
+    if (body !== null && typeof body === 'object') {
+      payload = body as Record<string, unknown>
+    }
   } catch {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    payload = {}
   }
 
-  if (body === null || typeof body !== 'object') {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
-  }
+  const adId = getStringField(payload.adId)
+  const imageUrl = getStringField(payload.imageUrl)
 
-  const payload = body as Record<string, unknown>
-  const imageUrl = typeof payload.imageUrl === 'string' ? payload.imageUrl.trim() : ''
-  const adId = typeof payload.adId === 'string' ? payload.adId.trim() : ''
+  if (!adId) {
+    return NextResponse.json({ error: 'Missing adId' }, { status: 400 })
+  }
 
   if (!imageUrl) {
-    return NextResponse.json({ error: '删除图片失败，请稍后再试' }, { status: 400 })
+    return NextResponse.json({ error: 'Missing imageUrl' }, { status: 400 })
   }
 
   const supabase = getServiceClient()
