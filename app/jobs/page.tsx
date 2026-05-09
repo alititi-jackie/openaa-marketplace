@@ -7,6 +7,7 @@ import AppTopSection from '@/components/AppTopSection'
 import JobCard from '@/components/JobCard'
 import BackToTopButton from '@/components/BackToTopButton'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
+import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import type { JobPosting, JobPostingType } from '@/types'
 
 const TABS: Array<{ key: JobPostingType; label: string }> = [
@@ -21,6 +22,7 @@ export default function JobsPage() {
   const [search, setSearch] = useState('')
   const [jobType, setJobType] = useState('')
   const [category, setCategory] = useState('')
+  const [location, setLocation] = useState(ALL_REGIONS)
 
   const fetchJobs = useCallback(async () => {
     setLoading(true)
@@ -63,10 +65,11 @@ export default function JobsPage() {
 
   const searchLower = search.toLowerCase()
   const filtered = jobs.filter((job) =>
-    !search ||
-    job.title.toLowerCase().includes(searchLower) ||
-    job.company.toLowerCase().includes(searchLower) ||
-    job.location.toLowerCase().includes(searchLower)
+    (!search ||
+      job.title.toLowerCase().includes(searchLower) ||
+      job.company.toLowerCase().includes(searchLower) ||
+      job.location.toLowerCase().includes(searchLower)) &&
+    (location === ALL_REGIONS || job.location === location)
   )
 
   const pageTitle = activeTab === 'hiring' ? '招聘信息' : '求职信息'
@@ -142,6 +145,7 @@ export default function JobsPage() {
               </option>
             ))}
           </select>
+          <RegionFilter value={location} onChange={setLocation} />
         </div>
 
         {loading ? (
@@ -149,7 +153,7 @@ export default function JobsPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-3">💼</div>
-            <p>暂无信息</p>
+            <p>暂无符合条件的招聘信息</p>
             <Link
               href={`/jobs/publish?type=${activeTab}`}
               className="text-[#1976d2] mt-2 inline-block hover:underline"

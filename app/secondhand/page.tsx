@@ -7,7 +7,26 @@ import AppTopSection from '@/components/AppTopSection'
 import SecondhandCard from '@/components/SecondhandCard'
 import BackToTopButton from '@/components/BackToTopButton'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
+import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { SecondhandItem, SecondhandItemType } from '@/types'
+
+/** Extract the region from a secondhand item.
+ * Selling items: "所在地区：{loc}" is prepended to description.
+ * Buying items: same line is embedded in the structured description.
+ * Some rows may also carry a top-level `location` field.
+ */
+function getItemRegion(item: SecondhandItem): string {
+  const withLoc = item as SecondhandItem & { location?: string | null }
+  if (withLoc.location && withLoc.location.trim()) return withLoc.location.trim()
+  const lines = (item.description || '').split('\n')
+  for (const line of lines) {
+    const m = line.match(/^所在地区[:：]\s*(.+)\s*$/)
+    const v = m?.[1]?.trim()
+    if (v && (LOCATION_OPTIONS as readonly string[]).includes(v)) return v
+  }
+  return ''
+}
 
 const TABS: Array<{ key: SecondhandItemType; label: string }> = [
   { key: 'selling', label: '出售商品' },
@@ -20,6 +39,7 @@ export default function SecondhandPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
+  const [location, setLocation] = useState(ALL_REGIONS)
 
   const fetchItems = useCallback(async () => {
     setLoading(true)
@@ -60,7 +80,8 @@ export default function SecondhandPage() {
 
   const searchLower = search.toLowerCase()
   const filtered = items.filter((item) =>
-    !search || item.title.toLowerCase().includes(searchLower)
+    (!search || item.title.toLowerCase().includes(searchLower)) &&
+    (location === ALL_REGIONS || getItemRegion(item) === location)
   )
 
   const pageTitle = activeTab === 'selling' ? '二手交易' : '求购信息'
@@ -104,13 +125,13 @@ export default function SecondhandPage() {
           </div>
         </div>
 
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={activeTab === 'selling' ? '搜索商品...' : '搜索求购...'}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            className="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
           />
           <select
             value={category}
@@ -124,6 +145,7 @@ export default function SecondhandPage() {
               </option>
             ))}
           </select>
+          <RegionFilter value={location} onChange={setLocation} />
         </div>
 
         {loading ? (
@@ -131,7 +153,7 @@ export default function SecondhandPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-3">🛍️</div>
-            <p>{activeTab === 'selling' ? '暂无商品' : '暂无求购信息'}</p>
+            <p>{activeTab === 'selling' ? '暂无符合条件的二手信息' : '暂无符合条件的求购信息'}</p>
             <Link
               href={`/secondhand/publish?type=${activeTab}`}
               className="text-[#1976d2] mt-2 inline-block hover:underline"
