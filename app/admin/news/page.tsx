@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { NewsPost } from '@/types'
-import { NEWS_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
+import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
+import type { NewsFilterCategory } from '@/lib/news'
+
+type StatusFilter = '全部状态' | '已发布' | '未发布'
+
+const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
+  { key: '全部状态', label: '全部状态' },
+  { key: '已发布', label: '已发布' },
+  { key: '未发布', label: '未发布' },
+]
 
 type FormState = {
   title: string
@@ -50,6 +59,8 @@ export default function AdminNewsPage() {
   const [hasAccess, setHasAccess] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [uploadMessage, setUploadMessage] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<NewsFilterCategory>('全部')
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('全部状态')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchPosts = useCallback(async (adminToken: string) => {
@@ -306,6 +317,16 @@ export default function AdminNewsPage() {
     [posts]
   )
 
+  const filteredPosts = useMemo(() => {
+    return sortedPosts.filter((post) => {
+      const matchCategory = selectedCategory === '全部' || post.category === selectedCategory
+      const matchStatus =
+        selectedStatus === '全部状态' ||
+        (selectedStatus === '已发布' ? post.is_published : !post.is_published)
+      return matchCategory && matchStatus
+    })
+  }, [sortedPosts, selectedCategory, selectedStatus])
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -479,8 +500,62 @@ export default function AdminNewsPage() {
 
       {loading ? <p className="text-sm text-gray-500">加载中...</p> : null}
 
+      {/* News filters */}
+      <div className="mb-4 space-y-2">
+        {/* Category filters */}
+        <div className="-mx-1 overflow-x-auto">
+          <div className="flex gap-2 px-1 whitespace-nowrap">
+            {NEWS_FILTER_CATEGORIES.map((cat) => {
+              const active = selectedCategory === cat
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={
+                    `px-3 py-1 rounded-full text-xs font-medium border ` +
+                    (active
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
+                  }
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Status filters */}
+        <div className="-mx-1 overflow-x-auto">
+          <div className="flex gap-2 px-1 whitespace-nowrap">
+            {STATUS_FILTERS.map((item) => {
+              const active = selectedStatus === item.key
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setSelectedStatus(item.key)}
+                  className={
+                    `px-3 py-1 rounded-full text-xs font-medium border ` +
+                    (active
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200')
+                  }
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-3">
-        {sortedPosts.map((post) => (
+        {!loading && filteredPosts.length === 0 && (
+          <p className="text-sm text-gray-400">暂无符合条件的新闻</p>
+        )}
+        {filteredPosts.map((post) => (
           <div key={post.id} className="rounded-xl border bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
