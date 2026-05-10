@@ -190,6 +190,7 @@ export default function HousingPage() {
           <div className="space-y-4">
             {filtered.map((p) => {
               const priceStr = displayPrice(p.price)
+              const isPinned = isEffectivePinned(p, Date.now())
               return (
                 <Link
                   key={p.id}
@@ -214,6 +215,11 @@ export default function HousingPage() {
                         </div>
 
                         <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                          {isPinned ? (
+                            <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                              置顶
+                            </span>
+                          ) : null}
                           {priceStr ? <span>💰 {priceStr}</span> : null}
                           {p.location ? <span>📍 {p.location}</span> : null}
                           <span>🕒 {formatDate(p.created_at)}</span>
