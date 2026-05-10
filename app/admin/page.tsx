@@ -67,7 +67,8 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     icon: '🧹',
     title: '图片清理工具',
     description: '扫描未使用图片，管理员确认后删除。',
-    status: '待开发',
+    status: '已可用',
+    href: '/admin/image-cleanup',
   },
   {
     id: 'settings',
@@ -91,7 +92,6 @@ const ROADMAP_ITEMS = [
   '帖子统一审核',
   '用户管理',
   '导航管理',
-  '图片清理工具',
   '全站置顶管理',
   'SEO 工具',
 ]
