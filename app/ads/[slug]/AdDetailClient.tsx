@@ -48,12 +48,8 @@ export default function AdDetailClient({ ad }: AdDetailClientProps) {
   return (
     <div className="min-h-screen bg-zinc-50">
       <div className="mx-auto w-full max-w-[860px] px-4 py-6 md:py-10">
-        {/* Top nav */}
-        <div className="flex items-center justify-between mb-4 md:mb-6">
-          <DetailBackButton fallbackHref="/" />
-
-          <span className="text-[11px] font-medium text-zinc-400">OpenAA 内部广告页</span>
-        </div>
+        <DetailBackButton fallbackHref="/" />
+        <p className="mb-4 text-right text-[11px] font-medium text-zinc-400 md:mb-6">OpenAA 内部广告页</p>
 
         {/* Hero card */}
         <div className="overflow-hidden rounded-3xl bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)] ring-1 ring-black/5">
