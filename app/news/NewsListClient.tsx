@@ -33,7 +33,18 @@ export default function NewsListClient() {
 
   const fetchPosts = useCallback(async (currentCategory: string) => {
     setLoading(true)
-    let query = supabase
+    const now = new Date().toISOString()
+    let pinnedQuery = supabase
+      .from('news_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_pinned', true)
+      .or(`pinned_until.is.null,pinned_until.gt.${now}`)
+      .order('pinned_order', { ascending: true })
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    let normalQuery = supabase
       .from('news_posts')
       .select('*')
       .eq('is_published', true)
@@ -42,11 +53,22 @@ export default function NewsListClient() {
       .limit(NEWS_PAGE_SIZE)
 
     if (currentCategory !== '全部') {
-      query = query.eq('category', currentCategory)
+      pinnedQuery = pinnedQuery.eq('category', currentCategory)
+      normalQuery = normalQuery.eq('category', currentCategory)
     }
 
-    const { data } = await query
-    setPosts((data as NewsPost[] | null) || [])
+    const [{ data: pinnedData }, { data: normalData }] = await Promise.all([pinnedQuery, normalQuery])
+    const merged: NewsPost[] = []
+    const seenIds = new Set<string>()
+
+    for (const item of [...((pinnedData as NewsPost[] | null) || []), ...((normalData as NewsPost[] | null) || [])]) {
+      const key = String(item.id)
+      if (seenIds.has(key)) continue
+      seenIds.add(key)
+      merged.push(item)
+    }
+
+    setPosts(merged)
     setLoading(false)
   }, [])
 
