@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 
@@ -507,7 +508,13 @@ function AdsAdminContent() {
   if (!token) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">广告管理</h1>
+        <Link
+          href="/admin"
+          className="mb-4 inline-flex items-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+        >
+          ← 返回总后台
+        </Link>
+        <h1 className="text-2xl font-bold mb-6 mt-3">广告管理</h1>
         <div className="mb-6 rounded-xl border bg-gray-50 p-4">
           <label className="block text-sm font-medium mb-1">Admin Token</label>
           <div className="flex gap-2">
@@ -540,7 +547,13 @@ function AdsAdminContent() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">广告管理</h1>
+      <Link
+        href="/admin"
+        className="mb-4 inline-flex items-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+      >
+        ← 返回总后台
+      </Link>
+      <h1 className="text-2xl font-bold mb-6 mt-3">广告管理</h1>
 
       {/* Token state */}
       <div className="mb-6 rounded-xl border bg-gray-50 p-4 space-y-3">
