@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 type AdminEntry = {
+  id: string
   icon: string
   title: string
   description: string
@@ -10,6 +11,7 @@ type AdminEntry = {
 
 const ADMIN_ENTRIES: AdminEntry[] = [
   {
+    id: 'ads',
     icon: '📢',
     title: '广告管理',
     description: '管理首页、招聘、房屋、二手、导航、新闻等广告位。',
@@ -17,6 +19,7 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/ads',
   },
   {
+    id: 'news',
     icon: '📰',
     title: '新闻管理',
     description: '发布、编辑、下架新闻资讯内容。',
@@ -24,12 +27,14 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/news',
   },
   {
+    id: 'feedback',
     icon: '🛎️',
     title: '反馈与举报',
     description: '查看用户反馈、举报、新闻线索和问题建议。',
     status: '待开发',
   },
   {
+    id: 'services',
     icon: '🧰',
     title: '本地服务管理',
     description: '管理用户发布的本地服务信息。',
@@ -37,6 +42,7 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/services',
   },
   {
+    id: 'settings',
     icon: '⚙️',
     title: '发帖数量设置',
     description: '配置全站每日发帖限制等基础设置。',
@@ -44,18 +50,21 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/settings',
   },
   {
+    id: 'posts',
     icon: '🗂️',
     title: '帖子管理',
     description: '统一管理招聘、房屋、二手和本地服务帖子。',
     status: '待开发',
   },
   {
+    id: 'users',
     icon: '👥',
     title: '用户管理',
     description: '管理用户状态、封禁与审核。',
     status: '待开发',
   },
   {
+    id: 'navigation',
     icon: '🧭',
     title: '导航管理',
     description: '管理 OpenAA 公共导航和用户导航内容。',
@@ -93,7 +102,7 @@ export default function AdminHomePage() {
       <div className="mt-4 grid gap-3">
         {ADMIN_ENTRIES.map((entry) => {
           return (
-            <div key={entry.title} className="rounded-2xl border border-zinc-200 bg-white p-4">
+            <div key={entry.id} className="rounded-2xl border border-zinc-200 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-lg leading-none">{entry.icon}</p>
@@ -101,12 +110,11 @@ export default function AdminHomePage() {
                   <p className="mt-1 text-sm text-zinc-600">{entry.description}</p>
                 </div>
                 <span
-                  className={
-                    'inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ' +
-                    (entry.status === '已可用'
+                  className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${
+                    entry.status === '已可用'
                       ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
-                      : 'bg-zinc-100 text-zinc-600 ring-zinc-200')
-                  }
+                      : 'bg-zinc-100 text-zinc-600 ring-zinc-200'
+                  }`}
                 >
                   {entry.status}
                 </span>
