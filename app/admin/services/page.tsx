@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
+import { getAdminToken, setAdminToken } from '@/lib/adminToken'
 
 const SERVICE_CATEGORIES_FILTER = [
   '全部',
@@ -91,17 +92,16 @@ function AdminServicesContent() {
   }, [])
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''
-    const t = stored || ''
-    if (t) {
-      setToken(t)
-      setInputToken(t)
-      fetchPosts(t)
+    const stored = getAdminToken()
+    if (stored) {
+      setToken(stored)
+      setInputToken(stored)
+      fetchPosts(stored)
     }
   }, [fetchPosts])
 
   function saveToken() {
-    localStorage.setItem('admin_token', inputToken)
+    setAdminToken(inputToken)
     setToken(inputToken)
     fetchPosts(inputToken)
   }
@@ -155,7 +155,13 @@ function AdminServicesContent() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">本地服务管理</h1>
+      <Link
+        href="/admin"
+        className="mb-4 inline-flex items-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+      >
+        ← 返回总后台
+      </Link>
+      <h1 className="text-2xl font-bold mb-6 mt-3">本地服务管理</h1>
 
       {/* Token input */}
       <div className="mb-6 p-4 bg-gray-50 rounded-xl border">

@@ -31,6 +31,14 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/news',
   },
   {
+    id: 'settings',
+    icon: '⚙️',
+    title: '站点设置 / 发帖上限',
+    description: '管理每日发帖上限等基础配置。',
+    status: '已可用',
+    href: '/admin/settings',
+  },
+  {
     id: 'feedback',
     icon: '🛎️',
     title: '反馈与举报',

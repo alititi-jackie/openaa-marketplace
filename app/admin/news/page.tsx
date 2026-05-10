@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { NewsPost } from '@/types'
 import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
 import type { NewsFilterCategory } from '@/lib/news'
+import { getAdminToken, setAdminToken } from '@/lib/adminToken'
 
 type StatusFilter = '全部状态' | '已发布' | '未发布'
 type CoverSource = 'uploaded' | 'external'
@@ -105,7 +106,7 @@ export default function AdminNewsPage() {
   }, [])
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''
+    const stored = getAdminToken()
     if (stored) {
       setToken(stored)
       setInputToken(stored)
@@ -116,7 +117,7 @@ export default function AdminNewsPage() {
   }, [fetchPosts])
 
   function saveToken() {
-    localStorage.setItem('admin_token', inputToken)
+    setAdminToken(inputToken)
     setToken(inputToken)
     fetchPosts(inputToken)
   }
@@ -395,7 +396,13 @@ export default function AdminNewsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <Link
+        href="/admin"
+        className="mb-4 inline-flex items-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+      >
+        ← 返回总后台
+      </Link>
+      <div className="mb-6 mt-3 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">新闻管理</h1>
         <button
           type="button"
