@@ -17,7 +17,9 @@ function checkAdminToken(request: NextRequest): boolean {
 
 function toPinnedOrder(value: unknown): number | null | undefined {
   if (value === undefined) return undefined
-  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) return null
+  if (typeof value !== 'number') return null
+  if (!Number.isInteger(value)) return null
+  if (value < 0) return null
   return value
 }
 

@@ -86,6 +86,13 @@ function toDatetimeLocalValue(value: string | null | undefined): string {
   return local.toISOString().slice(0, 16)
 }
 
+function normalizePinnedOrder(value: unknown): number | null {
+  if (typeof value !== 'number') return null
+  if (!Number.isInteger(value)) return null
+  if (value < 0) return null
+  return value
+}
+
 function AdminServicesContent() {
   const formRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState('')
@@ -157,10 +164,7 @@ function AdminServicesContent() {
     setPinEditingId(post.id)
     setPinForm({
       is_pinned: post.is_pinned === true,
-      pinned_order:
-        typeof post.pinned_order === 'number' && Number.isInteger(post.pinned_order) && post.pinned_order >= 0
-          ? post.pinned_order
-          : 0,
+      pinned_order: normalizePinnedOrder(post.pinned_order) ?? 0,
       pinned_until: toDatetimeLocalValue(post.pinned_until),
     })
     setMessage('')
@@ -206,7 +210,7 @@ function AdminServicesContent() {
   async function submitPinSettings(e: React.FormEvent) {
     e.preventDefault()
     if (!pinEditingId) return
-    if (!Number.isInteger(pinForm.pinned_order) || pinForm.pinned_order < 0) {
+    if (normalizePinnedOrder(pinForm.pinned_order) === null) {
       setMessage('置顶排序必须是大于等于 0 的整数')
       return
     }
