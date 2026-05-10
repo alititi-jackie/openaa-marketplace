@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
@@ -32,6 +32,18 @@ function formatDate(s: string | null) {
   } catch {
     return s
   }
+}
+
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
 }
 
 function ServiceCard({ post }: { post: ServicePost }) {
@@ -92,18 +104,37 @@ export default function ServicesListClient() {
     fetchPosts()
   }, [fetchPosts])
 
-  const filtered = posts.filter((p) => {
-    const matchCat = category === '全部' || p.category === category
-    const matchLoc = location === ALL_REGIONS || p.location === location
+  const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    const matchSearch =
-      !q ||
-      p.title.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.location.toLowerCase().includes(q)
-    return matchCat && matchLoc && matchSearch
-  })
+    const nowTime = Date.now()
+    return posts
+      .filter((p) => {
+        const matchCat = category === '全部' || p.category === category
+        const matchLoc = location === ALL_REGIONS || p.location === location
+        const matchSearch =
+          !q ||
+          p.title.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.location.toLowerCase().includes(q)
+        return matchCat && matchLoc && matchSearch
+      })
+      .sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
+  }, [posts, category, location, search])
 
   return (
     <div className="min-h-screen bg-white pb-24">
