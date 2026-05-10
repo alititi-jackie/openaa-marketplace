@@ -32,7 +32,6 @@ interface SeekingFormData {
   region: JobLocation
   experience: string
   availability: string
-  contact: string
   bio: string
 }
 
@@ -54,7 +53,6 @@ function buildSeekingDescription(seeking: SeekingFormData) {
     line('所在地区', seeking.region),
     line('工作经验', seeking.experience),
     line('可工作时间', seeking.availability),
-    line('联系方式', seeking.contact),
     '',
     '【个人简介】',
     seeking.bio.trim() || '-',
@@ -102,9 +100,11 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     region: DEFAULT_LOCATION,
     experience: '',
     availability: '',
-    contact: '',
     bio: '',
   })
+  const [contactName, setContactName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [wechat, setWechat] = useState('')
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -145,6 +145,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
         bio: editJob.description ?? '',
       }))
     }
+    setContactName(editJob.contact_name || '')
+    setPhone(editJob.phone || '')
+    setWechat(editJob.wechat || '')
   }, [editJob, defaultJobType, defaultCategory])
 
   const handleHiringChange = (
@@ -186,6 +189,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             location: hiring.location || DEFAULT_LOCATION,
             job_type: hiring.job_type?.trim() || defaultJobType,
             category: hiring.category?.trim() || defaultCategory,
+            contact_name: contactName.trim() || null,
+            phone: phone.trim() || null,
+            wechat: wechat.trim() || null,
             status: 'published' as const,
             views: editJob?.views ?? 0,
             user_id: user.id,
@@ -202,6 +208,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             location: seeking.region || DEFAULT_LOCATION,
             job_type: defaultJobType,
             category: defaultCategory,
+            contact_name: contactName.trim() || null,
+            phone: phone.trim() || null,
+            wechat: wechat.trim() || null,
             status: 'published' as const,
             views: editJob?.views ?? 0,
             user_id: user.id,
@@ -483,18 +492,6 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
-            <input
-              type="text"
-              name="contact"
-              value={seeking.contact}
-              onChange={handleSeekingChange}
-              placeholder="例：微信 / 电话 / 邮箱（可不填）"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 / 个人简介 *</label>
             <textarea
               name="bio"
@@ -511,6 +508,40 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
           </div>
         </>
       )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">联系人</label>
+        <input
+          type="text"
+          value={contactName}
+          onChange={(e) => setContactName(e.target.value)}
+          placeholder="请输入联系人"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="请输入联系电话"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">微信号</label>
+          <input
+            type="text"
+            value={wechat}
+            onChange={(e) => setWechat(e.target.value)}
+            placeholder="请输入微信号"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+          />
+        </div>
+      </div>
 
       <div ref={bottomErrorRef}>
         {error && (

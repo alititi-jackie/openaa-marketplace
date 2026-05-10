@@ -11,6 +11,9 @@ interface Ad {
   external_url?: string | null
   slug?: string | null
   content?: string | null
+  contact_name?: string | null
+  phone?: string | null
+  wechat?: string | null
   open_mode?: 'internal' | 'external_new' | 'external_same' | string | null
   position: string
   start_date: string | null
@@ -89,6 +92,9 @@ function AdsAdminContent() {
   const [externalUrl, setExternalUrl] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
+  const [contactName, setContactName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [wechat, setWechat] = useState('')
   const [position, setPosition] = useState<'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news'>('home')
   const [isActive, setIsActive] = useState(true)
   const [startDate, setStartDate] = useState('')
@@ -125,6 +131,9 @@ function AdsAdminContent() {
     setExternalUrl('')
     setSlug('')
     setContent('')
+    setContactName('')
+    setPhone('')
+    setWechat('')
     setPosition('home')
     setIsActive(true)
     setStartDate('')
@@ -147,6 +156,9 @@ function AdsAdminContent() {
     setExternalUrl(ad.external_url || ad.link_url || '')
     setSlug(ad.slug || '')
     setContent(ad.content || '')
+    setContactName(ad.contact_name || '')
+    setPhone(ad.phone || '')
+    setWechat(ad.wechat || '')
     setPosition(ad.position as 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news')
     setIsActive(ad.is_active)
     setStartDate(toDateTimeLocalValue(ad.start_date))
@@ -379,6 +391,9 @@ function AdsAdminContent() {
       external_url: effectiveLinkType === 'external' ? externalUrl.trim() : null,
       slug: effectiveLinkType === 'internal' ? slug.trim() : null,
       content: effectiveLinkType === 'internal' ? content : null,
+      contact_name: contactName.trim() || null,
+      phone: phone.trim() || null,
+      wechat: wechat.trim() || null,
       position,
       is_active: isActive,
       start_date: startDate || null,
@@ -641,6 +656,38 @@ function AdsAdminContent() {
                 rows={4}
                 className="w-full border rounded-lg px-3 py-2 text-sm resize-y"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">联系人（可选）</label>
+              <input
+                type="text"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="请输入联系人"
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">联系电话（可选）</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="请输入联系电话"
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">微信号（可选）</label>
+                <input
+                  type="text"
+                  value={wechat}
+                  onChange={(e) => setWechat(e.target.value)}
+                  placeholder="请输入微信号"
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
             </div>
           </>
         )}

@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { ShieldCheck, Sparkles, TrendingUp, MessageCircle, Phone, ArrowLeft, ZoomIn, X } from 'lucide-react'
+import { ShieldCheck, Sparkles, TrendingUp, MessageCircle, ZoomIn, X } from 'lucide-react'
+import DetailBackButton from '@/components/DetailBackButton'
+import ContactInfoCard from '@/components/ContactInfoCard'
 
 interface AdDetailClientProps {
   ad: {
     image_url: string
     slug: string
     content: string | null
+    contact_name: string | null
+    phone: string | null
+    wechat: string | null
   }
 }
 
@@ -46,13 +50,7 @@ export default function AdDetailClient({ ad }: AdDetailClientProps) {
       <div className="mx-auto w-full max-w-[860px] px-4 py-6 md:py-10">
         {/* Top nav */}
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[12px] font-semibold text-zinc-600 hover:text-zinc-900"
-          >
-            <ArrowLeft size={14} />
-            返回首页
-          </Link>
+          <DetailBackButton fallbackHref="/" />
 
           <span className="text-[11px] font-medium text-zinc-400">OpenAA 内部广告页</span>
         </div>
@@ -142,43 +140,14 @@ export default function AdDetailClient({ ad }: AdDetailClientProps) {
               </div>
             </div>
 
-            {/* Contact CTA */}
-            <div className="mt-6 rounded-3xl bg-zinc-900 text-white p-4 md:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[14px] font-black">立即咨询</p>
-                  <p className="mt-1 text-[12px] text-white/80">
-                    点击下方按钮，通过微信或电话快速联系。
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a
-                  href="weixin://"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white text-zinc-900 font-bold text-[13px] py-3 active:scale-[0.99] transition"
-                >
-                  <MessageCircle size={16} />
-                  微信联系
-                </a>
-
-                <a
-                  href="tel:"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 ring-1 ring-white/20 text-white font-bold text-[13px] py-3 active:scale-[0.99] transition"
-                >
-                  <Phone size={16} />
-                  电话联系
-                </a>
-              </div>
-
-              <div className="mt-3">
-                <Link
-                  href="/"
-                  className="inline-flex items-center justify-center w-full rounded-2xl py-3 text-[13px] font-semibold text-white/90 hover:text-white bg-white/0 ring-1 ring-white/15"
-                >
-                  返回首页
-                </Link>
-              </div>
+            <div className="mt-6">
+              <ContactInfoCard
+                title="联系广告方"
+                contactName={ad.contact_name}
+                phone={ad.phone}
+                wechat={ad.wechat}
+                emptyText="暂无单独联系方式，请查看广告详情内容。"
+              />
             </div>
           </div>
         </div>
