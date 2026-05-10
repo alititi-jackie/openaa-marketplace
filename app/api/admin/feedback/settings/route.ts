@@ -92,6 +92,12 @@ export async function PATCH(request: NextRequest) {
       { status: 400 }
     )
   }
+  if (userDailyLimit > totalDailyLimit) {
+    return NextResponse.json(
+      { error: '单个用户每日上限不能大于全站每日反馈总上限' },
+      { status: 400 }
+    )
+  }
 
   const supabase = getServiceClient()
   const now = new Date().toISOString()
