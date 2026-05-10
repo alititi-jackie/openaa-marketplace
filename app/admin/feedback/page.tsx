@@ -41,9 +41,24 @@ const STATUS_COLORS: Record<FeedbackStatus, string> = {
   ignored: 'bg-zinc-100 text-zinc-500 ring-zinc-200',
 }
 
+const STATUS_PRIORITY: Record<FeedbackStatus, number> = {
+  pending: 0,
+  processing: 1,
+  ignored: 2,
+  resolved: 3,
+}
+
 function toStatus(value: string | null | undefined): FeedbackStatus {
   const valid: FeedbackStatus[] = ['pending', 'processing', 'resolved', 'ignored']
   return valid.includes(value as FeedbackStatus) ? (value as FeedbackStatus) : 'pending'
+}
+
+function sortFeedbackPosts(posts: FeedbackPost[]): FeedbackPost[] {
+  return [...posts].sort((a, b) => {
+    const statusDiff = STATUS_PRIORITY[toStatus(a.status)] - STATUS_PRIORITY[toStatus(b.status)]
+    if (statusDiff !== 0) return statusDiff
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
 }
 
 function formatDate(iso: string) {
@@ -328,7 +343,7 @@ function FeedbackAdminContent() {
         'data' in json &&
         Array.isArray((json as { data: unknown }).data)
       ) {
-        setPosts((json as { data: FeedbackPost[] }).data)
+        setPosts(sortFeedbackPosts((json as { data: FeedbackPost[] }).data))
       }
     } catch {
       setMessage('网络错误，请稍后重试')
@@ -378,9 +393,7 @@ function FeedbackAdminContent() {
   }
 
   function handleUpdated(updated: FeedbackPost) {
-    setPosts((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    )
+    setPosts((prev) => sortFeedbackPosts(prev.map((p) => (p.id === updated.id ? updated : p))))
   }
 
   function handleDeleted(id: string) {
