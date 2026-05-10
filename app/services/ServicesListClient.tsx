@@ -43,7 +43,6 @@ function toSortableTime(value: string | null | undefined): number {
 function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
   if (!post.is_pinned) return false
   if (post.status !== 'active') return false
-  if (!post.is_active) return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
 }
