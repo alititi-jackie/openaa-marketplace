@@ -190,6 +190,7 @@ function AdminServicesContent() {
       pinned_until: toDatetimeLocalValue(post.pinned_until),
     })
     setMessage('')
+    setListSuccessMessage('')
     scrollToForm()
   }
 
@@ -245,6 +246,7 @@ function AdminServicesContent() {
     if (ok) {
       setPinEditingId(null)
       setListSuccessMessage('置顶设置保存成功')
+      setTimeout(() => setListSuccessMessage(''), 5000)
       requestAnimationFrame(() => {
         listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       })
