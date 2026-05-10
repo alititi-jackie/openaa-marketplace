@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { ShieldCheck, Sparkles, TrendingUp, MessageCircle, ZoomIn, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import DetailBackButton from '@/components/DetailBackButton'
 
 interface AdDetailClientProps {
   ad: {
@@ -35,7 +35,6 @@ function formatContent(content: string) {
 
 export default function AdDetailClient({ ad }: AdDetailClientProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     if (!lightboxOpen) return
@@ -46,29 +45,10 @@ export default function AdDetailClient({ ad }: AdDetailClientProps) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [lightboxOpen])
 
-  const handleBack = () => {
-    const hasPriorPage =
-      typeof window !== 'undefined' &&
-      (document.referrer !== '' || window.history.length > 2)
-
-    if (hasPriorPage) {
-      router.back()
-    } else {
-      router.push('/')
-    }
-  }
-
   return (
     <div className="min-h-screen bg-zinc-50">
       <div className="mx-auto w-full max-w-[860px] px-4 pt-4 pb-6 md:pb-10">
-        <button
-          type="button"
-          onClick={handleBack}
-          aria-label="返回上一页"
-          className="mb-4 inline-flex items-center gap-1 rounded-full border border-blue-100 bg-white/95 px-3 py-1.5 text-sm text-blue-600 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-        >
-          ← 返回
-        </button>
+        <DetailBackButton fallbackHref="/" />
 
         {/* Hero card */}
         <div className="overflow-hidden rounded-3xl bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)] ring-1 ring-black/5">
