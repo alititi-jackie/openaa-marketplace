@@ -77,6 +77,22 @@ function formatPinnedUntil(value: string | null): string {
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: NewsPost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
+function getPublishedOrCreatedTime(post: NewsPost): number {
+  return post.published_at ? toSortableTime(post.published_at) : toSortableTime(post.created_at)
+}
+
 export default function AdminNewsPage() {
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
@@ -417,12 +433,27 @@ export default function AdminNewsPage() {
   }
 
   const sortedPosts = useMemo(
-    () =>
-      [...posts].sort((a, b) => {
-        const t1 = new Date(b.updated_at).getTime()
-        const t2 = new Date(a.updated_at).getTime()
-        return t1 - t2
-      }),
+    () => {
+      const nowTime = Date.now()
+      return [...posts].sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        const publishedDiff = getPublishedOrCreatedTime(b) - getPublishedOrCreatedTime(a)
+        if (publishedDiff !== 0) return publishedDiff
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
+    },
     [posts]
   )
 
