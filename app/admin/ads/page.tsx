@@ -107,6 +107,7 @@ function AdsAdminContent() {
   const [activePosition, setActivePosition] = useState<PositionFilter>('all')
   const [activeStatus, setActiveStatus] = useState<StatusFilter>('all')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const formRef = useRef<HTMLFormElement | null>(null)
 
   const filteredAds = ads.filter((ad) => {
     const matchPosition = activePosition === 'all' ? true : ad.position === activePosition
@@ -174,6 +175,7 @@ function AdsAdminContent() {
     setMessage('')
     setUploadMessage('')
     if (fileInputRef.current) fileInputRef.current.value = ''
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   async function fetchAds(t: string) {
@@ -599,7 +601,7 @@ function AdsAdminContent() {
       </div>
 
       {/* Create/edit form */}
-      <form onSubmit={handleSubmit} className="mb-8 p-4 bg-white rounded-xl border shadow-sm space-y-4">
+      <form ref={formRef} onSubmit={handleSubmit} className="scroll-mt-20 mb-8 p-4 bg-white rounded-xl border shadow-sm space-y-4">
         <h2 className="text-lg font-semibold">{editingId ? '编辑广告' : '新增广告'}</h2>
 
         <div className="space-y-2 rounded-lg border p-3">
