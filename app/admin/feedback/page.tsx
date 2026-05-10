@@ -103,8 +103,7 @@ function FeedbackCard({
       if (
         json !== null &&
         typeof json === 'object' &&
-        'data' in json &&
-        json !== null
+        'data' in json
       ) {
         onUpdated((json as { data: FeedbackPost }).data)
       }
@@ -139,8 +138,7 @@ function FeedbackCard({
       if (
         json !== null &&
         typeof json === 'object' &&
-        'data' in json &&
-        json !== null
+        'data' in json
       ) {
         onUpdated((json as { data: FeedbackPost }).data)
       }
