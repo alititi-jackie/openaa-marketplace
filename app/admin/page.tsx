@@ -50,8 +50,9 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     id: 'posts',
     icon: '🗂️',
     title: '帖子管理',
-    description: '统一管理招聘、房屋、二手和本地服务帖子。',
-    status: '待开发',
+    description: '统一管理招聘、房屋、二手帖子，支持隐藏、恢复与删除。',
+    status: '已可用',
+    href: '/admin/posts',
   },
   {
     id: 'services',

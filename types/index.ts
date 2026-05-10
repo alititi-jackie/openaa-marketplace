@@ -25,7 +25,7 @@ export interface SecondhandItem {
   price: number
   category: string
   images: string[]
-  status: 'published' | 'unpublished'
+  status: 'published' | 'hidden' | 'deleted' | 'unpublished'
   views: number
   created_at: string
   updated_at: string
@@ -63,7 +63,7 @@ export interface JobPosting {
   location: string
   job_type: string
   category: string
-  status: 'published' | 'unpublished'
+  status: 'published' | 'hidden' | 'deleted' | 'unpublished'
   views: number
   created_at: string
   updated_at: string
@@ -94,7 +94,7 @@ export interface HousingPost {
   phone?: string | null
   wechat?: string | null
   images: string[]
-  status: 'published' | 'unpublished'
+  status: 'published' | 'hidden' | 'deleted' | 'unpublished'
   views: number
   created_at: string
   updated_at: string
@@ -102,6 +102,32 @@ export interface HousingPost {
   is_pinned?: boolean
   pinned_until?: string | null
   pinned_order?: number
+}
+
+export type PostModule = 'jobs' | 'housing' | 'secondhand'
+
+export type UnifiedPostStatus = 'published' | 'hidden' | 'deleted' | 'unpublished'
+
+export interface UnifiedPost {
+  id: number
+  module: PostModule
+  user_id: string
+  title: string
+  description: string
+  location: string | null
+  status: UnifiedPostStatus
+  type: string | null
+  contact_name: string | null
+  phone: string | null
+  wechat: string | null
+  /** price for housing / secondhand */
+  price_value: number | null
+  /** salary range for job postings */
+  salary_min: number | null
+  salary_max: number | null
+  images: string[] | null
+  created_at: string
+  updated_at: string
 }
 
 export type ServicePostStatus = 'active' | 'hidden' | 'deleted'
