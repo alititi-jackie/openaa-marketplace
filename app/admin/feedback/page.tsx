@@ -468,6 +468,10 @@ function FeedbackAdminContent() {
       setSettingsMessage('请输入 1~1000 之间的整数')
       return
     }
+    if (userDailyLimit > totalDailyLimit) {
+      setSettingsMessage('单个用户每日上限不能大于全站每日反馈总上限')
+      return
+    }
 
     setSavingSettings(true)
     try {
