@@ -4,6 +4,14 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import {
+  AD_EXTERNAL_URL_ERROR,
+  AD_IMAGE_REQUIRED_ERROR,
+  AD_INTERNAL_SLUG_ERROR,
+  isHttpUrl,
+  isValidAdSlug,
+  normalizeAdSlug,
+} from '@/lib/ads'
 import BackToTopButton from '@/components/BackToTopButton'
 
 interface Ad {
@@ -58,15 +66,6 @@ function getPositionLabel(position: string) {
     news: '新闻广告',
   }
   return map[position] || position
-}
-
-function isHttpImageUrl(url: string) {
-  try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-  } catch {
-    return false
-  }
 }
 
 function isAdsStorageUrl(url: string): boolean {
@@ -392,22 +391,24 @@ function AdsAdminContent() {
 
     const finalImageUrl = imageUrl.trim()
     if (!finalImageUrl) {
-      setMessage('请上传广告图片或填写外部图片链接')
+      setMessage(AD_IMAGE_REQUIRED_ERROR)
       return
     }
-    if (!isHttpImageUrl(finalImageUrl)) {
+    if (!isHttpUrl(finalImageUrl)) {
       setMessage('图片链接必须以 http:// 或 https:// 开头')
       return
     }
 
-    // Enforce open_mode requirements
+    const normalizedSlug = normalizeAdSlug(slug)
+    const normalizedExternalUrl = externalUrl.trim()
+
     if (openMode === 'internal') {
-      if (!slug.trim()) {
-        setMessage('请填写页面标识 (slug)')
+      if (!normalizedSlug || !isValidAdSlug(normalizedSlug)) {
+        setMessage(AD_INTERNAL_SLUG_ERROR)
         return
       }
-    } else if (!externalUrl.trim()) {
-      setMessage('请填写外部链接')
+    } else if (!normalizedExternalUrl || !isHttpUrl(normalizedExternalUrl)) {
+      setMessage(AD_EXTERNAL_URL_ERROR)
       return
     }
 
@@ -420,9 +421,9 @@ function AdsAdminContent() {
       image_url: finalImageUrl,
       link_type: effectiveLinkType,
       open_mode: openMode,
-      link_url: effectiveLinkType === 'external' ? externalUrl.trim() : null,
-      external_url: effectiveLinkType === 'external' ? externalUrl.trim() : null,
-      slug: effectiveLinkType === 'internal' ? slug.trim() : null,
+      link_url: effectiveLinkType === 'external' ? normalizedExternalUrl : null,
+      external_url: effectiveLinkType === 'external' ? normalizedExternalUrl : null,
+      slug: effectiveLinkType === 'internal' ? normalizedSlug : null,
       content: effectiveLinkType === 'internal' ? content : null,
       contact_name: contactName.trim() || null,
       phone: phone.trim() || null,
@@ -544,7 +545,7 @@ function AdsAdminContent() {
 
   const trimmedImageUrl = imageUrl.trim()
   const hasImage = trimmedImageUrl.length > 0
-  const hasPreviewImage = hasImage && isHttpImageUrl(trimmedImageUrl)
+  const hasPreviewImage = hasImage && isHttpUrl(trimmedImageUrl)
   const isImageLocked = imageSourceLock !== null
   const uploadDisabled = uploading || isImageLocked || deletingImage || (hasImage && imageSourceLock !== 'uploaded')
 
@@ -645,13 +646,13 @@ function AdsAdminContent() {
                 setUploadMessage('')
               }
             }}
-            onBlur={() => {
-              const trimmed = imageUrl.trim()
-              if (!trimmed || isImageLocked) return
-              if (!isHttpImageUrl(trimmed)) {
-                setUploadMessage('图片链接必须以 http:// 或 https:// 开头')
-                return
-              }
+              onBlur={() => {
+                const trimmed = imageUrl.trim()
+                if (!trimmed || isImageLocked) return
+                if (!isHttpUrl(trimmed)) {
+                  setUploadMessage('图片链接必须以 http:// 或 https:// 开头')
+                  return
+                }
               setImageUrl(trimmed)
               setImageSourceLock(isAdsStorageUrl(trimmed) ? 'uploaded' : 'external')
               setUploadMessage('')
@@ -722,9 +723,11 @@ function AdsAdminContent() {
               type="url"
               value={externalUrl}
               onChange={(e) => setExternalUrl(e.target.value)}
+              onBlur={() => setExternalUrl((prev) => prev.trim())}
               placeholder="https://example.com"
               className="w-full border rounded-lg px-3 py-2 text-sm"
             />
+            <p className="text-xs text-gray-400 mt-1">必须以 http:// 或 https:// 开头。</p>
           </div>
         )}
 
@@ -736,11 +739,14 @@ function AdsAdminContent() {
               <input
                 type="text"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                onBlur={() => setSlug((prev) => normalizeAdSlug(prev))}
                 placeholder="e.g. summer-sale-2024"
                 className="w-full border rounded-lg px-3 py-2 text-sm"
               />
-              <p className="text-xs text-gray-400 mt-1">访问路径将为 /ads/{slug || '你的标识'}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                只能使用小写字母、数字和短横线，访问路径将为 /ads/{normalizeAdSlug(slug) || '你的标识'}
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">详情内容（可选）</label>

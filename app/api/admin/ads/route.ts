@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import {
+  AD_LINK_MODE_CONFLICT_ERROR,
+  AD_SLUG_DUPLICATE_ERROR,
+  normalizeAndValidateAdInput,
+} from '@/lib/ads'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,13 +32,19 @@ function sanitizeSegment(raw: string): string {
     .replace(/^-|-$/g, '')
 }
 
-function isHttpUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-  } catch {
-    return false
-  }
+async function hasInternalSlugConflict(
+  supabase: ReturnType<typeof getServiceClient>,
+  slug: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('ads')
+    .select('id')
+    .eq('link_type', 'internal')
+    .eq('slug', slug)
+    .limit(1)
+
+  if (error) throw error
+  return Array.isArray(data) && data.length > 0
 }
 
 export async function GET(request: NextRequest) {
@@ -128,32 +139,6 @@ export async function POST(request: NextRequest) {
     end_date = typeof payload.end_date === 'string' ? payload.end_date.trim() || null : null
   }
 
-  if (link_type !== 'external' && link_type !== 'internal') {
-    return NextResponse.json({ error: 'link_type must be external or internal' }, { status: 400 })
-  }
-
-  if (open_mode !== 'internal' && open_mode !== 'external_new' && open_mode !== 'external_same') {
-    return NextResponse.json({ error: 'open_mode must be internal, external_new or external_same' }, { status: 400 })
-  }
-
-  // Minimal compatibility rule: internal mode requires internal link fields
-  if (open_mode === 'internal') {
-    if (!slug) return NextResponse.json({ error: 'slug is required for internal ads' }, { status: 400 })
-  } else {
-    if (!external_url && !link_url) {
-      return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
-    }
-  }
-
-  // Keep existing validation for link_type to avoid breaking existing clients
-  if (link_type === 'external' && !external_url && !link_url) {
-    return NextResponse.json({ error: 'external_url is required for external ads' }, { status: 400 })
-  }
-
-  if (link_type === 'internal' && !slug) {
-    return NextResponse.json({ error: 'slug is required for internal ads' }, { status: 400 })
-  }
-
   if (!position) {
     return NextResponse.json({ error: 'position is required' }, { status: 400 })
   }
@@ -189,34 +174,52 @@ export async function POST(request: NextRequest) {
     image_url = urlData.publicUrl
   }
 
-  if (!image_url) {
-    return NextResponse.json({ error: 'image is required' }, { status: 400 })
+  const { data: normalized, error: validationError } = normalizeAndValidateAdInput({
+    image_url,
+    link_url,
+    link_type,
+    external_url,
+    slug,
+    content,
+    contact_name,
+    phone,
+    wechat,
+    open_mode,
+    position,
+    is_active,
+    start_date,
+    end_date,
+  })
+
+  if (validationError) {
+    return NextResponse.json(
+      { error: validationError || AD_LINK_MODE_CONFLICT_ERROR },
+      { status: 400 }
+    )
   }
 
-  if (!isHttpUrl(image_url)) {
-    return NextResponse.json({ error: '图片链接必须以 http:// 或 https:// 开头' }, { status: 400 })
+  if (!normalized) {
+    return NextResponse.json({ error: AD_LINK_MODE_CONFLICT_ERROR }, { status: 400 })
   }
 
-  const external = external_url || link_url
+  if (normalized.link_type === 'internal' && normalized.slug) {
+    try {
+      const hasConflict = await hasInternalSlugConflict(supabase, normalized.slug)
+      if (hasConflict) {
+        return NextResponse.json({ error: AD_SLUG_DUPLICATE_ERROR }, { status: 400 })
+      }
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'slug 校验失败' },
+        { status: 400 }
+      )
+    }
+  }
 
   const { data, error } = await supabase
     .from('ads')
     .insert({
-      image_url,
-      // link_url mirrors external_url for backward compatibility with existing queries
-      link_url: link_type === 'external' ? external : null,
-      link_type,
-      external_url: link_type === 'external' ? external : null,
-      slug: link_type === 'internal' ? slug : null,
-      content: link_type === 'internal' ? content : null,
-      contact_name,
-      phone,
-      wechat,
-      open_mode,
-      position,
-      is_active,
-      start_date,
-      end_date,
+      ...normalized,
     })
     .select()
     .single()
