@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import type { ServicePost } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +16,18 @@ function checkAdminToken(request: NextRequest): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
 export async function GET(request: NextRequest) {
   if (!checkAdminToken(request)) {
     return NextResponse.json({ error: '未授权' }, { status: 401 })
@@ -27,5 +40,21 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json({ data })
+  const nowTime = Date.now()
+  const sorted = (data as ServicePost[] | null)?.slice().sort((a, b) => {
+    const aPinned = isEffectivePinned(a, nowTime)
+    const bPinned = isEffectivePinned(b, nowTime)
+    if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+    if (aPinned && bPinned) {
+      const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+      if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+      const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      if (createdAtDiff !== 0) return createdAtDiff
+    }
+
+    return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+  }) ?? []
+
+  return NextResponse.json({ data: sorted })
 }
