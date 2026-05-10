@@ -69,6 +69,14 @@ function toDatetimeLocalValue(value: string | null | undefined): string {
   return local.toISOString().slice(0, 16)
 }
 
+function formatPinnedUntil(value: string | null): string {
+  if (!value) return '长期置顶'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  const pad = (num: number) => String(num).padStart(2, '0')
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 export default function AdminNewsPage() {
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
@@ -86,6 +94,13 @@ export default function AdminNewsPage() {
   const [selectedCategory, setSelectedCategory] = useState<NewsFilterCategory>('全部')
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('全部状态')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+
+  function scrollToForm() {
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   const fetchPosts = useCallback(async (adminToken: string) => {
     setLoading(true)
@@ -172,6 +187,7 @@ export default function AdminNewsPage() {
     setUploadMessage('')
     setCoverSourceLock(post.cover_image_url ? (isNewsCoversUrl(post.cover_image_url) ? 'uploaded' : 'external') : null)
     if (fileInputRef.current) fileInputRef.current.value = ''
+    scrollToForm()
   }
 
   async function handleCoverImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -464,7 +480,8 @@ export default function AdminNewsPage() {
       </div>
 
       {showForm ? (
-        <form onSubmit={submitForm} className="mb-6 space-y-3 rounded-xl border bg-white p-4 shadow-sm">
+        <div ref={formRef} className="scroll-mt-24">
+          <form onSubmit={submitForm} className="mb-6 space-y-3 rounded-xl border bg-white p-4 shadow-sm">
           <h2 className="text-lg font-semibold">{editingId ? '编辑新闻' : '新增新闻'}</h2>
           <input
             value={form.title}
@@ -612,15 +629,23 @@ export default function AdminNewsPage() {
             />
             置顶新闻
           </label>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={form.pinned_order}
-            onChange={(e) => setForm((prev) => ({ ...prev, pinned_order: Number(e.target.value) || 0 }))}
-            placeholder="置顶排序（数字越小越靠前，0 最高）"
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
+            <div>
+              <label className="mb-1 block text-sm font-medium">置顶排序</label>
+              <p className="mb-1 text-xs text-gray-500">
+                数字越小越靠前，0 为最高优先级；数字相同时，发布时间较新的排前。
+              </p>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={form.pinned_order}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, pinned_order: Math.max(0, Number(e.target.value) || 0) }))
+                }
+                placeholder="请输入置顶排序"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+            </div>
           <div>
             <p className="mb-1 text-xs text-gray-500">置顶到期时间（可选，留空表示长期置顶）</p>
             <input
@@ -653,7 +678,8 @@ export default function AdminNewsPage() {
               取消
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       ) : null}
 
       {message ? (
@@ -727,11 +753,27 @@ export default function AdminNewsPage() {
                 <p className="mt-1 text-xs text-zinc-500">
                   {post.category} · {post.is_published ? '已发布' : '草稿'}
                 </p>
+                {post.is_pinned ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-700">已置顶</span>
+                    <span className="text-zinc-500">排序 {post.pinned_order ?? 0}</span>
+                    <span className="text-zinc-500">
+                      {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
+                    </span>
+                  </div>
+                ) : null}
                 <p className="mt-1 text-xs text-zinc-400">
                   发布时间：{formatDate(post.published_at)} · 更新时间：{formatDate(post.updated_at)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => startEdit(post)}
+                  className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-medium text-blue-700"
+                >
+                  置顶设置
+                </button>
                 <button
                   type="button"
                   onClick={() => startEdit(post)}
