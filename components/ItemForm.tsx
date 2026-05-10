@@ -157,6 +157,9 @@ export default function ItemForm({ initialType, editItem }: Props) {
     description: editItem?.type === 'buying' ? stripMetaLines(editItem?.description || '') : '',
     location: initialLocation,
   }))
+  const [contactName, setContactName] = useState(editItem?.contact_name || '')
+  const [phone, setPhone] = useState(editItem?.phone || '')
+  const [wechat, setWechat] = useState(editItem?.wechat || '')
 
   // Unified preview images state (0~3)
   const [previewImages, setPreviewImages] = useState<PreviewImage[]>(() => {
@@ -255,6 +258,9 @@ export default function ItemForm({ initialType, editItem }: Props) {
       description,
       price,
       category,
+      contact_name: contactName.trim() || null,
+      phone: phone.trim() || null,
+      wechat: wechat.trim() || null,
       images: [] as string[],
       status: 'published' as const,
     }
@@ -553,6 +559,40 @@ export default function ItemForm({ initialType, editItem }: Props) {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">联系人</label>
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              placeholder="请输入联系人"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="请输入联系电话"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">微信号</label>
+              <input
+                type="text"
+                value={wechat}
+                onChange={(e) => setWechat(e.target.value)}
+                placeholder="请输入微信号"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
+          </div>
+
           <div ref={bottomErrorSellRef}>
             {error && (
               <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
@@ -630,6 +670,40 @@ export default function ItemForm({ initialType, editItem }: Props) {
               placeholder="请描述需求、期望成色、交易方式等"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent resize-none"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">联系人</label>
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              placeholder="请输入联系人"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="请输入联系电话"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">微信号</label>
+              <input
+                type="text"
+                value={wechat}
+                onChange={(e) => setWechat(e.target.value)}
+                placeholder="请输入微信号"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+              />
+            </div>
           </div>
 
           <div ref={bottomErrorBuyRef}>

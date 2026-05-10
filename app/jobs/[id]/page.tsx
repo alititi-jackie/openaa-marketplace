@@ -7,6 +7,7 @@ import { formatDate, formatSalary, formatJobLocation } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import ContactInfoCard from '@/components/ContactInfoCard'
 import type { JobPosting } from '@/types'
 
 export default function JobDetailPage() {
@@ -39,6 +40,7 @@ export default function JobDetailPage() {
 
   const salary = formatSalary(job.salary_min, job.salary_max)
   const companyName = job.company?.trim() || ''
+  const hasContactInfo = Boolean((job.contact_name || '').trim() || (job.phone || '').trim() || (job.wechat || '').trim())
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
@@ -82,6 +84,17 @@ export default function JobDetailPage() {
 
           <PostSafetyNotice variant="contact" />
         </div>
+
+        {hasContactInfo ? (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <ContactInfoCard
+              title="联系招聘方"
+              contactName={job.contact_name}
+              phone={job.phone}
+              wechat={job.wechat}
+            />
+          </div>
+        ) : null}
 
         <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">

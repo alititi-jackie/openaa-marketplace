@@ -8,6 +8,7 @@ import { formatDate } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import ContactInfoCard from '@/components/ContactInfoCard'
 import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
@@ -144,6 +145,7 @@ export default function HousingDetailPage() {
 
   const rawPrice = Number(post.price || 0)
   const hasPrice = Number.isFinite(rawPrice) && rawPrice > 0
+  const hasContactInfo = Boolean((post.contact_name || '').trim() || (post.phone || '').trim() || (post.wechat || '').trim())
 
   const publisherUsername = publisher.username || '匿名用户'
   const publisherAvatarUrl = publisher.avatar_url || ''
@@ -274,16 +276,16 @@ export default function HousingDetailPage() {
             <span>🕒 {formatDate(post.created_at)}</span>
           </div>
 
-          {(() => {
-            const contactText = post.contact?.trim()
-            const hasContact = contactText && contactText !== '-'
-            return hasContact ? (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <h2 className="font-semibold text-gray-900 mb-1">联系方式</h2>
-                <p className="text-gray-600">{contactText}</p>
-              </div>
-            ) : null
-          })()}
+          {hasContactInfo ? (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <ContactInfoCard
+                title="联系发布者"
+                contactName={post.contact_name}
+                phone={post.phone}
+                wechat={post.wechat}
+              />
+            </div>
+          ) : null}
 
           {post.description ? (
             <div className="mt-4 pt-4 border-t border-gray-100">

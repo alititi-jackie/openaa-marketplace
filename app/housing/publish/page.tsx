@@ -90,7 +90,9 @@ function HousingPublishClient() {
   const [location, setLocation] = useState<HousingLocation>(DEFAULT_LOCATION)
   const [price, setPrice] = useState('')
   const [roomType, setRoomType] = useState('')
-  const [contact, setContact] = useState('')
+  const [contactName, setContactName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [wechat, setWechat] = useState('')
   const [description, setDescription] = useState('')
 
   const [checking, setChecking] = useState(true)
@@ -202,7 +204,9 @@ function HousingPublishClient() {
       setLocation(normalizeLocation(data.location))
       setPrice(data.price > 0 ? String(data.price) : '')
       setRoomType(data.room_type === '-' ? '' : (data.room_type || ''))
-      setContact(data.contact === '-' ? '' : (data.contact || ''))
+      setContactName(data.contact_name || '')
+      setPhone(data.phone || '')
+      setWechat(data.wechat || '')
       setDescription(data.description || '')
       setPreviewImages(
         (Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [])
@@ -271,7 +275,10 @@ function HousingPublishClient() {
         price: safeNumber(price),
         location: location || DEFAULT_LOCATION,
         room_type: roomType.trim() || '-',
-        contact: contact.trim() || '-',
+        contact: contactName.trim() || phone.trim() || wechat.trim() || '-',
+        contact_name: contactName.trim() || null,
+        phone: phone.trim() || null,
+        wechat: wechat.trim() || null,
         images: finalImages,
         updated_at: new Date().toISOString(),
       }
@@ -310,7 +317,10 @@ function HousingPublishClient() {
       price: safeNumber(price),
       location: location || DEFAULT_LOCATION,
       room_type: roomType.trim() || '-',
-      contact: contact.trim() || '-',
+      contact: contactName.trim() || phone.trim() || wechat.trim() || '-',
+      contact_name: contactName.trim() || null,
+      phone: phone.trim() || null,
+      wechat: wechat.trim() || null,
       images: [],
       status: 'published' as const,
       views: 0,
@@ -498,12 +508,35 @@ function HousingPublishClient() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">联系人</label>
                 <input
                   type="text"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder="微信 / 电话 / 邮箱（可不填）"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  placeholder="请输入联系人"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="请输入联系电话"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">微信号</label>
+                <input
+                  type="text"
+                  value={wechat}
+                  onChange={(e) => setWechat(e.target.value)}
+                  placeholder="请输入微信号"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
                 />
               </div>

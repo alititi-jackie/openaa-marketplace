@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
   let external_url: string | null = null
   let slug: string | null = null
   let content: string | null = null
+  let contact_name: string | null = null
+  let phone: string | null = null
+  let wechat: string | null = null
   let open_mode = 'external_new'
   let position = ''
   let is_active = true
@@ -88,6 +91,9 @@ export async function POST(request: NextRequest) {
     external_url = (formData.get('external_url') as string | null)?.trim() || null
     slug = (formData.get('slug') as string | null)?.trim() || null
     content = (formData.get('content') as string | null) || null
+    contact_name = (formData.get('contact_name') as string | null)?.trim() || null
+    phone = (formData.get('phone') as string | null)?.trim() || null
+    wechat = (formData.get('wechat') as string | null)?.trim() || null
     open_mode = (formData.get('open_mode') as string) || 'external_new'
     position = ((formData.get('position') as string) || '').trim()
     is_active = formData.get('is_active') !== 'false'
@@ -112,6 +118,9 @@ export async function POST(request: NextRequest) {
     external_url = typeof payload.external_url === 'string' ? payload.external_url.trim() : null
     slug = typeof payload.slug === 'string' ? payload.slug.trim() : null
     content = typeof payload.content === 'string' ? payload.content : null
+    contact_name = typeof payload.contact_name === 'string' ? payload.contact_name.trim() || null : null
+    phone = typeof payload.phone === 'string' ? payload.phone.trim() || null : null
+    wechat = typeof payload.wechat === 'string' ? payload.wechat.trim() || null : null
     open_mode = typeof payload.open_mode === 'string' ? payload.open_mode : 'external_new'
     position = typeof payload.position === 'string' ? payload.position.trim() : ''
     is_active = payload.is_active !== false
@@ -200,6 +209,9 @@ export async function POST(request: NextRequest) {
       external_url: link_type === 'external' ? external : null,
       slug: link_type === 'internal' ? slug : null,
       content: link_type === 'internal' ? content : null,
+      contact_name,
+      phone,
+      wechat,
       open_mode,
       position,
       is_active,

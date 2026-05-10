@@ -30,6 +30,9 @@ export interface SecondhandItem {
   created_at: string
   updated_at: string
   type?: SecondhandItemType
+  contact_name?: string | null
+  phone?: string | null
+  wechat?: string | null
   user?: JoinedUser
 }
 
@@ -46,6 +49,9 @@ export interface JobPosting {
    * Optional for backward-compat with older rows / environments.
    */
   type?: JobPostingType
+  contact_name?: string | null
+  phone?: string | null
+  wechat?: string | null
   title: string
   company: string
   description: string
@@ -78,6 +84,9 @@ export interface HousingPost {
   location: string
   room_type: string
   contact: string
+  contact_name?: string | null
+  phone?: string | null
+  wechat?: string | null
   images: string[]
   status: 'published' | 'unpublished'
   views: number

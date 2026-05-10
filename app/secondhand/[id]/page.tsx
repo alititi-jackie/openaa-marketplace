@@ -6,6 +6,7 @@ import Image from 'next/image'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import ContactInfoCard from '@/components/ContactInfoCard'
 import { supabase } from '@/lib/supabase'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
@@ -125,6 +126,7 @@ export default function SecondhandDetailPage() {
 
   const isBuying = item.type === 'buying'
   const budget = isBuying ? parseBudget(item.description) : null
+  const hasContactInfo = Boolean((item.contact_name || '').trim() || (item.phone || '').trim() || (item.wechat || '').trim())
 
   const currentImage = imageCount > 0 ? images[activeIndex] : ''
 
@@ -258,6 +260,17 @@ export default function SecondhandDetailPage() {
             {/* Contact notice */}
             <PostSafetyNotice variant="contact" />
           </div>
+
+          {hasContactInfo ? (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <ContactInfoCard
+                title="联系卖家"
+                contactName={item.contact_name}
+                phone={item.phone}
+                wechat={item.wechat}
+              />
+            </div>
+          ) : null}
 
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">

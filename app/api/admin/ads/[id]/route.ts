@@ -36,7 +36,7 @@ export async function PATCH(
   const body = await request.json()
 
   // Whitelist allowed fields
-  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content', 'open_mode', 'image_url'] as const
+  const ALLOWED_FIELDS = ['is_active', 'start_date', 'end_date', 'link_url', 'position', 'link_type', 'external_url', 'slug', 'content', 'open_mode', 'image_url', 'contact_name', 'phone', 'wechat'] as const
   type AllowedField = typeof ALLOWED_FIELDS[number]
   const update: Partial<Record<AllowedField, unknown>> = {}
   for (const field of ALLOWED_FIELDS) {
@@ -56,6 +56,21 @@ export async function PATCH(
       return NextResponse.json({ error: '图片链接必须以 http:// 或 https:// 开头' }, { status: 400 })
     }
     update.image_url = typeof v === 'string' ? v.trim() : null
+  }
+
+  if ('contact_name' in update) {
+    const v = update.contact_name
+    update.contact_name = typeof v === 'string' ? (v.trim() || null) : null
+  }
+
+  if ('phone' in update) {
+    const v = update.phone
+    update.phone = typeof v === 'string' ? (v.trim() || null) : null
+  }
+
+  if ('wechat' in update) {
+    const v = update.wechat
+    update.wechat = typeof v === 'string' ? (v.trim() || null) : null
   }
 
   if (Object.keys(update).length === 0) {
