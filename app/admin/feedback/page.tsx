@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import AdminPageHeader from '@/components/AdminPageHeader'
+import BackToTopButton from '@/components/BackToTopButton'
 
 type FeedbackStatus = 'pending' | 'processing' | 'resolved' | 'ignored'
 
@@ -676,8 +677,11 @@ function FeedbackAdminContent() {
 
 export default function AdminFeedbackPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20 text-sm text-zinc-400">加载中...</div>}>
-      <FeedbackAdminContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="flex justify-center py-20 text-sm text-zinc-400">加载中...</div>}>
+        <FeedbackAdminContent />
+      </Suspense>
+      <BackToTopButton />
+    </>
   )
 }

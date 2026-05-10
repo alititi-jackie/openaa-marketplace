@@ -6,6 +6,7 @@ import type { NewsPost } from '@/types'
 import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
 import type { NewsFilterCategory } from '@/lib/news'
 import { getAdminToken, setAdminToken } from '@/lib/adminToken'
+import BackToTopButton from '@/components/BackToTopButton'
 
 type StatusFilter = '全部状态' | '已发布' | '未发布'
 type CoverSource = 'uploaded' | 'external'
@@ -722,6 +723,7 @@ export default function AdminNewsPage() {
           </div>
         ))}
       </div>
+      <BackToTopButton />
     </div>
   )
 }
