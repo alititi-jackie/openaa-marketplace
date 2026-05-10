@@ -128,6 +128,9 @@ export interface UnifiedPost {
   images: string[] | null
   created_at: string
   updated_at: string
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export type ServicePostStatus = 'active' | 'hidden' | 'deleted'

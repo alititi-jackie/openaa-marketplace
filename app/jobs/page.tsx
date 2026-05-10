@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
@@ -14,6 +14,18 @@ const TABS: Array<{ key: JobPostingType; label: string }> = [
   { key: 'hiring', label: '招聘岗位' },
   { key: 'seeking', label: '求职人才' },
 ]
+
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: JobPosting, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
 
 export default function JobsPage() {
   const [activeTab, setActiveTab] = useState<JobPostingType>('hiring')
@@ -63,14 +75,33 @@ export default function JobsPage() {
     fetchJobs()
   }, [fetchJobs])
 
-  const searchLower = search.toLowerCase()
-  const filtered = jobs.filter((job) =>
-    (!search ||
-      job.title.toLowerCase().includes(searchLower) ||
-      job.company.toLowerCase().includes(searchLower) ||
-      job.location.toLowerCase().includes(searchLower)) &&
-    (location === ALL_REGIONS || job.location === location)
-  )
+  const filtered = useMemo(() => {
+    const searchLower = search.toLowerCase()
+    const nowTime = Date.now()
+    return jobs
+      .filter((job) =>
+        (!search ||
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.location.toLowerCase().includes(searchLower)) &&
+        (location === ALL_REGIONS || job.location === location)
+      )
+      .sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
+  }, [jobs, search, location])
 
   const pageTitle = activeTab === 'hiring' ? '招聘信息' : '求职信息'
   const publishLabel = activeTab === 'hiring' ? '发布职位' : '发布求职'
