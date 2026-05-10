@@ -20,7 +20,7 @@ function checkAdminToken(request: NextRequest): boolean {
 function parseLocationFromDescription(description: string): string | null {
   if (!description) return null
   for (const line of description.split('\n')) {
-    const m = line.match(/^所在地区[:：]\s*(.+)\s*$/)
+    const m = line.match(/^所在地区[:：]\s*(.+)$/)
     if (m?.[1]) return m[1].trim()
   }
   return null
@@ -133,8 +133,9 @@ export async function GET(request: NextRequest) {
       const images: string[] | null = Array.isArray(rawImages) ? (rawImages as string[]) : null
       // location may be a column or embedded in description
       const locationCol = row.location as string | null | undefined
-      const location = (typeof locationCol === 'string' && locationCol.trim())
-        ? locationCol.trim()
+      const trimmedCol = typeof locationCol === 'string' ? locationCol.trim() : ''
+      const location = trimmedCol
+        ? trimmedCol
         : parseLocationFromDescription((row.description as string) || '')
       results.push({
         id: row.id as number,

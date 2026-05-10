@@ -266,6 +266,7 @@ function AdminPostsContent() {
   }
 
   const filtered = useMemo(() => {
+    const locationKeyword = locationFilter === '全部地区' ? '' : locationFilter.split(' ')[0]
     return posts.filter((p) => {
       const matchModule = moduleFilter === 'all' || p.module === moduleFilter
       const matchStatus =
@@ -274,8 +275,8 @@ function AdminPostsContent() {
         (statusFilter === 'hidden' && isHidden(p.status)) ||
         (statusFilter === 'deleted' && isDeleted(p.status))
       const matchLocation =
-        locationFilter === '全部地区' ||
-        (p.location || '').includes(locationFilter.split(' ')[0])
+        !locationKeyword ||
+        (p.location || '').includes(locationKeyword)
       const q = search.trim().toLowerCase()
       const matchSearch =
         !q ||
