@@ -34,6 +34,7 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(post: UnifiedPost, nowTime: number): boolean {
   if (!post.is_pinned) return false
+  if (post.status !== 'published') return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
 }

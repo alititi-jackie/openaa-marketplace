@@ -41,6 +41,7 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(item: SecondhandItem, nowTime: number): boolean {
   if (!item.is_pinned) return false
+  if (item.status !== 'published') return false
   if (!item.pinned_until) return true
   return toSortableTime(item.pinned_until) > nowTime
 }
