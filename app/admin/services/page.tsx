@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
-import { getAdminToken, setAdminToken } from '@/lib/adminToken'
+import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 
 const SERVICE_CATEGORIES_FILTER = [
   '全部',
@@ -88,11 +88,15 @@ function toDatetimeLocalValue(value: string | null | undefined): string {
 
 function AdminServicesContent() {
   const formRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
+  const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
+  const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [posts, setPosts] = useState<ServicePost[]>([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [listSuccessMessage, setListSuccessMessage] = useState('')
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('全部')
   const [locationFilter, setLocationFilter] = useState('全部')
@@ -137,14 +141,36 @@ function AdminServicesContent() {
     if (stored) {
       setToken(stored)
       setInputToken(stored)
+      setIsUsingUnifiedToken(true)
       fetchPosts(stored)
     }
   }, [fetchPosts])
 
   function saveToken() {
-    setAdminToken(inputToken)
-    setToken(inputToken)
-    fetchPosts(inputToken)
+    const nextToken = inputToken.trim()
+    if (!nextToken) {
+      setMessage('请输入 Admin Token')
+      return
+    }
+    setAdminToken(nextToken)
+    setToken(nextToken)
+    setInputToken(nextToken)
+    setIsUsingUnifiedToken(true)
+    setShowTokenEditor(false)
+    setMessage('')
+    fetchPosts(nextToken)
+  }
+
+  function logoutAdmin() {
+    clearAdminToken()
+    setToken('')
+    setInputToken('')
+    setIsUsingUnifiedToken(false)
+    setShowTokenEditor(false)
+    setPosts([])
+    setMessage('')
+    setListSuccessMessage('')
+    setPinEditingId(null)
   }
 
   function scrollToForm() {
@@ -164,6 +190,7 @@ function AdminServicesContent() {
       pinned_until: toDatetimeLocalValue(post.pinned_until),
     })
     setMessage('')
+    setListSuccessMessage('')
     scrollToForm()
   }
 
@@ -217,7 +244,12 @@ function AdminServicesContent() {
       pinned_until: pinForm.pinned_until.trim() || null,
     })
     if (ok) {
-      setMessage('置顶设置保存成功')
+      setPinEditingId(null)
+      setListSuccessMessage('置顶设置保存成功')
+      setTimeout(() => setListSuccessMessage(''), 5000)
+      requestAnimationFrame(() => {
+        listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
     }
   }
 
@@ -269,25 +301,70 @@ function AdminServicesContent() {
       <h1 className="text-2xl font-bold mb-6 mt-3">本地服务管理</h1>
 
       {/* Token input */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-xl border">
-        <label className="block text-sm font-medium mb-1">Admin Token</label>
-        <div className="flex gap-2">
-          <input
-            type="password"
-            value={inputToken}
-            onChange={(e) => setInputToken(e.target.value)}
-            placeholder="输入管理 Token"
-            className="flex-1 border rounded-lg px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={saveToken}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
-          >
-            确认
-          </button>
+      {!token ? (
+        <div className="mb-6 p-4 bg-gray-50 rounded-xl border">
+          <label className="block text-sm font-medium mb-1">Admin Token</label>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={inputToken}
+              onChange={(e) => setInputToken(e.target.value)}
+              placeholder="输入管理 Token"
+              className="flex-1 border rounded-lg px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={saveToken}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+            >
+              确认
+            </button>
+          </div>
+          {message ? <p className="mt-2 text-sm text-red-500">{message}</p> : null}
         </div>
-      </div>
+      ) : (
+        <div className="mb-6 rounded-xl border bg-gray-50 p-4 space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-700">
+              {isUsingUnifiedToken ? '已使用统一后台登录 Token' : '已使用当前 Admin Token'}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowTokenEditor((prev) => !prev)}
+                className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+              >
+                更换 Token
+              </button>
+              <button
+                type="button"
+                onClick={logoutAdmin}
+                className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+              >
+                退出后台
+              </button>
+            </div>
+          </div>
+          {showTokenEditor ? (
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={inputToken}
+                onChange={(e) => setInputToken(e.target.value)}
+                placeholder="输入新的 Admin Token"
+                className="flex-1 border rounded-lg px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={saveToken}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+              >
+                保存 Token
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {message && (
         <p className={`mb-4 text-sm ${message.includes('成功') ? 'text-green-600' : 'text-red-500'}`}>
@@ -420,7 +497,10 @@ function AdminServicesContent() {
       )}
 
       {/* List */}
-      <div className="space-y-3">
+      <div ref={listRef} className="scroll-mt-6 space-y-3">
+        {listSuccessMessage && (
+          <p className="mb-2 text-sm text-green-600">{listSuccessMessage}</p>
+        )}
         {filtered.map((post) => (
           <div key={post.id} className="p-4 bg-white rounded-xl border shadow-sm">
             <div className="flex items-start justify-between gap-3 flex-wrap">

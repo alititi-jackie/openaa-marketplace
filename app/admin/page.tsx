@@ -58,7 +58,8 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     icon: '🧰',
     title: '本地服务管理',
     description: '管理用户发布的本地服务信息。',
-    status: '待开发',
+    status: '已可用',
+    href: '/admin/services',
   },
   {
     id: 'image-cleanup',
