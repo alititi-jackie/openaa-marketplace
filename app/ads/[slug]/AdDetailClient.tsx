@@ -65,7 +65,8 @@ export default function AdDetailClient({ ad }: AdDetailClientProps) {
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-white px-3 py-1.5 text-sm text-blue-600 shadow-sm"
+            aria-label="返回上一页"
+            className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-white px-3 py-1.5 text-sm text-blue-600 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
           >
             ← 返回
           </button>
