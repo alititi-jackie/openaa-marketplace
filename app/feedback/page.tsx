@@ -88,7 +88,6 @@ function FeedbackPageInner() {
       setContent('')
     } catch (error) {
       const message = error instanceof Error ? error.message : '提交失败，请稍后重试。'
-      setSubmitted(false)
       setErrorMessage(`提交失败：${message}`)
     } finally {
       setSubmitting(false)
