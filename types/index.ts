@@ -34,6 +34,9 @@ export interface SecondhandItem {
   phone?: string | null
   wechat?: string | null
   user?: JoinedUser
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export type JobPostingType = 'hiring' | 'seeking'
@@ -65,6 +68,9 @@ export interface JobPosting {
   created_at: string
   updated_at: string
   user?: JoinedUser
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export type HousingPostType = 'renting' | 'seeking'
@@ -93,6 +99,9 @@ export interface HousingPost {
   created_at: string
   updated_at: string
   user?: JoinedUser
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export type ServicePostStatus = 'active' | 'hidden' | 'deleted'
@@ -113,6 +122,9 @@ export interface ServicePost {
   is_active: boolean
   created_at: string | null
   updated_at: string | null
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export interface NewsPost {
@@ -129,6 +141,9 @@ export interface NewsPost {
   published_at: string | null
   created_at: string
   updated_at: string
+  is_pinned?: boolean
+  pinned_until?: string | null
+  pinned_order?: number
 }
 
 export interface ApiResponse<T> {

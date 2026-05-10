@@ -23,6 +23,21 @@ function toNullableString(value: unknown): string | null {
   return v ? v : null
 }
 
+function toPinnedOrder(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) return null
+  return value
+}
+
+function toPinnedUntil(value: unknown): string | null | undefined {
+  if (value === null) return null
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const parsed = new Date(trimmed)
+  if (Number.isNaN(parsed.getTime())) return undefined
+  return parsed.toISOString()
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -97,6 +112,26 @@ export async function PATCH(
     if (!current.is_published && isPublished && !current.published_at) {
       updates.published_at = new Date().toISOString()
     }
+  }
+
+  if ('is_pinned' in payload) {
+    updates.is_pinned = payload.is_pinned === true
+  }
+
+  if ('pinned_order' in payload) {
+    const pinnedOrder = toPinnedOrder(payload.pinned_order)
+    if (pinnedOrder === null) {
+      return NextResponse.json({ error: '置顶排序必须是大于等于 0 的整数' }, { status: 400 })
+    }
+    updates.pinned_order = pinnedOrder
+  }
+
+  if ('pinned_until' in payload) {
+    const pinnedUntil = toPinnedUntil(payload.pinned_until)
+    if (pinnedUntil === undefined) {
+      return NextResponse.json({ error: '置顶到期时间格式无效' }, { status: 400 })
+    }
+    updates.pinned_until = pinnedUntil
   }
 
   const { data, error } = await supabase

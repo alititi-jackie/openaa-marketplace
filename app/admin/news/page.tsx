@@ -27,6 +27,9 @@ type FormState = {
   seo_title: string
   seo_description: string
   is_published: boolean
+  is_pinned: boolean
+  pinned_order: number
+  pinned_until: string
 }
 
 const emptyForm: FormState = {
@@ -39,6 +42,9 @@ const emptyForm: FormState = {
   seo_title: '',
   seo_description: '',
   is_published: false,
+  is_pinned: false,
+  pinned_order: 0,
+  pinned_until: '',
 }
 
 function formatDate(value: string | null) {
@@ -52,6 +58,15 @@ function formatDate(value: string | null) {
 
 function isNewsCoversUrl(url: string): boolean {
   return url.includes('/storage/v1/object/public/news-covers/')
+}
+
+function toDatetimeLocalValue(value: string | null | undefined): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return ''
+  const offset = d.getTimezoneOffset()
+  const local = new Date(d.getTime() - offset * 60_000)
+  return local.toISOString().slice(0, 16)
 }
 
 export default function AdminNewsPage() {
@@ -145,6 +160,12 @@ export default function AdminNewsPage() {
       seo_title: post.seo_title || '',
       seo_description: post.seo_description || '',
       is_published: post.is_published,
+      is_pinned: post.is_pinned === true,
+      pinned_order:
+        typeof post.pinned_order === 'number' && Number.isInteger(post.pinned_order) && post.pinned_order >= 0
+          ? post.pinned_order
+          : 0,
+      pinned_until: toDatetimeLocalValue(post.pinned_until),
     })
     setShowForm(true)
     setMessage('')
@@ -270,6 +291,11 @@ export default function AdminNewsPage() {
       return
     }
 
+    if (!Number.isInteger(form.pinned_order) || form.pinned_order < 0) {
+      setMessage('置顶排序必须是大于等于 0 的整数')
+      return
+    }
+
     setLoading(true)
     setMessage('')
     const endpoint = editingId ? `/api/admin/news/${editingId}` : '/api/admin/news'
@@ -291,6 +317,8 @@ export default function AdminNewsPage() {
         cover_image_url: form.cover_image_url.trim(),
         seo_title: form.seo_title.trim(),
         seo_description: form.seo_description.trim(),
+        pinned_order: form.pinned_order,
+        pinned_until: form.pinned_until.trim() || null,
       }),
     })
 
@@ -576,6 +604,32 @@ export default function AdminNewsPage() {
             />
             立即发布
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.is_pinned}
+              onChange={(e) => setForm((prev) => ({ ...prev, is_pinned: e.target.checked }))}
+            />
+            置顶新闻
+          </label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={form.pinned_order}
+            onChange={(e) => setForm((prev) => ({ ...prev, pinned_order: Number(e.target.value) || 0 }))}
+            placeholder="置顶排序（数字越小越靠前，0 最高）"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <div>
+            <p className="mb-1 text-xs text-gray-500">置顶到期时间（可选，留空表示长期置顶）</p>
+            <input
+              type="datetime-local"
+              value={form.pinned_until}
+              onChange={(e) => setForm((prev) => ({ ...prev, pinned_until: e.target.value }))}
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+            />
+          </div>
           <div className="flex gap-2">
             <button
               type="submit"

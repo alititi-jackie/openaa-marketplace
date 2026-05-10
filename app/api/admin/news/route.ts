@@ -22,6 +22,23 @@ function toNullableString(value: unknown): string | null {
   return v ? v : null
 }
 
+function toPinnedOrder(value: unknown): number | null {
+  if (value === undefined) return 0
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) return null
+  return value
+}
+
+function toPinnedUntil(value: unknown): string | null | undefined {
+  if (value === undefined) return null
+  if (value === null) return null
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const parsed = new Date(trimmed)
+  if (Number.isNaN(parsed.getTime())) return undefined
+  return parsed.toISOString()
+}
+
 export async function GET(request: NextRequest) {
   if (!checkAdminToken(request)) {
     return NextResponse.json({ error: '无权限访问' }, { status: 401 })
@@ -53,6 +70,9 @@ export async function POST(request: NextRequest) {
   const content = typeof payload.content === 'string' ? payload.content.trim() : ''
   const category = typeof payload.category === 'string' ? payload.category.trim() : ''
   const isPublished = payload.is_published === true
+  const pinnedOrder = toPinnedOrder(payload.pinned_order)
+  const pinnedUntil = toPinnedUntil(payload.pinned_until)
+  const isPinned = payload.is_pinned === true
 
   if (!title || !slug || !content || !category) {
     return NextResponse.json({ error: '请完整填写标题、slug、分类与正文' }, { status: 400 })
@@ -67,6 +87,14 @@ export async function POST(request: NextRequest) {
 
   if (!isNewsCategory(category)) {
     return NextResponse.json({ error: '无效的新闻分类' }, { status: 400 })
+  }
+
+  if (pinnedOrder === null) {
+    return NextResponse.json({ error: '置顶排序必须是大于等于 0 的整数' }, { status: 400 })
+  }
+
+  if (pinnedUntil === undefined) {
+    return NextResponse.json({ error: '置顶到期时间格式无效' }, { status: 400 })
   }
 
   const supabase = getServiceClient()
@@ -86,6 +114,9 @@ export async function POST(request: NextRequest) {
       seo_description: toNullableString(payload.seo_description),
       is_published: isPublished,
       published_at: publishedAt,
+      is_pinned: isPinned,
+      pinned_order: pinnedOrder,
+      pinned_until: pinnedUntil,
     })
     .select()
     .single()
