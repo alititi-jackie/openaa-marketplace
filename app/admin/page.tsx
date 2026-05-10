@@ -43,7 +43,8 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     icon: '🛎️',
     title: '反馈与举报',
     description: '查看用户反馈、举报、新闻线索和问题建议。',
-    status: '待开发',
+    status: '已可用',
+    href: '/admin/feedback',
   },
   {
     id: 'services',
