@@ -6,9 +6,23 @@ interface Props {
   job: JobPosting
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(job: JobPosting, nowTime: number): boolean {
+  if (!job.is_pinned) return false
+  if (job.status !== 'published') return false
+  if (!job.pinned_until) return true
+  return toSortableTime(job.pinned_until) > nowTime
+}
+
 export default function JobCard({ job }: Props) {
   const salary = formatSalary(job.salary_min, job.salary_max)
   const companyName = job.company?.trim() || ''
+  const isPinned = isEffectivePinned(job, Date.now())
   return (
     <Link href={`/jobs/${job.id}`}>
       <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-pointer border border-gray-100">
@@ -29,6 +43,11 @@ export default function JobCard({ job }: Props) {
         ) : null}
 
         <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
+          {isPinned ? (
+            <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+              置顶
+            </span>
+          ) : null}
           <span>📍 {formatJobLocation(job.location)}</span>
           <span>·</span>
           <span>{job.category}</span>

@@ -42,12 +42,15 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
   if (!post.is_pinned) return false
+  if (post.status !== 'active') return false
+  if (!post.is_active) return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
 }
 
 function ServiceCard({ post }: { post: ServicePost }) {
   const thumb = post.images?.[0] ?? null
+  const isPinned = isEffectivePinned(post, Date.now())
   return (
     <Link
       href={`/services/${post.id}`}
@@ -65,9 +68,16 @@ function ServiceCard({ post }: { post: ServicePost }) {
         <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
           {post.title}
         </h3>
-        <p className="mt-1 text-xs text-gray-500">
-          {post.category} · {post.location}
-        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+          {isPinned ? (
+            <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+              置顶
+            </span>
+          ) : null}
+          <span>{post.category}</span>
+          <span>·</span>
+          <span>{post.location}</span>
+        </div>
         <p className="mt-1 text-xs text-gray-600 line-clamp-2">{post.description}</p>
         {post.price_note ? (
           <p className="mt-1 text-xs text-blue-600">{post.price_note}</p>

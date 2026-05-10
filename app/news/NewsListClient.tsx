@@ -25,6 +25,19 @@ function formatDate(value: string | null) {
   }
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: NewsPost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.is_published) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
 export default function NewsListClient() {
   const searchParams = useSearchParams()
   const [posts, setPosts] = useState<NewsPost[]>([])
@@ -78,6 +91,7 @@ export default function NewsListClient() {
 
   const featured = posts[0]
   const normalList = useMemo(() => posts.slice(1), [posts])
+  const nowTime = Date.now()
 
   return (
     <div className="min-h-screen bg-white pb-24">
@@ -119,7 +133,14 @@ export default function NewsListClient() {
                     className="h-44 w-full"
                   />
                   <div className="p-4">
-                    <p className="text-xs font-medium text-blue-600">{featured.category}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-medium text-blue-600">{featured.category}</p>
+                      {isEffectivePinned(featured, nowTime) ? (
+                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                          置顶
+                        </span>
+                      ) : null}
+                    </div>
                     <h2 className="mt-1 text-lg font-bold text-zinc-900 line-clamp-2">{featured.title}</h2>
                     {featured.summary ? (
                       <p className="mt-2 text-sm text-zinc-600 line-clamp-2">{featured.summary}</p>
@@ -143,7 +164,14 @@ export default function NewsListClient() {
                     className="h-24 w-28 flex-shrink-0 rounded-xl"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-blue-600">{post.category}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-medium text-blue-600">{post.category}</p>
+                      {isEffectivePinned(post, nowTime) ? (
+                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                          置顶
+                        </span>
+                      ) : null}
+                    </div>
                     <h3 className="mt-1 text-sm font-semibold text-zinc-900 line-clamp-2">{post.title}</h3>
                     {post.summary ? (
                       <p className="mt-1 text-xs text-zinc-600 line-clamp-2">{post.summary}</p>

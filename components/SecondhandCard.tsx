@@ -7,6 +7,19 @@ interface Props {
   item: SecondhandItem
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(item: SecondhandItem, nowTime: number): boolean {
+  if (!item.is_pinned) return false
+  if (item.status !== 'published') return false
+  if (!item.pinned_until) return true
+  return toSortableTime(item.pinned_until) > nowTime
+}
+
 function parseBudget(description: string): string | null {
   const lines = (description || '').split('\n')
   for (const line of lines) {
@@ -21,6 +34,7 @@ export default function SecondhandCard({ item }: Props) {
   const isBuying = item.type === 'buying'
   const budget = isBuying ? parseBudget(item.description) : null
   const priceOrBudget = isBuying ? `预算：${budget || '面议'}` : formatPrice(item.price)
+  const isPinned = isEffectivePinned(item, Date.now())
 
   return (
     <Link href={`/secondhand/${item.id}`}>
@@ -43,10 +57,17 @@ export default function SecondhandCard({ item }: Props) {
         <div className="p-3">
           <p className="font-semibold text-lg text-[#1976d2]">{priceOrBudget}</p>
           <h3 className="text-gray-900 font-medium line-clamp-2 mt-1">{item.title}</h3>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-              {item.category}
-            </span>
+          <div className="flex items-center justify-between mt-2 gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {isPinned ? (
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-100">
+                  置顶
+                </span>
+              ) : null}
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                {item.category}
+              </span>
+            </div>
             <span className="text-xs text-gray-400">{formatDate(item.created_at)}</span>
           </div>
         </div>
