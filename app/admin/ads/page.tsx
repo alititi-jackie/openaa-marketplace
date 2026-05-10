@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import BackToTopButton from '@/components/BackToTopButton'
 
 interface Ad {
   id: string
@@ -987,8 +988,11 @@ function AdsAdminContent() {
 
 export default function AdsAdminPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
-      <AdsAdminContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
+        <AdsAdminContent />
+      </Suspense>
+      <BackToTopButton />
+    </>
   )
 }

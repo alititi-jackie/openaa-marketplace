@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import AdminPageHeader from '@/components/AdminPageHeader'
+import BackToTopButton from '@/components/BackToTopButton'
 
 function SettingsAdminContent() {
   const [token, setToken] = useState('')
@@ -253,9 +254,12 @@ function SettingsAdminContent() {
 
 export default function AdminSettingsPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20 text-gray-500">加载中...</div>}>
-      <SettingsAdminContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="flex justify-center py-20 text-gray-500">加载中...</div>}>
+        <SettingsAdminContent />
+      </Suspense>
+      <BackToTopButton />
+    </>
   )
 }
 

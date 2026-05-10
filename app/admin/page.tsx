@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import BackToTopButton from '@/components/BackToTopButton'
 
 type AdminEntry = {
   id: string
@@ -227,6 +228,7 @@ export default function AdminHomePage() {
           </section>
         </>
       )}
+      <BackToTopButton />
     </div>
   )
 }
