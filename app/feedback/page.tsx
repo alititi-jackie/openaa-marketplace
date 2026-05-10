@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase'
 const FEEDBACK_TYPES = ['信息举报', '页面错误', '功能建议', '新闻线索 / 投稿建议', '广告合作', '其它问题'] as const
 type FeedbackType = (typeof FEEDBACK_TYPES)[number]
 const FEEDBACK_VISITOR_ID_KEY = 'openaa_feedback_visitor_id'
+const DAILY_LIMIT_HINT = '今日反馈提交数量已达上限，请明天再试。'
+const URGENT_CONTACT_HINT = '如有紧急问题，请邮件联系：323748@gmail.com'
 
 function normalizeType(value: string | null): FeedbackType {
   return FEEDBACK_TYPES.includes(value as FeedbackType) ? (value as FeedbackType) : FEEDBACK_TYPES[0]
@@ -29,6 +31,10 @@ function ensureVisitorId() {
   return generated
 }
 
+function isDailyLimitError(status: number, message: string) {
+  return status === 429 || message.includes('已达上限')
+}
+
 function FeedbackPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -40,8 +46,9 @@ function FeedbackPageInner() {
   const [contact, setContact] = useState('')
   const [content, setContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [submitResult, setSubmitResult] = useState<'success' | 'limited' | null>(null)
   const [successMessage, setSuccessMessage] = useState('')
+  const [limitMessage, setLimitMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
@@ -56,6 +63,8 @@ function FeedbackPageInner() {
     e.preventDefault()
     setErrorMessage('')
     setSuccessMessage('')
+    setLimitMessage('')
+    setSubmitResult(null)
 
     const trimmedType = type.trim()
     const trimmedContent = content.trim()
@@ -111,16 +120,21 @@ function FeedbackPageInner() {
           typeof (json as Record<string, unknown>).error === 'string'
             ? (json as { error: string }).error
             : '提交失败，请稍后重试。'
-        setSubmitted(false)
+        if (isDailyLimitError(res.status, errMsg)) {
+          setSubmitResult('limited')
+          setLimitMessage(errMsg)
+          return
+        }
+        setSubmitResult(null)
         setErrorMessage(errMsg)
         return
       }
 
-      setSubmitted(true)
+      setSubmitResult('success')
       setSuccessMessage('感谢你的反馈，我们会尽快查看并处理。')
       setContent('')
     } catch (error) {
-      setSubmitted(false)
+      setSubmitResult(null)
       setErrorMessage(error instanceof Error ? error.message : '提交失败，请稍后重试。')
     } finally {
       setSubmitting(false)
@@ -141,7 +155,7 @@ function FeedbackPageInner() {
       <DetailBackButton fallbackHref="/" label="← 返回" />
 
       <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6">
-        {submitted ? (
+        {submitResult === 'success' ? (
           <div className="rounded-2xl border border-green-100 bg-white p-5 sm:p-6">
             <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-5 text-center sm:px-6">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-xl text-green-600">
@@ -149,6 +163,37 @@ function FeedbackPageInner() {
               </div>
               <h1 className="mt-4 text-2xl font-bold text-gray-900">提交成功</h1>
               <p className="mt-2 text-sm leading-relaxed text-green-700">{successMessage}</p>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleBackToPrevious}
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                返回上一级
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="w-full rounded-lg bg-[#1976d2] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1565c0]"
+              >
+                返回首页
+              </button>
+            </div>
+          </div>
+        ) : submitResult === 'limited' ? (
+          <div className="rounded-2xl border border-orange-100 bg-white p-5 sm:p-6">
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-5 text-center sm:px-6">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-xl text-orange-600">
+                !
+              </div>
+              <h1 className="mt-4 text-2xl font-bold text-gray-900">今日提交已达上限</h1>
+              <p className="mt-2 text-sm leading-relaxed text-orange-700">{DAILY_LIMIT_HINT}</p>
+              <p className="mt-1 text-sm leading-relaxed text-orange-700">{URGENT_CONTACT_HINT}</p>
+              {limitMessage && !limitMessage.includes(DAILY_LIMIT_HINT) ? (
+                <p className="mt-2 text-xs leading-relaxed text-orange-600">{limitMessage}</p>
+              ) : null}
             </div>
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
