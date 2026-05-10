@@ -5,7 +5,7 @@ import Link from 'next/link'
 import type { NewsPost } from '@/types'
 import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/news'
 import type { NewsFilterCategory } from '@/lib/news'
-import { getAdminToken, setAdminToken } from '@/lib/adminToken'
+import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import BackToTopButton from '@/components/BackToTopButton'
 
 type StatusFilter = '全部状态' | '已发布' | '未发布'
@@ -96,6 +96,8 @@ function getPublishedOrCreatedTime(post: NewsPost): number {
 export default function AdminNewsPage() {
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
+  const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
+  const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [posts, setPosts] = useState<NewsPost[]>([])
@@ -157,6 +159,7 @@ export default function AdminNewsPage() {
     if (stored) {
       setToken(stored)
       setInputToken(stored)
+      setIsUsingUnifiedToken(true)
       fetchPosts(stored)
     } else {
       setHasAccess(false)
@@ -164,9 +167,34 @@ export default function AdminNewsPage() {
   }, [fetchPosts])
 
   function saveToken() {
-    setAdminToken(inputToken)
-    setToken(inputToken)
-    fetchPosts(inputToken)
+    const nextToken = inputToken.trim()
+    if (!nextToken) {
+      setMessage('请输入 Admin Token')
+      return
+    }
+    setAdminToken(nextToken)
+    setToken(nextToken)
+    setInputToken(nextToken)
+    setIsUsingUnifiedToken(true)
+    setShowTokenEditor(false)
+    setMessage('')
+    fetchPosts(nextToken)
+  }
+
+  function logoutAdmin() {
+    clearAdminToken()
+    setToken('')
+    setInputToken('')
+    setIsUsingUnifiedToken(false)
+    setShowTokenEditor(false)
+    setPosts([])
+    setMessage('')
+    setUploadMessage('')
+    setShowForm(false)
+    setEditingId(null)
+    setForm(emptyForm)
+    setHasAccess(true)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   function startCreate() {
@@ -489,26 +517,71 @@ export default function AdminNewsPage() {
         </button>
       </div>
 
-      <div className="mb-6 rounded-xl border bg-gray-50 p-4">
-        <p className="mb-1 text-sm font-medium">Admin Token</p>
-        {!hasAccess ? <p className="mb-2 text-sm text-red-500">无权限访问</p> : null}
-        <div className="flex gap-2">
-          <input
-            type="password"
-            value={inputToken}
-            onChange={(e) => setInputToken(e.target.value)}
-            placeholder="输入管理 Token"
-            className="flex-1 rounded-lg border px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={saveToken}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-          >
-            确认
-          </button>
+      {!token ? (
+        <div className="mb-6 rounded-xl border bg-gray-50 p-4">
+          <label className="mb-1 block text-sm font-medium">Admin Token</label>
+          {!hasAccess ? <p className="mb-2 text-sm text-red-500">无权限访问</p> : null}
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={inputToken}
+              onChange={(e) => setInputToken(e.target.value)}
+              placeholder="输入管理 Token"
+              className="flex-1 rounded-lg border px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={saveToken}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            >
+              确认
+            </button>
+          </div>
+          {message ? <p className="mt-2 text-sm text-red-500">{message}</p> : null}
         </div>
-      </div>
+      ) : (
+        <div className="mb-6 rounded-xl border bg-gray-50 p-4 space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-700">
+              {isUsingUnifiedToken ? '已使用统一后台登录 Token' : '已使用当前 Admin Token'}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowTokenEditor((prev) => !prev)}
+                className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+              >
+                更换 Token
+              </button>
+              <button
+                type="button"
+                onClick={logoutAdmin}
+                className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+              >
+                退出后台
+              </button>
+            </div>
+          </div>
+          {showTokenEditor ? (
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={inputToken}
+                onChange={(e) => setInputToken(e.target.value)}
+                placeholder="输入新的 Admin Token"
+                className="flex-1 border rounded-lg px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={saveToken}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+              >
+                保存 Token
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {showForm ? (
         <div ref={formRef} className="scroll-mt-24">
