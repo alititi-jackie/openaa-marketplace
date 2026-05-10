@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react'
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -23,6 +23,7 @@ function FeedbackPageInner() {
   const [submitting, setSubmitting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const successRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setType(queryType)
@@ -78,6 +79,9 @@ function FeedbackPageInner() {
 
       setContent('')
       setSuccessMessage('提交成功，感谢你的反馈。我们会尽快查看。')
+      setTimeout(() => {
+        successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 0)
     } catch (error) {
       const message = error instanceof Error ? error.message : '提交失败，请稍后重试。'
       setErrorMessage(`提交失败：${message}`)
@@ -96,7 +100,7 @@ function FeedbackPageInner() {
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {successMessage ? (
-            <div className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{successMessage}</div>
+            <div ref={successRef} className="scroll-mt-24 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{successMessage}</div>
           ) : null}
           {errorMessage ? (
             <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{errorMessage}</div>
