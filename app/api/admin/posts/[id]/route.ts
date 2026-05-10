@@ -106,11 +106,36 @@ export async function PATCH(
   const table = TABLE_MAP[module as PostModule]
   const supabase = getServiceClient()
 
+  // Prevent setting is_pinned=true on a non-published post.
+  if (is_pinned === true) {
+    if (status !== undefined && status !== 'published') {
+      return NextResponse.json({ error: '只有显示中的帖子才能设置置顶。' }, { status: 400 })
+    }
+    if (status === undefined) {
+      // Status not changing in this request – check current status in DB.
+      const { data: currentPost } = await supabase
+        .from(table)
+        .select('status')
+        .eq('id', id)
+        .single()
+      if (!currentPost || (currentPost as { status: string }).status !== 'published') {
+        return NextResponse.json({ error: '只有显示中的帖子才能设置置顶。' }, { status: 400 })
+      }
+    }
+  }
+
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (status !== undefined) updates.status = status
   if (is_pinned !== undefined) updates.is_pinned = is_pinned
   if (normalizedPinnedOrder !== undefined) updates.pinned_order = normalizedPinnedOrder
   if (normalizedPinnedUntil !== undefined) updates.pinned_until = normalizedPinnedUntil
+
+  // When changing to a non-published status, automatically clear all pinned fields.
+  if (status !== undefined && status !== 'published') {
+    updates.is_pinned = false
+    updates.pinned_until = null
+    updates.pinned_order = 0
+  }
 
   const { data, error } = await supabase
     .from(table)

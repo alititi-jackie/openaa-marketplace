@@ -142,6 +142,7 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(post: UnifiedPost, nowTime: number): boolean {
   if (!post.is_pinned) return false
+  if (post.status !== 'published') return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
 }
@@ -649,7 +650,7 @@ function AdminPostsContent() {
                         {price}
                       </span>
                     ) : null}
-                    {post.is_pinned ? (
+                    {isEffectivePinned(post, Date.now()) ? (
                       <>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100">已置顶</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
@@ -677,13 +678,15 @@ function AdminPostsContent() {
                   >
                     查看
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => startPinSettings(post)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition"
-                  >
-                    置顶设置
-                  </button>
+                  {active ? (
+                    <button
+                      type="button"
+                      onClick={() => startPinSettings(post)}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition"
+                    >
+                      置顶设置
+                    </button>
+                  ) : null}
                   {!active ? (
                     <button
                       type="button"
