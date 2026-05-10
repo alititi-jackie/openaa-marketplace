@@ -41,6 +41,18 @@ function displayPrice(p: number): string | null {
   return `$${price}`
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: HousingPost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
 export default function HousingPage() {
   const [activeTab, setActiveTab] = useState<HousingPostType>('renting')
   const [posts, setPosts] = useState<HousingPost[]>([])
@@ -80,15 +92,32 @@ export default function HousingPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return posts.filter((p) => {
-      const matchSearch =
-        !q ||
-        `${p.title || ''} ${p.description || ''} ${p.location || ''} ${p.room_type || ''}`
-          .toLowerCase()
-          .includes(q)
-      const matchLoc = location === ALL_REGIONS || p.location === location
-      return matchSearch && matchLoc
-    })
+    const nowTime = Date.now()
+    return posts
+      .filter((p) => {
+        const matchSearch =
+          !q ||
+          `${p.title || ''} ${p.description || ''} ${p.location || ''} ${p.room_type || ''}`
+            .toLowerCase()
+            .includes(q)
+        const matchLoc = location === ALL_REGIONS || p.location === location
+        return matchSearch && matchLoc
+      })
+      .sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
   }, [posts, search, location])
 
   const pageTitle = activeTab === 'renting' ? '房屋租售' : '求租求购'

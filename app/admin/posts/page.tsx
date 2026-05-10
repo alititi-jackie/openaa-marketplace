@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
@@ -25,6 +25,11 @@ const LOCATION_FILTER_OPTIONS = ['全部地区', ...LOCATION_OPTIONS] as const
 
 type ModuleFilter = 'all' | 'jobs' | 'housing' | 'secondhand'
 type StatusFilter = 'all' | 'published' | 'hidden' | 'deleted'
+type PinFormState = {
+  is_pinned: boolean
+  pinned_order: number
+  pinned_until: string
+}
 
 function formatDate(s: string | null | undefined) {
   if (!s) return ''
@@ -129,7 +134,38 @@ function isDeleted(status: string) {
   return status === 'deleted'
 }
 
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(post: UnifiedPost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
+function formatPinnedUntil(value: string | null | undefined): string {
+  if (!value) return '长期置顶'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return String(value)
+  const pad = (num: number) => String(num).padStart(2, '0')
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function toDatetimeLocalValue(value: string | null | undefined): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return ''
+  const offset = d.getTimezoneOffset()
+  const local = new Date(d.getTime() - offset * 60_000)
+  return local.toISOString().slice(0, 16)
+}
+
 function AdminPostsContent() {
+  const formRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState('')
   const [inputToken, setInputToken] = useState('')
   const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
@@ -142,6 +178,12 @@ function AdminPostsContent() {
   const [moduleFilter, setModuleFilter] = useState<ModuleFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [locationFilter, setLocationFilter] = useState('全部地区')
+  const [pinEditingPost, setPinEditingPost] = useState<UnifiedPost | null>(null)
+  const [pinForm, setPinForm] = useState<PinFormState>({
+    is_pinned: false,
+    pinned_order: 0,
+    pinned_until: '',
+  })
 
   const fetchPosts = useCallback(async (t: string) => {
     setLoading(true)
@@ -205,22 +247,54 @@ function AdminPostsContent() {
     setPosts([])
     setMessage('')
     setListSuccessMessage('')
+    setPinEditingPost(null)
   }
 
-  async function updatePost(post: UnifiedPost, status: string) {
+  function scrollToForm() {
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
+  function startPinSettings(post: UnifiedPost) {
+    setPinEditingPost(post)
+    setPinForm({
+      is_pinned: post.is_pinned === true,
+      pinned_order:
+        typeof post.pinned_order === 'number' && Number.isInteger(post.pinned_order) && post.pinned_order >= 0
+          ? post.pinned_order
+          : 0,
+      pinned_until: toDatetimeLocalValue(post.pinned_until),
+    })
+    setMessage('')
+    setListSuccessMessage('')
+    scrollToForm()
+  }
+
+  async function updatePost(post: UnifiedPost, payload: Record<string, unknown>) {
     try {
       const res = await fetch(`/api/admin/posts/${post.id}`, {
         method: 'PATCH',
         headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ module: post.module, status }),
+        body: JSON.stringify({ module: post.module, ...payload }),
       })
       const json: unknown = await res.json()
-      if (json !== null && typeof json === 'object' && 'data' in json) {
-        // Update local state: reflect new status
+      if (
+        json !== null &&
+        typeof json === 'object' &&
+        'data' in json &&
+        (json as { data?: Record<string, unknown> }).data
+      ) {
+        const updated = (json as { data: Record<string, unknown> }).data
         setPosts((prev) =>
           prev.map((p) =>
             p.id === post.id && p.module === post.module
-              ? { ...p, status: status as UnifiedPost['status'] }
+              ? {
+                  ...p,
+                  ...updated,
+                  id: p.id,
+                  module: p.module,
+                }
               : p
           )
         )
@@ -239,7 +313,7 @@ function AdminPostsContent() {
   }
 
   async function handleHide(post: UnifiedPost) {
-    const ok = await updatePost(post, 'hidden')
+    const ok = await updatePost(post, { status: 'hidden' })
     if (ok) {
       setListSuccessMessage('已隐藏')
       setTimeout(() => setListSuccessMessage(''), 4000)
@@ -247,7 +321,7 @@ function AdminPostsContent() {
   }
 
   async function handleRestore(post: UnifiedPost) {
-    const ok = await updatePost(post, 'published')
+    const ok = await updatePost(post, { status: 'published' })
     if (ok) {
       setListSuccessMessage('已恢复显示')
       setTimeout(() => setListSuccessMessage(''), 4000)
@@ -258,35 +332,75 @@ function AdminPostsContent() {
     if (!confirm(`确认删除此${post.module === 'jobs' ? '招聘' : post.module === 'housing' ? '房屋' : '二手'}帖子？`)) {
       return
     }
-    const ok = await updatePost(post, 'deleted')
+    const ok = await updatePost(post, { status: 'deleted' })
     if (ok) {
       setListSuccessMessage('已标记为删除')
       setTimeout(() => setListSuccessMessage(''), 4000)
     }
   }
 
-  const filtered = useMemo(() => {
-    const locationKeyword = locationFilter === '全部地区' ? '' : locationFilter.split(' ')[0]
-    return posts.filter((p) => {
-      const matchModule = moduleFilter === 'all' || p.module === moduleFilter
-      const matchStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'published' && isActive(p.status)) ||
-        (statusFilter === 'hidden' && isHidden(p.status)) ||
-        (statusFilter === 'deleted' && isDeleted(p.status))
-      const matchLocation =
-        !locationKeyword ||
-        (p.location || '').includes(locationKeyword)
-      const q = search.trim().toLowerCase()
-      const matchSearch =
-        !q ||
-        (p.title || '').toLowerCase().includes(q) ||
-        (p.location || '').toLowerCase().includes(q) ||
-        (p.contact_name || '').toLowerCase().includes(q) ||
-        (p.phone || '').toLowerCase().includes(q) ||
-        (p.wechat || '').toLowerCase().includes(q)
-      return matchModule && matchStatus && matchLocation && matchSearch
+  async function submitPinSettings(e: React.FormEvent) {
+    e.preventDefault()
+    if (!pinEditingPost) return
+    if (!Number.isInteger(pinForm.pinned_order) || pinForm.pinned_order < 0) {
+      setMessage('置顶排序必须是大于等于 0 的整数')
+      return
+    }
+
+    const ok = await updatePost(pinEditingPost, {
+      is_pinned: pinForm.is_pinned,
+      pinned_order: pinForm.pinned_order,
+      pinned_until: pinForm.pinned_until.trim() || null,
     })
+    if (ok) {
+      setPinEditingPost(null)
+      setListSuccessMessage('置顶设置保存成功')
+      setTimeout(() => setListSuccessMessage(''), 5000)
+      requestAnimationFrame(() => {
+        listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+  }
+
+  const filtered = useMemo(() => {
+    const nowTime = Date.now()
+    const locationKeyword = locationFilter === '全部地区' ? '' : locationFilter.split(' ')[0]
+    return posts
+      .filter((p) => {
+        const matchModule = moduleFilter === 'all' || p.module === moduleFilter
+        const matchStatus =
+          statusFilter === 'all' ||
+          (statusFilter === 'published' && isActive(p.status)) ||
+          (statusFilter === 'hidden' && isHidden(p.status)) ||
+          (statusFilter === 'deleted' && isDeleted(p.status))
+        const matchLocation =
+          !locationKeyword ||
+          (p.location || '').includes(locationKeyword)
+        const q = search.trim().toLowerCase()
+        const matchSearch =
+          !q ||
+          (p.title || '').toLowerCase().includes(q) ||
+          (p.location || '').toLowerCase().includes(q) ||
+          (p.contact_name || '').toLowerCase().includes(q) ||
+          (p.phone || '').toLowerCase().includes(q) ||
+          (p.wechat || '').toLowerCase().includes(q)
+        return matchModule && matchStatus && matchLocation && matchSearch
+      })
+      .sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
   }, [posts, moduleFilter, statusFilter, locationFilter, search])
 
   return (
@@ -445,12 +559,70 @@ function AdminPostsContent() {
 
       {loading && <p className="text-sm text-gray-500 mb-4">加载中...</p>}
 
+      {pinEditingPost && (
+        <div ref={formRef} className="mb-4 scroll-mt-24 rounded-xl border bg-white p-4 shadow-sm">
+          <form onSubmit={submitPinSettings} className="space-y-3">
+            <h2 className="text-base font-semibold">置顶设置</h2>
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={pinForm.is_pinned}
+                onChange={(e) => setPinForm((prev) => ({ ...prev, is_pinned: e.target.checked }))}
+              />
+              设为置顶
+            </label>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">置顶排序</label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={pinForm.pinned_order}
+                onChange={(e) =>
+                  setPinForm((prev) => ({ ...prev, pinned_order: Number(e.target.value) }))
+                }
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500">数字越小越靠前，0 为最高优先级；数字相同时，发布时间较新的排前。</p>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">置顶到期时间（可选）</label>
+              <input
+                type="datetime-local"
+                value={pinForm.pinned_until}
+                onChange={(e) => setPinForm((prev) => ({ ...prev, pinned_until: e.target.value }))}
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500">留空表示长期置顶。</p>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+              >
+                保存置顶设置
+              </button>
+              <button
+                type="button"
+                onClick={() => setPinEditingPost(null)}
+                className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-600"
+              >
+                取消
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {!loading && token && filtered.length === 0 && (
         <p className="text-sm text-gray-400 mb-4">暂无符合条件的帖子</p>
       )}
 
       {/* List */}
-      <div className="space-y-3">
+      <div ref={listRef} className="scroll-mt-6 space-y-3">
         {listSuccessMessage && (
           <p className="mb-2 text-sm text-green-600">{listSuccessMessage}</p>
         )}
@@ -477,6 +649,17 @@ function AdminPostsContent() {
                         {price}
                       </span>
                     ) : null}
+                    {post.is_pinned ? (
+                      <>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100">已置顶</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
+                          排序 {post.pinned_order ?? 0}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-100">
+                          {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
+                        </span>
+                      </>
+                    ) : null}
                   </div>
                   <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-gray-500">
                     {post.location ? <span>📍 {post.location}</span> : null}
@@ -494,6 +677,13 @@ function AdminPostsContent() {
                   >
                     查看
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => startPinSettings(post)}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition"
+                  >
+                    置顶设置
+                  </button>
                   {!active ? (
                     <button
                       type="button"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
@@ -32,6 +32,18 @@ const TABS: Array<{ key: SecondhandItemType; label: string }> = [
   { key: 'selling', label: '出售商品' },
   { key: 'buying', label: '求购信息' },
 ]
+
+function toSortableTime(value: string | null | undefined): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function isEffectivePinned(item: SecondhandItem, nowTime: number): boolean {
+  if (!item.is_pinned) return false
+  if (!item.pinned_until) return true
+  return toSortableTime(item.pinned_until) > nowTime
+}
 
 export default function SecondhandPage() {
   const [activeTab, setActiveTab] = useState<SecondhandItemType>('selling')
@@ -78,11 +90,30 @@ export default function SecondhandPage() {
     fetchItems()
   }, [fetchItems])
 
-  const searchLower = search.toLowerCase()
-  const filtered = items.filter((item) =>
-    (!search || item.title.toLowerCase().includes(searchLower)) &&
-    (location === ALL_REGIONS || getItemRegion(item) === location)
-  )
+  const filtered = useMemo(() => {
+    const searchLower = search.toLowerCase()
+    const nowTime = Date.now()
+    return items
+      .filter((item) =>
+        (!search || item.title.toLowerCase().includes(searchLower)) &&
+        (location === ALL_REGIONS || getItemRegion(item) === location)
+      )
+      .sort((a, b) => {
+        const aPinned = isEffectivePinned(a, nowTime)
+        const bPinned = isEffectivePinned(b, nowTime)
+        if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+        if (aPinned && bPinned) {
+          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+          if (createdAtDiff !== 0) return createdAtDiff
+        }
+
+        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      })
+  }, [items, search, location])
 
   const pageTitle = activeTab === 'selling' ? '二手交易' : '求购信息'
   const publishLabel = activeTab === 'selling' ? '发布商品' : '发布求购'

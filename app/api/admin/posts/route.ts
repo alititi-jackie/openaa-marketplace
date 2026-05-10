@@ -32,6 +32,12 @@ function toSortableTime(value: string | null | undefined): number {
   return Number.isNaN(t) ? 0 : t
 }
 
+function isEffectivePinned(post: UnifiedPost, nowTime: number): boolean {
+  if (!post.is_pinned) return false
+  if (!post.pinned_until) return true
+  return toSortableTime(post.pinned_until) > nowTime
+}
+
 export async function GET(request: NextRequest) {
   if (!checkAdminToken(request)) {
     return NextResponse.json({ error: '未授权' }, { status: 401 })
@@ -93,6 +99,12 @@ export async function GET(request: NextRequest) {
         images: null,
         created_at: (row.created_at as string) || '',
         updated_at: (row.updated_at as string) || '',
+        is_pinned: row.is_pinned === true,
+        pinned_until: (row.pinned_until as string | null) || null,
+        pinned_order:
+          typeof row.pinned_order === 'number' && Number.isInteger(row.pinned_order) && row.pinned_order >= 0
+            ? row.pinned_order
+            : 0,
       })
     }
   }
@@ -121,6 +133,12 @@ export async function GET(request: NextRequest) {
         images,
         created_at: (row.created_at as string) || '',
         updated_at: (row.updated_at as string) || '',
+        is_pinned: row.is_pinned === true,
+        pinned_until: (row.pinned_until as string | null) || null,
+        pinned_order:
+          typeof row.pinned_order === 'number' && Number.isInteger(row.pinned_order) && row.pinned_order >= 0
+            ? row.pinned_order
+            : 0,
       })
     }
   }
@@ -155,12 +173,32 @@ export async function GET(request: NextRequest) {
         images,
         created_at: (row.created_at as string) || '',
         updated_at: (row.updated_at as string) || '',
+        is_pinned: row.is_pinned === true,
+        pinned_until: (row.pinned_until as string | null) || null,
+        pinned_order:
+          typeof row.pinned_order === 'number' && Number.isInteger(row.pinned_order) && row.pinned_order >= 0
+            ? row.pinned_order
+            : 0,
       })
     }
   }
 
-  // Sort combined list by created_at descending
-  results.sort((a, b) => toSortableTime(b.created_at) - toSortableTime(a.created_at))
+  const nowTime = Date.now()
+  results.sort((a, b) => {
+    const aPinned = isEffectivePinned(a, nowTime)
+    const bPinned = isEffectivePinned(b, nowTime)
+    if (aPinned !== bPinned) return aPinned ? -1 : 1
+
+    if (aPinned && bPinned) {
+      const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+      if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+      const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      if (createdAtDiff !== 0) return createdAtDiff
+    }
+
+    return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+  })
 
   if (fetchErrors.length > 0 && results.length === 0) {
     return NextResponse.json({ error: fetchErrors.join('；') }, { status: 400 })

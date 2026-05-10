@@ -29,6 +29,23 @@ function checkAdminToken(request: NextRequest): boolean {
   return token === process.env.ADMIN_TOKEN && !!process.env.ADMIN_TOKEN
 }
 
+function toPinnedOrder(value: unknown): number | null | undefined {
+  if (value === undefined) return undefined
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) return null
+  return value
+}
+
+function toPinnedUntil(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return null
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const parsed = new Date(trimmed)
+  if (Number.isNaN(parsed.getTime())) return undefined
+  return parsed.toISOString()
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -44,25 +61,60 @@ export async function PATCH(
     return NextResponse.json({ error: '无效请求体' }, { status: 400 })
   }
 
-  const { module, status } = body as { module?: string; status?: string }
+  const { module, status, is_pinned, pinned_order, pinned_until } = body as {
+    module?: string
+    status?: string
+    is_pinned?: boolean
+    pinned_order?: number
+    pinned_until?: string | null
+  }
 
   if (!module || !Object.keys(TABLE_MAP).includes(module)) {
     return NextResponse.json({ error: '无效的模块名，必须为 jobs、housing 或 secondhand' }, { status: 400 })
   }
 
-  if (!status || !(VALID_STATUSES as readonly string[]).includes(status)) {
+  if (status !== undefined && !(VALID_STATUSES as readonly string[]).includes(status)) {
     return NextResponse.json(
       { error: `无效的状态值，允许值为：${VALID_STATUSES.join('、')}` },
       { status: 400 }
     )
   }
 
+  if (is_pinned !== undefined && typeof is_pinned !== 'boolean') {
+    return NextResponse.json({ error: 'is_pinned 必须为布尔值' }, { status: 400 })
+  }
+
+  const normalizedPinnedOrder = toPinnedOrder(pinned_order)
+  if (pinned_order !== undefined && normalizedPinnedOrder === null) {
+    return NextResponse.json({ error: 'pinned_order 必须是大于等于 0 的整数' }, { status: 400 })
+  }
+
+  const normalizedPinnedUntil = toPinnedUntil(pinned_until)
+  if (pinned_until !== undefined && normalizedPinnedUntil === undefined) {
+    return NextResponse.json({ error: 'pinned_until 必须是合法时间或空值' }, { status: 400 })
+  }
+
+  if (
+    status === undefined &&
+    is_pinned === undefined &&
+    normalizedPinnedOrder === undefined &&
+    normalizedPinnedUntil === undefined
+  ) {
+    return NextResponse.json({ error: '至少需要提供一个可更新字段' }, { status: 400 })
+  }
+
   const table = TABLE_MAP[module as PostModule]
   const supabase = getServiceClient()
 
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  if (status !== undefined) updates.status = status
+  if (is_pinned !== undefined) updates.is_pinned = is_pinned
+  if (normalizedPinnedOrder !== undefined) updates.pinned_order = normalizedPinnedOrder
+  if (normalizedPinnedUntil !== undefined) updates.pinned_until = normalizedPinnedUntil
+
   const { data, error } = await supabase
     .from(table)
-    .update({ status, updated_at: new Date().toISOString() })
+    .update(updates)
     .eq('id', id)
     .select()
     .single()
