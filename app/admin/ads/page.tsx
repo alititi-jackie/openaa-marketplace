@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 
 interface Ad {
   id: string
@@ -78,6 +79,9 @@ function toDateTimeLocalValue(value: string | null): string {
 function AdsAdminContent() {
   const searchParams = useSearchParams()
   const [token, setToken] = useState('')
+  const [tokenInput, setTokenInput] = useState('')
+  const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
+  const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [ads, setAds] = useState<Ad[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -115,10 +119,13 @@ function AdsAdminContent() {
   })
 
   useEffect(() => {
-    const qToken = searchParams.get('token')
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''
+    const qToken = (searchParams.get('token') || '').trim()
+    const stored = getAdminToken().trim()
     const t = qToken || stored || ''
+    if (qToken) setAdminToken(qToken)
     setToken(t)
+    setTokenInput(t)
+    setIsUsingUnifiedToken(Boolean(t))
     if (t) fetchAds(t)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -191,8 +198,30 @@ function AdsAdminContent() {
   }
 
   function saveToken() {
-    localStorage.setItem('admin_token', token)
-    fetchAds(token)
+    const nextToken = tokenInput.trim()
+    if (!nextToken) {
+      setMessage('请输入 Admin Token')
+      return
+    }
+    setAdminToken(nextToken)
+    setToken(nextToken)
+    setTokenInput(nextToken)
+    setIsUsingUnifiedToken(true)
+    setShowTokenEditor(false)
+    setMessage('')
+    fetchAds(nextToken)
+  }
+
+  function logoutAdmin() {
+    clearAdminToken()
+    setToken('')
+    setTokenInput('')
+    setIsUsingUnifiedToken(false)
+    setShowTokenEditor(false)
+    setAds([])
+    setMessage('')
+    setUploadMessage('')
+    resetForm()
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -475,6 +504,34 @@ function AdsAdminContent() {
     }
   }
 
+  if (!token) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">广告管理</h1>
+        <div className="mb-6 rounded-xl border bg-gray-50 p-4">
+          <label className="block text-sm font-medium mb-1">Admin Token</label>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="输入管理 Token"
+              className="flex-1 border rounded-lg px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={saveToken}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+            >
+              确认
+            </button>
+          </div>
+          {message ? <p className="mt-2 text-sm text-red-500">{message}</p> : null}
+        </div>
+      </div>
+    )
+  }
+
   const trimmedImageUrl = imageUrl.trim()
   const hasImage = trimmedImageUrl.length > 0
   const hasPreviewImage = hasImage && isHttpImageUrl(trimmedImageUrl)
@@ -485,25 +542,47 @@ function AdsAdminContent() {
     <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">广告管理</h1>
 
-      {/* Token input */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-xl border">
-        <label className="block text-sm font-medium mb-1">Admin Token</label>
-        <div className="flex gap-2">
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="输入管理 Token"
-            className="flex-1 border rounded-lg px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={saveToken}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
-          >
-            确认
-          </button>
+      {/* Token state */}
+      <div className="mb-6 rounded-xl border bg-gray-50 p-4 space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-gray-700">
+            {isUsingUnifiedToken ? '已使用统一后台登录 Token' : '已使用当前 Admin Token'}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowTokenEditor((prev) => !prev)}
+              className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+            >
+              更换 Token
+            </button>
+            <button
+              type="button"
+              onClick={logoutAdmin}
+              className="px-3 py-1.5 rounded-lg border text-sm text-gray-600 hover:bg-gray-50"
+            >
+              退出后台
+            </button>
+          </div>
         </div>
+        {showTokenEditor ? (
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="输入新的 Admin Token"
+              className="flex-1 border rounded-lg px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={saveToken}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+            >
+              保存 Token
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {/* Create/edit form */}
