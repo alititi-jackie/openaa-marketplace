@@ -306,6 +306,8 @@ function FeedbackCard({
 }
 
 function FeedbackAdminContent() {
+  const DEFAULT_USER_DAILY_LIMIT = 5
+  const DEFAULT_TOTAL_DAILY_LIMIT = 100
   const [token, setToken] = useState('')
   const [tokenInput, setTokenInput] = useState('')
   const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
@@ -314,6 +316,11 @@ function FeedbackAdminContent() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [userDailyLimitInput, setUserDailyLimitInput] = useState(String(DEFAULT_USER_DAILY_LIMIT))
+  const [totalDailyLimitInput, setTotalDailyLimitInput] = useState(String(DEFAULT_TOTAL_DAILY_LIMIT))
+  const [fetchingSettings, setFetchingSettings] = useState(false)
+  const [savingSettings, setSavingSettings] = useState(false)
+  const [settingsMessage, setSettingsMessage] = useState('')
 
   async function fetchFeedback(t: string, status?: string) {
     if (!t) return
@@ -352,6 +359,44 @@ function FeedbackAdminContent() {
     }
   }
 
+  async function fetchFeedbackSettings(t: string) {
+    if (!t) return
+    setFetchingSettings(true)
+    setSettingsMessage('')
+    try {
+      const res = await fetch('/api/admin/feedback/settings', {
+        headers: { 'x-admin-token': t },
+      })
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        const errMsg =
+          json !== null &&
+          typeof json === 'object' &&
+          'error' in json &&
+          typeof (json as Record<string, unknown>).error === 'string'
+            ? (json as { error: string }).error
+            : '加载设置失败'
+        setSettingsMessage(errMsg)
+        return
+      }
+      if (
+        json !== null &&
+        typeof json === 'object' &&
+        'userDailyLimit' in json &&
+        typeof (json as Record<string, unknown>).userDailyLimit === 'number' &&
+        'totalDailyLimit' in json &&
+        typeof (json as Record<string, unknown>).totalDailyLimit === 'number'
+      ) {
+        setUserDailyLimitInput(String((json as { userDailyLimit: number }).userDailyLimit))
+        setTotalDailyLimitInput(String((json as { totalDailyLimit: number }).totalDailyLimit))
+      }
+    } catch {
+      setSettingsMessage('网络错误，请稍后重试')
+    } finally {
+      setFetchingSettings(false)
+    }
+  }
+
   useEffect(() => {
     const saved = getAdminToken()
     if (saved) {
@@ -359,6 +404,7 @@ function FeedbackAdminContent() {
       setTokenInput(saved)
       setIsUsingUnifiedToken(true)
       fetchFeedback(saved, '')
+      fetchFeedbackSettings(saved)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -375,6 +421,7 @@ function FeedbackAdminContent() {
     setShowTokenEditor(false)
     setMessage('')
     fetchFeedback(nextToken, statusFilter)
+    fetchFeedbackSettings(nextToken)
   }
 
   function logoutAdmin() {
@@ -385,6 +432,9 @@ function FeedbackAdminContent() {
     setShowTokenEditor(false)
     setPosts([])
     setMessage('')
+    setUserDailyLimitInput(String(DEFAULT_USER_DAILY_LIMIT))
+    setTotalDailyLimitInput(String(DEFAULT_TOTAL_DAILY_LIMIT))
+    setSettingsMessage('')
   }
 
   function handleFilterChange(status: string) {
@@ -398,6 +448,71 @@ function FeedbackAdminContent() {
 
   function handleDeleted(id: string) {
     setPosts((prev) => prev.filter((p) => p.id !== id))
+  }
+
+  async function handleSaveSettings(e: React.FormEvent) {
+    e.preventDefault()
+    setSettingsMessage('')
+
+    const userDailyLimit = parseInt(userDailyLimitInput, 10)
+    const totalDailyLimit = parseInt(totalDailyLimitInput, 10)
+
+    if (
+      !Number.isInteger(userDailyLimit) ||
+      !Number.isInteger(totalDailyLimit) ||
+      userDailyLimit < 1 ||
+      userDailyLimit > 1000 ||
+      totalDailyLimit < 1 ||
+      totalDailyLimit > 1000
+    ) {
+      setSettingsMessage('请输入 1~1000 之间的整数')
+      return
+    }
+
+    setSavingSettings(true)
+    try {
+      const res = await fetch('/api/admin/feedback/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+        },
+        body: JSON.stringify({
+          userDailyLimit,
+          totalDailyLimit,
+        }),
+      })
+
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        const errMsg =
+          json !== null &&
+          typeof json === 'object' &&
+          'error' in json &&
+          typeof (json as Record<string, unknown>).error === 'string'
+            ? (json as { error: string }).error
+            : '保存设置失败'
+        setSettingsMessage(errMsg)
+        return
+      }
+
+      if (
+        json !== null &&
+        typeof json === 'object' &&
+        'userDailyLimit' in json &&
+        typeof (json as Record<string, unknown>).userDailyLimit === 'number' &&
+        'totalDailyLimit' in json &&
+        typeof (json as Record<string, unknown>).totalDailyLimit === 'number'
+      ) {
+        setUserDailyLimitInput(String((json as { userDailyLimit: number }).userDailyLimit))
+        setTotalDailyLimitInput(String((json as { totalDailyLimit: number }).totalDailyLimit))
+      }
+      setSettingsMessage('保存成功')
+    } catch {
+      setSettingsMessage('网络错误，请稍后重试')
+    } finally {
+      setSavingSettings(false)
+    }
   }
 
   return (
@@ -445,6 +560,64 @@ function FeedbackAdminContent() {
       {/* Filters */}
       {token && !showTokenEditor ? (
         <>
+          <form onSubmit={handleSaveSettings} className="mb-4 rounded-2xl border border-zinc-200 bg-white p-4">
+            <h2 className="text-base font-semibold text-zinc-900">反馈提交设置</h2>
+            <p className="mt-1 text-xs text-zinc-500">
+              用于限制每天反馈提交数量，防止垃圾反馈或恶意刷提交。
+            </p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-zinc-700">单个用户 / 访客每日上限</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={1000}
+                  value={userDailyLimitInput}
+                  onChange={(e) => setUserDailyLimitInput(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-zinc-700">全站每日反馈总上限</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={1000}
+                  value={totalDailyLimitInput}
+                  onChange={(e) => setTotalDailyLimitInput(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            {settingsMessage ? (
+              <p
+                className={`mt-3 text-sm ${settingsMessage.includes('成功') ? 'text-emerald-600' : 'text-red-500'}`}
+              >
+                {settingsMessage}
+              </p>
+            ) : null}
+
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                disabled={fetchingSettings}
+                onClick={() => fetchFeedbackSettings(token)}
+                className="rounded-lg bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-200 disabled:opacity-50"
+              >
+                {fetchingSettings ? '加载中...' : '重新加载'}
+              </button>
+              <button
+                type="submit"
+                disabled={savingSettings}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {savingSettings ? '保存中...' : '保存设置'}
+              </button>
+            </div>
+          </form>
+
           <div className="mb-4 flex flex-wrap gap-2">
             {STATUS_FILTERS.map((f) => (
               <button

@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 
 const FEEDBACK_TYPES = ['信息举报', '页面错误', '功能建议', '新闻线索 / 投稿建议', '广告合作', '其它问题'] as const
 type FeedbackType = (typeof FEEDBACK_TYPES)[number]
+const FEEDBACK_VISITOR_ID_KEY = 'openaa_feedback_visitor_id'
 
 function normalizeType(value: string | null): FeedbackType {
   return FEEDBACK_TYPES.includes(value as FeedbackType) ? (value as FeedbackType) : FEEDBACK_TYPES[0]
@@ -14,6 +15,18 @@ function normalizeType(value: string | null): FeedbackType {
 
 function hasPreviousPage() {
   return typeof window !== 'undefined' && (document.referrer !== '' || window.history.length > 2)
+}
+
+function ensureVisitorId() {
+  if (typeof window === 'undefined') return ''
+  const existing = localStorage.getItem(FEEDBACK_VISITOR_ID_KEY)?.trim()
+  if (existing) return existing
+  const generated =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  localStorage.setItem(FEEDBACK_VISITOR_ID_KEY, generated)
+  return generated
 }
 
 function FeedbackPageInner() {
@@ -70,26 +83,45 @@ function FeedbackPageInner() {
     setSubmitting(true)
     try {
       const {
-        data: { user },
-      } = await supabase.auth.getUser()
+        data: { session },
+      } = await supabase.auth.getSession()
 
-      const { error } = await supabase.from('feedback_posts').insert({
-        user_id: user?.id ?? null,
-        type: trimmedType,
-        related_url: trimmedRelatedUrl || null,
-        contact: contact.trim() || null,
-        content: trimmedContent,
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
+        },
+        body: JSON.stringify({
+          type: trimmedType,
+          related_url: trimmedRelatedUrl || null,
+          contact: contact.trim() || null,
+          content: trimmedContent,
+          visitor_id: ensureVisitorId(),
+        }),
       })
-
-      if (error) throw error
+      const json: unknown = await res.json()
+      if (!res.ok) {
+        const errMsg =
+          json !== null &&
+          typeof json === 'object' &&
+          'error' in json &&
+          typeof (json as Record<string, unknown>).error === 'string'
+            ? (json as { error: string }).error
+            : '提交失败，请稍后重试。'
+        setSubmitted(false)
+        setErrorMessage(errMsg)
+        return
+      }
 
       setSubmitted(true)
       setSuccessMessage('感谢你的反馈，我们会尽快查看并处理。')
       setContent('')
     } catch (error) {
-      const message = error instanceof Error ? error.message : '提交失败，请稍后重试。'
       setSubmitted(false)
-      setErrorMessage(`提交失败：${message}`)
+      setErrorMessage(error instanceof Error ? error.message : '提交失败，请稍后重试。')
     } finally {
       setSubmitting(false)
     }
