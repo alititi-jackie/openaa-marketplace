@@ -79,9 +79,9 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
   }
 
   return (
-    <div className="w-full overflow-x-hidden px-4 pt-4">
+    <div className="w-full max-w-full min-w-0 overflow-x-hidden pt-4">
       {/* Search Form */}
-      <form onSubmit={handleSubmit} className="mb-6 flex w-full items-center gap-2">
+      <form onSubmit={handleSubmit} className="mb-6 flex w-full max-w-full min-w-0 items-center gap-2">
         <div className="relative min-w-0 flex-1">
           <Search
             size={16}
