@@ -6,18 +6,27 @@ import Image from 'next/image'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, MapPin, Share2 } from 'lucide-react'
 import { shareOpenAA } from '@/lib/share'
 
-const quickNavItems = [
-  { label: '招聘', href: '/jobs' },
-  { label: '房屋', href: '/housing' },
-  { label: '二手', href: '/secondhand' },
-  { label: '本地服务', href: '/services' },
-  { label: '新闻', href: '/news' },
-  { label: 'DMV', href: 'https://openaa.com/dmv' },
-  { label: '导航', href: '/navigation' },
-  { label: '反馈', href: '/feedback' },
-] as const
+type QuickNavItem = {
+  id: string
+  title: string
+  url: string
+  sort_order: number
+  open_mode: 'same' | 'new'
+}
+
+const DEFAULT_QUICK_NAV_ITEMS: QuickNavItem[] = [
+  { id: 'jobs', title: '招聘', url: '/jobs', sort_order: 10, open_mode: 'same' },
+  { id: 'housing', title: '房屋', url: '/housing', sort_order: 20, open_mode: 'same' },
+  { id: 'secondhand', title: '二手', url: '/secondhand', sort_order: 30, open_mode: 'same' },
+  { id: 'services', title: '本地服务', url: '/services', sort_order: 40, open_mode: 'same' },
+  { id: 'news', title: '新闻', url: '/news', sort_order: 50, open_mode: 'same' },
+  { id: 'dmv', title: 'DMV', url: 'https://openaa.com/dmv', sort_order: 60, open_mode: 'same' },
+  { id: 'navigation', title: '导航', url: '/navigation', sort_order: 70, open_mode: 'same' },
+  { id: 'feedback', title: '反馈', url: '/feedback', sort_order: 80, open_mode: 'same' },
+]
 
 export default function Header() {
+  const [quickNavItems, setQuickNavItems] = useState<QuickNavItem[]>(DEFAULT_QUICK_NAV_ITEMS)
   const [isQuickNavOpen, setIsQuickNavOpen] = useState(false)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -59,6 +68,56 @@ export default function Header() {
       window.removeEventListener('resize', handleResize)
     }
   }, [isQuickNavOpen])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function fetchTopLinks() {
+      try {
+        const res = await fetch('/api/top-links', { signal: controller.signal })
+        if (!res.ok) return
+
+        const json: unknown = await res.json()
+        if (
+          json === null ||
+          typeof json !== 'object' ||
+          !('data' in json) ||
+          !Array.isArray((json as Record<string, unknown>).data)
+        ) {
+          return
+        }
+
+        const data = (json as { data: unknown[] }).data
+        const normalized = data
+          .map((item): QuickNavItem | null => {
+            if (item === null || typeof item !== 'object') return null
+            const row = item as Record<string, unknown>
+            const id = typeof row.id === 'string' ? row.id : ''
+            const title = typeof row.title === 'string' ? row.title.trim() : ''
+            const url = typeof row.url === 'string' ? row.url.trim() : ''
+            const sort_order =
+              typeof row.sort_order === 'number' && Number.isFinite(row.sort_order) ? Math.floor(row.sort_order) : 0
+            const open_mode = row.open_mode === 'new' ? 'new' : 'same'
+            if (!id || !title || !url || sort_order < 0) return null
+            return { id, title, url, sort_order, open_mode }
+          })
+          .filter((item): item is QuickNavItem => item !== null)
+          .sort((a, b) => a.sort_order - b.sort_order)
+
+        if (normalized.length > 0) {
+          setQuickNavItems(normalized)
+        }
+      } catch {
+        // fallback to default quick nav items
+      }
+    }
+
+    void fetchTopLinks()
+
+    return () => {
+      controller.abort()
+    }
+  }, [])
 
   const toggleQuickNav = () => {
     setIsQuickNavOpen((prev) => !prev)
@@ -167,21 +226,23 @@ export default function Header() {
                 <ChevronLeft size={15} />
               </button>
 
-              <div
-                ref={scrollRef}
-                className="flex gap-2 overflow-x-auto whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                {quickNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="shrink-0 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:bg-blue-100"
-                    onClick={closeQuickNav}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+                <div
+                  ref={scrollRef}
+                  className="flex gap-2 overflow-x-auto whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {quickNavItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.url}
+                      target={item.open_mode === 'new' ? '_blank' : undefined}
+                      rel={item.open_mode === 'new' ? 'noopener noreferrer' : undefined}
+                      className="shrink-0 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:bg-blue-100"
+                      onClick={closeQuickNav}
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </div>
 
               <button
                 type="button"

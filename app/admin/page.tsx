@@ -40,11 +40,12 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/ads',
   },
   {
-    id: 'navigation',
+    id: 'top-links',
     icon: '🧭',
-    title: '导航管理',
-    description: '管理 OpenAA 公共导航和用户导航内容。',
-    status: '待开发',
+    title: '顶部快捷入口',
+    description: '管理顶部“纽约”展开后的快捷导航入口。',
+    status: '已可用',
+    href: '/admin/top-links',
   },
   {
     id: 'posts',
