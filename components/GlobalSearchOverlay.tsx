@@ -80,7 +80,9 @@ export default function GlobalSearchOverlay({ isOpen, onClose }: GlobalSearchOve
 
         {/* Scrollable content area */}
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-          <SearchContent autoFocus onResultClick={onClose} />
+          <div className="px-4">
+            <SearchContent autoFocus onResultClick={onClose} />
+          </div>
           {/* Bottom padding so content clears the mobile nav bar */}
           <div className="h-20" />
         </div>
