@@ -1,9 +1,9 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ChevronDown, ChevronUp, Share2 } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, MapPin, Share2 } from 'lucide-react'
 import { shareOpenAA } from '@/lib/share'
 
 const quickNavItems = [
@@ -19,10 +19,46 @@ const quickNavItems = [
 
 export default function Header() {
   const [isQuickNavOpen, setIsQuickNavOpen] = useState(false)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const touchStartRef = useRef<number | null>(null)
   const touchCurrentRef = useRef<number | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const ChevronIcon = useMemo(() => (isQuickNavOpen ? ChevronUp : ChevronDown), [isQuickNavOpen])
+
+  const updateScrollButtons = () => {
+    const element = scrollRef.current
+    if (!element) {
+      setCanScrollLeft(false)
+      setCanScrollRight(false)
+      return
+    }
+
+    const maxScrollLeft = element.scrollWidth - element.clientWidth
+    setCanScrollLeft(element.scrollLeft > 4)
+    setCanScrollRight(element.scrollLeft < maxScrollLeft - 4)
+  }
+
+  useEffect(() => {
+    if (!isQuickNavOpen) return
+
+    updateScrollButtons()
+
+    const element = scrollRef.current
+    if (!element) return
+
+    const handleScroll = () => updateScrollButtons()
+    const handleResize = () => updateScrollButtons()
+
+    element.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      element.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [isQuickNavOpen])
 
   const toggleQuickNav = () => {
     setIsQuickNavOpen((prev) => !prev)
@@ -51,6 +87,13 @@ export default function Header() {
 
     touchStartRef.current = null
     touchCurrentRef.current = null
+  }
+
+  const scrollQuickNav = (left: number) => {
+    scrollRef.current?.scrollBy({
+      left,
+      behavior: 'smooth',
+    })
   }
 
   return (
@@ -111,17 +154,46 @@ export default function Header() {
             onTouchMove={handleQuickNavTouchMove}
             onTouchEnd={handleQuickNavTouchEnd}
           >
-            <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {quickNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="shrink-0 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:bg-blue-100"
-                  onClick={closeQuickNav}
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <div className="relative md:px-9">
+              <button
+                type="button"
+                aria-label="快捷导航向左滚动"
+                onClick={() => scrollQuickNav(-180)}
+                disabled={!canScrollLeft}
+                className={`hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white/95 shadow-sm transition-all ${
+                  canScrollLeft ? 'text-zinc-600 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
+                }`}
+              >
+                <ChevronLeft size={15} />
+              </button>
+
+              <div
+                ref={scrollRef}
+                className="flex gap-2 overflow-x-auto whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {quickNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="shrink-0 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:bg-blue-100"
+                    onClick={closeQuickNav}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                aria-label="快捷导航向右滚动"
+                onClick={() => scrollQuickNav(180)}
+                disabled={!canScrollRight}
+                className={`hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white/95 shadow-sm transition-all ${
+                  canScrollRight ? 'text-zinc-600 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
+                }`}
+              >
+                <ChevronRight size={15} />
+              </button>
             </div>
           </div>
         ) : null}
