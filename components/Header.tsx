@@ -199,7 +199,7 @@ export default function Header() {
               aria-label="站内搜索"
               className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
             >
-              <Search size={16} className="text-zinc-600" />
+              <Search size={22} className="text-zinc-600" />
             </Link>
             <button
               type="button"
