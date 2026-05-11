@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, MapPin, Search, Share2 } from 'lucide-react'
 import { shareOpenAA } from '@/lib/share'
+import GlobalSearchOverlay from './GlobalSearchOverlay'
 
 type QuickNavItem = {
   id: string
@@ -28,6 +29,7 @@ const DEFAULT_QUICK_NAV_ITEMS: QuickNavItem[] = [
 export default function Header() {
   const [quickNavItems, setQuickNavItems] = useState<QuickNavItem[]>(DEFAULT_QUICK_NAV_ITEMS)
   const [isQuickNavOpen, setIsQuickNavOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
   const touchStartRef = useRef<number | null>(null)
@@ -156,7 +158,8 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] z-50 bg-white/96 backdrop-blur-md border-b border-zinc-100/80">
+    <>
+      <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] z-50 bg-white/96 backdrop-blur-md border-b border-zinc-100/80">
       <div className="relative">
         <div className="flex items-center justify-between h-14 px-4">
           {/* Left: location picker */}
@@ -194,13 +197,15 @@ export default function Header() {
 
           {/* Right: search + share */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/search"
-              aria-label="站内搜索"
+            <button
+              type="button"
+              aria-label={isSearchOpen ? '关闭搜索' : '站内搜索'}
+              aria-expanded={isSearchOpen}
               className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
+              onClick={() => setIsSearchOpen((prev) => !prev)}
             >
               <Search size={22} className="text-zinc-600" />
-            </Link>
+            </button>
             <button
               type="button"
               aria-label="分享"
@@ -268,6 +273,8 @@ export default function Header() {
           </div>
         ) : null}
       </div>
-    </header>
+      </header>
+      <GlobalSearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </>
   )
 }
