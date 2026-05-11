@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
+const NO_STORE_HEADERS = { 'Cache-Control': 'no-store' }
 
 type TopQuickLink = {
   id: string
@@ -14,17 +15,21 @@ type TopQuickLink = {
 export async function GET() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
   const { data, error } = await supabase
+    .schema('public')
     .from('top_quick_links')
-    .select('id, title, url, sort_order, open_mode')
+    .select('id, title, url, sort_order, is_active, open_mode, created_at')
     .eq('is_active', true)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (error) {
+    console.error('GET /api/top-links query failed:', error)
+    return NextResponse.json({ error: 'Failed to fetch top links' }, { status: 500, headers: NO_STORE_HEADERS })
+  }
 
   const normalized: TopQuickLink[] = ((data ?? []) as Record<string, unknown>[])
     .map((row) => {
@@ -38,5 +43,5 @@ export async function GET() {
     })
     .filter((row) => row.id && row.title && row.url && row.sort_order >= 0)
 
-  return NextResponse.json({ data: normalized })
+  return NextResponse.json({ data: normalized }, { headers: NO_STORE_HEADERS })
 }
