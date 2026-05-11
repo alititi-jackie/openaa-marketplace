@@ -81,8 +81,11 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
   return (
     <div className="w-full max-w-full min-w-0 overflow-x-hidden pt-4">
       {/* Search Form */}
-      <form onSubmit={handleSubmit} className="mb-6 flex w-full max-w-full min-w-0 items-center gap-2">
-        <div className="relative min-w-0 flex-1">
+      <form
+        onSubmit={handleSubmit}
+        className="mb-6 grid w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_64px] items-center gap-2 overflow-hidden"
+      >
+        <div className="relative min-w-0 w-full max-w-full">
           <Search
             size={16}
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
@@ -92,7 +95,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索新闻、招聘、房屋、二手、本地服务..."
-            className="h-11 w-full min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 pl-10 pr-9 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            className="block h-12 w-full min-w-0 max-w-full truncate rounded-xl border border-zinc-200 bg-zinc-50 pl-10 pr-9 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
             autoFocus={autoFocus}
           />
           {query && (
@@ -108,7 +111,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
         </div>
         <button
           type="submit"
-          className="h-11 shrink-0 rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-600 active:bg-blue-700"
+          className="h-12 w-16 shrink-0 rounded-xl bg-blue-500 px-0 text-sm font-semibold text-white transition hover:bg-blue-600 active:bg-blue-700"
         >
           搜索
         </button>
