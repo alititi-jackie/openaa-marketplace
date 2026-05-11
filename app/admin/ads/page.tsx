@@ -13,6 +13,7 @@ import {
   normalizeAdSlug,
 } from '@/lib/ads'
 import BackToTopButton from '@/components/BackToTopButton'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 interface Ad {
   id: string
@@ -86,7 +87,7 @@ function AdsAdminContent() {
   const [ads, setAds] = useState<Ad[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useAutoMessage()
   const [uploadMessage, setUploadMessage] = useState('')
   const [uploading, setUploading] = useState(false)
   const [deletingImage, setDeletingImage] = useState(false)

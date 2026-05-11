@@ -5,6 +5,7 @@ import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import { DEFAULT_HOME_LATEST_SECTIONS, type HomeLatestSection } from '@/lib/homeSections'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 type EditableSection = Pick<
   HomeLatestSection,
@@ -22,8 +23,8 @@ export default function AdminHomeSectionsPage() {
   const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useAutoMessage()
+  const [successMessage, setSuccessMessage] = useAutoMessage()
   const [localSaveMessage, setLocalSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [sections, setSections] = useState<EditableSection[]>(DEFAULT_HOME_LATEST_SECTIONS)
   const saveAreaRef = useRef<HTMLDivElement>(null)
