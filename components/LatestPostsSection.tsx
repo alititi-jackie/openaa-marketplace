@@ -142,6 +142,7 @@ export default function LatestPostsSection() {
       setSections(activeSections)
       const sectionMap = new Map(activeSections.map((section) => [section.section_key, section]))
       const nowIso = new Date().toISOString()
+      const nowTime = Date.now()
 
       const mainLimit = (key: string, fallback: number) => {
         const value = sectionMap.get(key)?.limit_count
@@ -303,7 +304,8 @@ export default function LatestPostsSection() {
           )
         : []
 
-      const mergedNews: LatestNews[] = []
+      const pinnedNews: LatestNews[] = []
+      const normalNews: LatestNews[] = []
       const seenNewsIds = new Set<string>()
       for (const list of newsByCategory) {
         for (const row of list) {
@@ -311,9 +313,14 @@ export default function LatestPostsSection() {
           const key = String(row.id)
           if (seenNewsIds.has(key)) continue
           seenNewsIds.add(key)
-          mergedNews.push(row)
+          if (isPinnedActive(row, nowTime)) {
+            pinnedNews.push(row)
+          } else {
+            normalNews.push(row)
+          }
         }
       }
+      const mergedNews = [...pinnedNews, ...normalNews]
 
       setJobs((jobsData as LatestJob[]) ?? [])
       setItems((secondhandData as LatestSecondhand[]) ?? [])
