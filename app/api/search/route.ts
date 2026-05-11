@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const like = (col: string) => `${col}.ilike.%${q}%`
+  // Escape LIKE special characters so user input is treated as a literal substring
+  const escapedQ = q.replace(/%/g, '\\%').replace(/_/g, '\\_')
+  const like = (col: string) => `${col}.ilike.%${escapedQ}%`
 
   const [newsResult, jobsResult, housingResult, secondhandResult, servicesResult] = await Promise.all([
     // News: only is_published = true

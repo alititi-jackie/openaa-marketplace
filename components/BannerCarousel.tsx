@@ -146,7 +146,7 @@ export default function BannerCarousel({ position = 'home', showSearchIcon = fal
           ))}
         </Swiper>
       </div>
-      {showSearchIcon ? (
+      {showSearchIcon && (
         <Link
           href="/search"
           className="absolute top-[24px] right-[24px] z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.18)] border border-white/60"
@@ -154,7 +154,7 @@ export default function BannerCarousel({ position = 'home', showSearchIcon = fal
         >
           <Search size={17} className="text-blue-500" />
         </Link>
-      ) : null}
+      )}
     </div>
   )
 }

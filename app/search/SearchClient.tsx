@@ -119,9 +119,9 @@ export default function SearchClient() {
         <>
           <p className="text-sm text-zinc-500 mb-3">找到 {results.length} 条相关内容</p>
           <div className="space-y-3">
-            {results.map((item, i) => (
+            {results.map((item) => (
               <Link
-                key={`${item.type}-${item.href}-${i}`}
+                key={item.href}
                 href={item.href}
                 className="block rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm hover:shadow-md transition"
               >
