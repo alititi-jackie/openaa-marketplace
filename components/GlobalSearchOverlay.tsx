@@ -59,25 +59,27 @@ export default function GlobalSearchOverlay({ isOpen, onClose }: GlobalSearchOve
 
   return createPortal(
     <div
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] z-[100]"
+      className="fixed inset-0 z-[100] overflow-x-hidden"
       style={{ height: '100dvh' }}
     >
-      <div className="flex flex-col h-full bg-white">
+      <div className="mx-auto flex h-full w-full max-w-[560px] flex-col bg-white">
         {/* Top bar: back button + title */}
-        <div className="flex items-center h-14 px-4 border-b border-zinc-100 shrink-0 bg-white">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="关闭搜索"
-            className="flex items-center justify-center w-9 h-9 rounded-full active:bg-zinc-100 transition-colors mr-2 shrink-0"
-          >
-            <ChevronLeft size={22} className="text-zinc-700" />
-          </button>
-          <h2 className="text-base font-bold text-zinc-900">OpenAA 站内搜索</h2>
+        <div className="shrink-0 border-b border-zinc-100 bg-white pt-[env(safe-area-inset-top)]">
+          <div className="flex h-14 items-center px-4">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="关闭搜索"
+              className="flex items-center justify-center w-9 h-9 rounded-full active:bg-zinc-100 transition-colors mr-2 shrink-0"
+            >
+              <ChevronLeft size={22} className="text-zinc-700" />
+            </button>
+            <h2 className="truncate whitespace-nowrap text-base font-bold text-zinc-900">OpenAA 站内搜索</h2>
+          </div>
         </div>
 
         {/* Scrollable content area */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
           <SearchContent autoFocus onResultClick={onClose} />
           {/* Bottom padding so content clears the mobile nav bar */}
           <div className="h-20" />
@@ -86,15 +88,18 @@ export default function GlobalSearchOverlay({ isOpen, onClose }: GlobalSearchOve
 
       {/* Back to top — positioned inside the overlay panel */}
       {showBackToTop && (
-        <button
-          type="button"
-          onClick={scrollToTop}
-          aria-label="回到顶部"
-          className="absolute right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-blue-100 bg-white shadow-md text-blue-600"
-          style={{ bottom: BACK_TO_TOP_BOTTOM }}
-        >
-          <ChevronUp size={22} />
-        </button>
+        <div className="pointer-events-none absolute inset-x-0 z-10" style={{ bottom: BACK_TO_TOP_BOTTOM }}>
+          <div className="mx-auto flex w-full max-w-[560px] justify-end px-4">
+            <button
+              type="button"
+              onClick={scrollToTop}
+              aria-label="回到顶部"
+              className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-blue-100 bg-white shadow-md text-blue-600"
+            >
+              <ChevronUp size={22} />
+            </button>
+          </div>
+        </div>
       )}
     </div>,
     document.body,
