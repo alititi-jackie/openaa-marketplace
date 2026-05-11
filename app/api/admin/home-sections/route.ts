@@ -56,59 +56,50 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'sections 不能为空' }, { status: 400 })
   }
 
-  const normalized = body.sections.map((item) => ({
-    section_key: item.section_key,
-    section_name: '',
-    section_type: 'main' as const,
-    parent_key: null,
-    is_visible: item.is_visible,
-    display_order: item.display_order,
-    limit_count: item.limit_count,
-  }))
-
-  for (const section of normalized) {
-    if (typeof section.section_key !== 'string' || !section.section_key.trim()) {
+  for (const item of body.sections) {
+    if (typeof item.section_key !== 'string' || !item.section_key.trim()) {
       return NextResponse.json({ error: 'section_key 无效' }, { status: 400 })
     }
-    if (!VALID_SECTION_KEYS.has(section.section_key.trim())) {
-      return NextResponse.json({ error: `不支持的 section_key: ${section.section_key}` }, { status: 400 })
+    if (!VALID_SECTION_KEYS.has(item.section_key.trim())) {
+      return NextResponse.json({ error: `不支持的 section_key: ${item.section_key}` }, { status: 400 })
     }
-    if (typeof section.is_visible !== 'boolean') {
+    if (typeof item.is_visible !== 'boolean') {
       return NextResponse.json({ error: 'is_visible 必须为 boolean' }, { status: 400 })
     }
     if (
-      typeof section.display_order !== 'number' ||
-      !Number.isInteger(section.display_order) ||
-      section.display_order < 0
+      typeof item.display_order !== 'number' ||
+      !Number.isInteger(item.display_order) ||
+      item.display_order < 0
     ) {
       return NextResponse.json({ error: 'display_order 必须是 >= 0 的整数' }, { status: 400 })
     }
     if (
-      typeof section.limit_count !== 'number' ||
-      !Number.isInteger(section.limit_count) ||
-      section.limit_count < 1 ||
-      section.limit_count > 30
+      typeof item.limit_count !== 'number' ||
+      !Number.isInteger(item.limit_count) ||
+      item.limit_count < 1 ||
+      item.limit_count > 30
     ) {
       return NextResponse.json({ error: 'limit_count 必须是 1~30 的整数' }, { status: 400 })
     }
   }
 
   const supabase = getServiceClient()
-  const updates = normalized.map((item) => ({
-    section_key: item.section_key.trim(),
-    is_visible: item.is_visible,
-    display_order: item.display_order,
-    limit_count: item.limit_count,
-    updated_at: new Date().toISOString(),
-  }))
+  const updatedAt = new Date().toISOString()
 
-  const { error } = await supabase.from('home_latest_sections').upsert(updates, {
-    onConflict: 'section_key',
-    ignoreDuplicates: false,
-  })
+  for (const item of body.sections) {
+    const { error } = await supabase
+      .from('home_latest_sections')
+      .update({
+        is_visible: item.is_visible,
+        display_order: item.display_order,
+        limit_count: item.limit_count,
+        updated_at: updatedAt,
+      })
+      .eq('section_key', item.section_key.trim())
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
   }
 
   const { data, error: fetchError } = await supabase
