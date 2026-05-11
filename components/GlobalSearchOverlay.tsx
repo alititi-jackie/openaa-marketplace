@@ -5,6 +5,10 @@ import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronUp } from 'lucide-react'
 import SearchContent from './SearchContent'
 
+const BACK_TO_TOP_THRESHOLD = 500
+// Matches the bottom nav bar height so the button sits just above it
+const BACK_TO_TOP_BOTTOM = '88px'
+
 interface GlobalSearchOverlayProps {
   isOpen: boolean
   onClose: () => void
@@ -27,7 +31,7 @@ export default function GlobalSearchOverlay({ isOpen, onClose }: GlobalSearchOve
     const handleScroll = () => {
       if (rafId !== null) return
       rafId = requestAnimationFrame(() => {
-        setShowBackToTop(el.scrollTop > 500)
+        setShowBackToTop(el.scrollTop > BACK_TO_TOP_THRESHOLD)
         rafId = null
       })
     }
@@ -87,7 +91,7 @@ export default function GlobalSearchOverlay({ isOpen, onClose }: GlobalSearchOve
           onClick={scrollToTop}
           aria-label="回到顶部"
           className="absolute right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-blue-100 bg-white shadow-md text-blue-600"
-          style={{ bottom: '88px' }}
+          style={{ bottom: BACK_TO_TOP_BOTTOM }}
         >
           <ChevronUp size={22} />
         </button>
