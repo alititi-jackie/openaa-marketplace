@@ -7,6 +7,7 @@ import { NEWS_CATEGORIES, NEWS_FILTER_CATEGORIES, NEWS_SLUG_REGEX } from '@/lib/
 import type { NewsFilterCategory } from '@/lib/news'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import BackToTopButton from '@/components/BackToTopButton'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 type StatusFilter = '全部状态' | '已发布' | '未发布'
 type CoverSource = 'uploaded' | 'external'
@@ -99,7 +100,7 @@ export default function AdminNewsPage() {
   const [isUsingUnifiedToken, setIsUsingUnifiedToken] = useState(false)
   const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useAutoMessage()
   const [posts, setPosts] = useState<NewsPost[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -152,6 +153,7 @@ export default function AdminNewsPage() {
       )
     }
     setLoading(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount; setMessage from useAutoMessage is stable and its omission is intentional
   }, [])
 
   useEffect(() => {

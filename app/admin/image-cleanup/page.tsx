@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 type ScanItem = {
   bucket: 'news-covers' | 'ads' | 'post-images'
@@ -35,7 +36,7 @@ export default function AdminImageCleanupPage() {
   const [showTokenEditor, setShowTokenEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deletingPath, setDeletingPath] = useState<string | null>(null)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useAutoMessage()
   const [items, setItems] = useState<ScanItem[]>([])
   const [filter, setFilter] = useState<FilterType>('deletable')
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})

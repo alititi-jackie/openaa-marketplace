@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 function SettingsAdminContent() {
   const [token, setToken] = useState('')
@@ -14,7 +15,7 @@ function SettingsAdminContent() {
   const [inputLimit, setInputLimit] = useState('5')
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useAutoMessage()
 
   async function fetchSettings(t: string) {
     if (!t) return

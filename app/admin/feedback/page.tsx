@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 type FeedbackStatus = 'pending' | 'processing' | 'resolved' | 'ignored'
 
@@ -91,7 +92,7 @@ function FeedbackCard({
   const [saving, setSaving] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useAutoMessage()
 
   const status = toStatus(post.status)
 
@@ -321,7 +322,7 @@ function FeedbackAdminContent() {
   const [totalDailyLimitInput, setTotalDailyLimitInput] = useState(String(DEFAULT_TOTAL_DAILY_LIMIT))
   const [fetchingSettings, setFetchingSettings] = useState(false)
   const [savingSettings, setSavingSettings] = useState(false)
-  const [settingsMessage, setSettingsMessage] = useState('')
+  const [settingsMessage, setSettingsMessage] = useAutoMessage()
 
   async function fetchFeedback(t: string, status?: string) {
     if (!t) return

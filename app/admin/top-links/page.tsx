@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 type OpenMode = 'same' | 'new'
 
@@ -44,8 +45,8 @@ export default function AdminTopLinksPage() {
   const [links, setLinks] = useState<TopQuickLink[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useAutoMessage()
+  const [successMessage, setSuccessMessage] = useAutoMessage()
 
   async function fetchTopLinks(adminToken: string) {
     if (!adminToken) return
