@@ -153,7 +153,8 @@ export default function AdminNewsPage() {
       )
     }
     setLoading(false)
-  }, [setMessage])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const stored = getAdminToken()
