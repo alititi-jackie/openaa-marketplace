@@ -4,8 +4,8 @@ import SearchContent from '@/components/SearchContent'
 
 export default function SearchClient() {
   return (
-    <div className="px-4 pt-4">
-      <h1 className="text-xl font-black text-zinc-900 mb-4">OpenAA 站内搜索</h1>
+    <div className="w-full overflow-x-hidden px-4 pt-4">
+      <h1 className="mb-4 text-xl font-black text-zinc-900">OpenAA 站内搜索</h1>
       <SearchContent />
     </div>
   )

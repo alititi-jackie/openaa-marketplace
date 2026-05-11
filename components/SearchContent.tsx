@@ -79,10 +79,10 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
   }
 
   return (
-    <div className="px-4 pt-4">
+    <div className="w-full overflow-x-hidden px-4 pt-4">
       {/* Search Form */}
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
-        <div className="relative flex-1">
+      <form onSubmit={handleSubmit} className="mb-6 flex w-full items-center gap-2">
+        <div className="relative min-w-0 flex-1">
           <Search
             size={16}
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
@@ -92,7 +92,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索新闻、招聘、房屋、二手、本地服务..."
-            className="w-full h-11 pl-10 pr-9 bg-zinc-50 border border-zinc-200 rounded-xl text-sm text-zinc-700 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+            className="h-11 w-full min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 pl-10 pr-9 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
             autoFocus={autoFocus}
           />
           {query && (
@@ -108,7 +108,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
         </div>
         <button
           type="submit"
-          className="h-11 px-5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:bg-blue-700 transition shrink-0"
+          className="h-11 shrink-0 rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-600 active:bg-blue-700"
         >
           搜索
         </button>
@@ -137,13 +137,13 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
 
       {status === 'done' && results.length > 0 && (
         <>
-          <p className="text-sm text-zinc-500 mb-3">找到 {results.length} 条相关内容</p>
+          <p className="mb-3 break-words text-sm text-zinc-500">找到 {results.length} 条相关内容</p>
           <div className="space-y-3">
             {results.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm hover:shadow-md transition"
+                className="block w-full rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition hover:shadow-md"
                 onClick={onResultClick}
               >
                 <div className="flex items-start gap-2.5">
