@@ -154,14 +154,14 @@ export default function Header() {
             onTouchMove={handleQuickNavTouchMove}
             onTouchEnd={handleQuickNavTouchEnd}
           >
-            <div className="relative md:px-9">
+            <div className="relative md:px-2">
               <button
                 type="button"
                 aria-label="快捷导航向左滚动"
                 onClick={() => scrollQuickNav(-180)}
                 disabled={!canScrollLeft}
-                className={`hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white/95 shadow-sm transition-all ${
-                  canScrollLeft ? 'text-zinc-600 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
+                className={`hidden md:flex absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all ${
+                  canScrollLeft ? 'text-zinc-500 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
                 }`}
               >
                 <ChevronLeft size={15} />
@@ -188,8 +188,8 @@ export default function Header() {
                 aria-label="快捷导航向右滚动"
                 onClick={() => scrollQuickNav(180)}
                 disabled={!canScrollRight}
-                className={`hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white/95 shadow-sm transition-all ${
-                  canScrollRight ? 'text-zinc-600 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
+                className={`hidden md:flex absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-10 h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all ${
+                  canScrollRight ? 'text-zinc-500 hover:bg-zinc-50' : 'pointer-events-none text-zinc-300 opacity-40'
                 }`}
               >
                 <ChevronRight size={15} />
