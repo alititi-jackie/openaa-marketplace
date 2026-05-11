@@ -88,7 +88,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
           />
           <input
-            type="search"
+            type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜索新闻、招聘、房屋、二手、本地服务..."
