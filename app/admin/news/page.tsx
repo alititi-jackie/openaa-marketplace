@@ -153,7 +153,7 @@ export default function AdminNewsPage() {
       )
     }
     setLoading(false)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount; setMessage from useAutoMessage is stable and its omission is intentional
   }, [])
 
   useEffect(() => {
