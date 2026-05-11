@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -11,6 +12,7 @@ type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' 
 
 interface Props {
   position?: BannerPosition
+  showSearchIcon?: boolean
 }
 
 interface AdSlide {
@@ -28,7 +30,7 @@ function normalizeImageUrl(v: unknown): string {
   return ''
 }
 
-export default function BannerCarousel({ position = 'home' }: Props) {
+export default function BannerCarousel({ position = 'home', showSearchIcon = false }: Props) {
   const [slides, setSlides] = useState<AdSlide[]>([])
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export default function BannerCarousel({ position = 'home' }: Props) {
   if (slides.length === 0) return null
 
   return (
-    <div className="px-4 pt-4">
+    <div className="px-4 pt-4 relative">
       <div className="rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden bg-white">
         <Swiper
           modules={[Autoplay, Pagination]}
@@ -144,6 +146,15 @@ export default function BannerCarousel({ position = 'home' }: Props) {
           ))}
         </Swiper>
       </div>
+      {showSearchIcon ? (
+        <Link
+          href="/search"
+          className="absolute top-[24px] right-[24px] z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.18)] border border-white/60"
+          aria-label="站内搜索"
+        >
+          <Search size={17} className="text-blue-500" />
+        </Link>
+      ) : null}
     </div>
   )
 }
