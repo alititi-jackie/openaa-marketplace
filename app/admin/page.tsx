@@ -48,6 +48,14 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/top-links',
   },
   {
+    id: 'home-sections',
+    icon: '🧩',
+    title: '首页最新发布',
+    description: '管理首页最新招聘、房屋、二手、本地服务、新闻板块显示和排序。',
+    status: '已可用',
+    href: '/admin/home-sections',
+  },
+  {
     id: 'posts',
     icon: '🗂️',
     title: '帖子管理',
