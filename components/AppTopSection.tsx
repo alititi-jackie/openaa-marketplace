@@ -1,6 +1,5 @@
 'use client'
 
-import Header from '@/components/Header'
 import BannerCarousel from '@/components/BannerCarousel'
 import SearchBar from '@/components/SearchBar'
 import GridMenu from '@/components/GridMenu'
@@ -15,16 +14,13 @@ interface Props {
 /**
  * Unified top section used across main pages.
  * Includes exactly:
- * 1) city selector row + logo header row (Header)
- * 2) BannerCarousel
- * 3) homepage-style SearchBar
+ * 1) BannerCarousel
+ * 2) homepage-style SearchBar
+ * 3) optional GridMenu on news page
  */
 export default function AppTopSection({ bannerPosition, showQuickGrid = true }: Props) {
   return (
     <div className="bg-white">
-      <Header />
-
-      {/* Keep header->banner close (no extra spacer gap here) */}
       <BannerCarousel position={bannerPosition || 'home'} />
 
       <SearchBar />
