@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, MapPin, Share2 } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, MapPin, Search, Share2 } from 'lucide-react'
 import { shareOpenAA } from '@/lib/share'
 
 type QuickNavItem = {
@@ -192,17 +192,26 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Right: share */}
-          <button
-            type="button"
-            aria-label="分享"
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
-            onClick={() => {
-              void shareOpenAA()
-            }}
-          >
-            <Share2 size={16} className="text-zinc-600" />
-          </button>
+          {/* Right: search + share */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/search"
+              aria-label="站内搜索"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
+            >
+              <Search size={16} className="text-zinc-600" />
+            </Link>
+            <button
+              type="button"
+              aria-label="分享"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 active:bg-zinc-100 transition-colors"
+              onClick={() => {
+                void shareOpenAA()
+              }}
+            >
+              <Share2 size={16} className="text-zinc-600" />
+            </button>
+          </div>
         </div>
 
         {isQuickNavOpen ? (

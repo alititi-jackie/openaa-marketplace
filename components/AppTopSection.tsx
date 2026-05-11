@@ -25,7 +25,7 @@ export default function AppTopSection({ bannerPosition, showQuickGrid = true }: 
       <Header />
 
       {/* Keep header->banner close (no extra spacer gap here) */}
-      <BannerCarousel position={bannerPosition || 'home'} showSearchIcon={!bannerPosition || bannerPosition === 'home'} />
+      <BannerCarousel position={bannerPosition || 'home'} />
 
       <SearchBar />
 
