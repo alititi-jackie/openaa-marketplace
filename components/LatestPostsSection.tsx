@@ -45,6 +45,7 @@ type LatestService = {
   category: string | null
   location: string | null
   description: string | null
+  images: string[] | null
   created_at?: string | null
   is_pinned?: boolean
   pinned_until?: string | null
@@ -236,7 +237,7 @@ export default function LatestPostsSection() {
           ? fetchPinnedFirst(
               supabase
                 .from('service_posts')
-                .select('id, title, category, location, description, created_at, is_pinned, pinned_until')
+                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until')
                 .eq('status', 'active')
                 .eq('is_active', true)
                 .eq('is_pinned', true)
@@ -246,7 +247,7 @@ export default function LatestPostsSection() {
                 .limit(30),
               supabase
                 .from('service_posts')
-                .select('id, title, category, location, description, created_at, is_pinned, pinned_until')
+                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until')
                 .eq('status', 'active')
                 .eq('is_active', true)
                 .order('created_at', { ascending: false })
@@ -500,28 +501,47 @@ export default function LatestPostsSection() {
               {services.length === 0 ? (
                 <p className="text-[12px] text-zinc-400 py-2">暂无最新信息</p>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {services.map((service) => (
-                    <Link
-                      key={service.id}
-                      href={`/services/${service.id}`}
-                      className="flex flex-col bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150 overflow-hidden"
-                    >
-                      <p className="text-[13px] font-semibold text-zinc-800 line-clamp-2 break-words">{service.title}</p>
-                      <div className="mt-1 flex items-center gap-1.5 min-h-4">
-                        {isPinnedActive(service, nowTime) ? (
-                          <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 border border-amber-100">
-                            置顶
-                          </span>
-                        ) : null}
-                        {service.category ? <span className="text-[11px] text-zinc-400 truncate">{service.category}</span> : null}
-                        {service.location ? <span className="text-[11px] text-zinc-400 truncate">· {service.location}</span> : null}
-                      </div>
-                      {service.description ? (
-                        <p className="text-[11px] text-zinc-400 mt-1 line-clamp-2">{service.description}</p>
-                      ) : null}
-                    </Link>
-                  ))}
+                <div className="space-y-2">
+                  {services.map((service) => {
+                    const thumb = service.images?.[0] ?? null
+                    const pinned = isPinnedActive(service, nowTime)
+                    return (
+                      <Link
+                        key={service.id}
+                        href={`/services/${service.id}`}
+                        className="flex items-center gap-3 bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.06)] border border-zinc-100/70 active:scale-[0.98] transition-transform duration-150 overflow-hidden"
+                      >
+                        {/* thumbnail */}
+                        <div className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-zinc-100 flex items-center justify-center">
+                          {thumb ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={thumb} alt={service.title ?? ''} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-2xl select-none" aria-hidden="true">🛠️</span>
+                          )}
+                        </div>
+                        {/* text */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {pinned ? (
+                              <span className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 border border-amber-100 flex-shrink-0">
+                                置顶
+                              </span>
+                            ) : null}
+                            <p className="text-[13px] font-semibold text-zinc-800 truncate" title={service.title ?? undefined}>{service.title}</p>
+                          </div>
+                          {(service.category || service.location) ? (
+                            <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
+                              {[service.category, service.location].filter(Boolean).join(' · ')}
+                            </p>
+                          ) : null}
+                          {service.description ? (
+                            <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-2">{service.description}</p>
+                          ) : null}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
             </div>

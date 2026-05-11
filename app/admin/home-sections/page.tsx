@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
@@ -24,7 +24,10 @@ export default function AdminHomeSectionsPage() {
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [localSaveMessage, setLocalSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [sections, setSections] = useState<EditableSection[]>(DEFAULT_HOME_LATEST_SECTIONS)
+  const saveAreaRef = useRef<HTMLDivElement>(null)
+  const localSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   async function fetchSections(adminToken: string) {
     if (!adminToken) return
@@ -58,6 +61,12 @@ export default function AdminHomeSectionsPage() {
     setTokenInput(stored)
     setIsUsingUnifiedToken(true)
     void fetchSections(stored)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (localSaveTimerRef.current) clearTimeout(localSaveTimerRef.current)
+    }
   }, [])
 
   function saveToken() {
@@ -99,6 +108,8 @@ export default function AdminHomeSectionsPage() {
     setSaving(true)
     setErrorMessage('')
     setSuccessMessage('')
+    setLocalSaveMessage(null)
+    if (localSaveTimerRef.current) clearTimeout(localSaveTimerRef.current)
     try {
       const payload = sections.map((item) => ({
         section_key: item.section_key,
@@ -117,14 +128,23 @@ export default function AdminHomeSectionsPage() {
       const json = (await res.json()) as { error?: string; data?: EditableSection[] }
       if (!res.ok) {
         setErrorMessage(json.error || '保存失败')
+        setLocalSaveMessage({ type: 'error', text: json.error || '保存失败' })
+        saveAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         return
       }
       if (Array.isArray(json.data) && json.data.length > 0) {
         setSections(json.data)
       }
       setSuccessMessage('保存成功')
+      setLocalSaveMessage({ type: 'success', text: '保存成功' })
+      saveAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      localSaveTimerRef.current = setTimeout(() => {
+        setLocalSaveMessage(null)
+      }, 4000)
     } catch {
       setErrorMessage('网络错误，请稍后重试')
+      setLocalSaveMessage({ type: 'error', text: '网络错误，请稍后重试' })
+      saveAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     } finally {
       setSaving(false)
     }
@@ -280,7 +300,16 @@ export default function AdminHomeSectionsPage() {
             </div>
           </section>
 
-          <div className="flex justify-end">
+          <div ref={saveAreaRef} className="flex flex-col items-end gap-2">
+            {localSaveMessage ? (
+              <p
+                className={`text-sm font-medium ${
+                  localSaveMessage.type === 'success' ? 'text-green-600' : 'text-red-500'
+                }`}
+              >
+                {localSaveMessage.text}
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={saveAll}
