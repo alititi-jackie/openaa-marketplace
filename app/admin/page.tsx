@@ -80,6 +80,14 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     href: '/admin/image-cleanup',
   },
   {
+    id: 'navigation',
+    icon: '🗺️',
+    title: '导航管理',
+    description: '管理公共导航页面的分类和网址内容。',
+    status: '已可用',
+    href: '/admin/navigation',
+  },
+  {
     id: 'settings',
     icon: '⚙️',
     title: '站点设置 / 发帖上限',
@@ -100,7 +108,6 @@ const ROADMAP_ITEMS = [
   '反馈管理',
   '帖子统一审核',
   '用户管理',
-  '导航管理',
   '全站置顶管理',
   'SEO 工具',
 ]
