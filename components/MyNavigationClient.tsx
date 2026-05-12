@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ExternalLink, PencilLine, Plus, Trash2 } from 'lucide-react'
+import { ExternalLink, PencilLine, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
 import {
@@ -539,10 +539,9 @@ export default function MyNavigationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(true)}
-                  className="inline-flex items-center gap-1 rounded-2xl bg-blue-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-blue-500"
+                  className="inline-flex items-center gap-1 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-2.5 text-[13px] font-bold text-blue-600 transition hover:bg-blue-100"
                 >
-                  <Plus size={15} />
-                  添加网址
+                  + 添加网址
                 </button>
               </div>
             )}
@@ -574,7 +573,7 @@ export default function MyNavigationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(true)}
-                  className="inline-flex justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[14px] font-bold text-white transition hover:bg-blue-500"
+                  className="inline-flex justify-center rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-[14px] font-bold text-blue-600 transition hover:bg-blue-100"
                 >
                   + 添加网址
                 </button>
