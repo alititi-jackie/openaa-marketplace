@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import AppTopSection from '@/components/AppTopSection'
@@ -228,8 +228,7 @@ export default function NavigationPage() {
   const sectionRefs = useRef<Map<string, React.RefObject<HTMLElement>>>(new Map())
   function getSectionRef(slug: string): React.RefObject<HTMLElement> {
     if (!sectionRefs.current.has(slug)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sectionRefs.current.set(slug, { current: null } as any)
+      sectionRefs.current.set(slug, React.createRef<HTMLElement>())
     }
     return sectionRefs.current.get(slug)!
   }

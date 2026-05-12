@@ -73,9 +73,13 @@ function CategoryRow({
   async function handleSave() {
     const sortNum = Number(sortOrder)
     const limitNum = Number(displayLimit)
-    if (!name.trim()) { setMsg('分类名称不能为空'); return }
-    if (!Number.isInteger(sortNum) || sortNum < 0) { setMsg('排序必须是大于等于 0 的整数'); return }
-    if (!Number.isInteger(limitNum) || limitNum < 1 || limitNum > 50) { setMsg('显示数量必须是 1–50 的整数'); return }
+
+    const validationError =
+      !name.trim() ? '分类名称不能为空' :
+      (!Number.isInteger(sortNum) || sortNum < 0) ? '排序必须是大于等于 0 的整数' :
+      (!Number.isInteger(limitNum) || limitNum < 1 || limitNum > 50) ? '显示数量必须是 1–50 的整数' :
+      null
+    if (validationError) { setMsg(validationError); return }
 
     setSaving(true)
     try {
