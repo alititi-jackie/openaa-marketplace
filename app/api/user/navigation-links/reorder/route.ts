@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
   const link1 = links.find((l) => l.id === id1)!
   const link2 = links.find((l) => l.id === id2)!
 
-  // Swap sort_order between the two links
+  // Swap sort_order between the two links.
+  // Updates are performed sequentially; if the second fails, we revert the first
+  // to keep sort_order values consistent.
   const { error: error1 } = await auth.supabase
     .from('user_navigation_links')
     .update({ sort_order: link2.sort_order })
@@ -54,7 +56,15 @@ export async function POST(request: NextRequest) {
     .eq('id', id2)
     .eq('user_id', auth.user.id)
 
-  if (error2) return NextResponse.json({ error: error2.message }, { status: 400 })
+  if (error2) {
+    // Revert the first update to avoid inconsistent sort_order state
+    await auth.supabase
+      .from('user_navigation_links')
+      .update({ sort_order: link1.sort_order })
+      .eq('id', id1)
+      .eq('user_id', auth.user.id)
+    return NextResponse.json({ error: error2.message }, { status: 400 })
+  }
 
   return NextResponse.json({ success: true })
 }
