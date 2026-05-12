@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Zap, ChevronRight } from 'lucide-react'
 
@@ -14,12 +14,15 @@ interface TickerItem {
 }
 
 const INTERVAL_MS = 3500
+const SWIPE_THRESHOLD = 40
 
 export default function LatestTickerBar() {
   const [items, setItems] = useState<TickerItem[]>([])
   const [status, setStatus] = useState<'loading' | 'ok' | 'empty' | 'error'>('loading')
   const [index, setIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartXRef = useRef<number | null>(null)
+  const didSwipeRef = useRef(false)
 
   useEffect(() => {
     let cancelled = false
@@ -43,16 +46,50 @@ export default function LatestTickerBar() {
     }
   }, [])
 
+  const restartTimer = useCallback((count: number) => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (count <= 1) return
+    timerRef.current = setInterval(() => {
+      setIndex((prev) => (prev + 1) % count)
+    }, INTERVAL_MS)
+  }, [])
+
   // Auto-rotate
   useEffect(() => {
     if (status !== 'ok' || items.length <= 1) return
-    timerRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % items.length)
-    }, INTERVAL_MS)
+    restartTimer(items.length)
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [status, items.length])
+  }, [status, items.length, restartTimer])
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0]?.clientX ?? null
+    didSwipeRef.current = false
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const startX = touchStartXRef.current
+    const endX = e.changedTouches[0]?.clientX ?? null
+    touchStartXRef.current = null
+    if (startX === null || endX === null || items.length <= 1) return
+    const dx = endX - startX
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return
+    didSwipeRef.current = true
+    if (dx < 0) {
+      setIndex((prev) => (prev + 1) % items.length)
+    } else {
+      setIndex((prev) => (prev - 1 + items.length) % items.length)
+    }
+    restartTimer(items.length)
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (didSwipeRef.current) {
+      e.preventDefault()
+      didSwipeRef.current = false
+    }
+  }
 
   // ── Placeholder states ──────────────────────────────────────────────
   if (status === 'loading') {
@@ -92,6 +129,9 @@ export default function LatestTickerBar() {
       href={current.href}
       className="flex items-center h-11 pl-4 pr-3 bg-zinc-50 border border-zinc-100 rounded-full text-sm text-zinc-600 hover:bg-zinc-100 transition-colors min-w-0"
       aria-label={`查看最新动态：${text}`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
     >
       <Zap size={15} className="shrink-0 mr-2 text-blue-400" />
       <span className="flex-1 truncate">{text}</span>
