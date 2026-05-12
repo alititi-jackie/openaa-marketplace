@@ -13,11 +13,13 @@ export default function AdminReturnButton() {
   }
 
   return (
-    <Link
-      href={returnTo}
-      className="mb-3 inline-flex w-fit items-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition hover:bg-blue-50"
-    >
-      ← 返回管理页面
-    </Link>
+    <div className="sticky top-14 z-30 mb-4">
+      <Link
+        href={returnTo}
+        className="flex items-center gap-1 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
+      >
+        ← 返回管理页面
+      </Link>
+    </div>
   )
 }
