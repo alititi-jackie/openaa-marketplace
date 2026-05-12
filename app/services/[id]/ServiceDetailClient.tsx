@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import type { ServicePost } from '@/types'
@@ -76,6 +77,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
+      <AdminReturnButton />
       {/* Back button */}
       <DetailBackButton fallbackHref="/services" />
 

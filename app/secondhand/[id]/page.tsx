@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
@@ -132,6 +133,7 @@ export default function SecondhandDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
+      <AdminReturnButton />
       <DetailBackButton fallbackHref="/secondhand" />
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">

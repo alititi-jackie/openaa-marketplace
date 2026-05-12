@@ -534,7 +534,7 @@ function AdminServicesContent() {
               </div>
               <div className="flex flex-wrap gap-2 flex-shrink-0">
                 <Link
-                  href={`/services/${post.id}`}
+                  href={`/services/${post.id}?from_admin=1&return_to=/admin/services`}
                   target="_blank"
                   className="text-xs px-3 py-1.5 rounded-lg border text-gray-700 hover:bg-gray-50 transition"
                 >

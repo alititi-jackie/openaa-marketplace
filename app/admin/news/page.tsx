@@ -906,7 +906,7 @@ export default function AdminNewsPage() {
                 )}
                 {post.is_published ? (
                   <Link
-                    href={`/news/${post.slug}`}
+                    href={`/news/${post.slug}?from_admin=1&return_to=/admin/news`}
                     target="_blank"
                     className="rounded-lg border px-3 py-1.5 text-xs font-medium text-gray-700"
                   >
