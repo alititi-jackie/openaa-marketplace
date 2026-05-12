@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import AppTopSection from '@/components/AppTopSection'
+import BackToTopButton from '@/components/BackToTopButton'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -279,6 +280,23 @@ export default function NavigationPage() {
       {/* Top section – keeps banner + latest ticker; layout provides Header */}
       <AppTopSection bannerPosition="navigation" />
 
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-4">
+        <Link
+          href="/navigation/my"
+          className="block rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_14px_38px_rgba(0,0,0,0.08)]"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[15px] font-black text-zinc-900">我的导航</div>
+              <div className="mt-1 text-[12px] text-zinc-500">
+                保存自己的常用网站，下次打开更方便
+              </div>
+            </div>
+            <div className="shrink-0 text-[13px] font-bold text-blue-600">进入 →</div>
+          </div>
+        </Link>
+      </div>
+
       {/* Category tab bar */}
       {!loading && categoriesWithLinks.length > 0 && (
         <CategoryTabs
@@ -321,6 +339,7 @@ export default function NavigationPage() {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   )
 }

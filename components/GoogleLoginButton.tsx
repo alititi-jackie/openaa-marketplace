@@ -3,14 +3,14 @@
 import { signInWithGoogle } from '@/lib/auth'
 import { useState } from 'react'
 
-export default function GoogleLoginButton() {
+export default function GoogleLoginButton({ redirectPath }: { redirectPath?: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const handleGoogleLogin = async () => {
     setLoading(true)
     setError('')
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle(redirectPath)
     if (error) {
       setError('Google 登录失败，请重试')
       setLoading(false)

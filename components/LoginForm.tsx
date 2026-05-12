@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { signInWithEmail } from '@/lib/auth'
 import GoogleLoginButton from './GoogleLoginButton'
 
-export default function LoginForm() {
+export default function LoginForm({ redirectPath = '/profile' }: { redirectPath?: string }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,7 +25,7 @@ export default function LoginForm() {
       return
     }
 
-    router.push('/profile')
+    router.push(redirectPath)
     router.refresh()
   }
 
@@ -43,7 +43,7 @@ export default function LoginForm() {
         </p>
       </div>
 
-      <GoogleLoginButton />
+      <GoogleLoginButton redirectPath={redirectPath} />
 
       <div className="flex items-center gap-3 my-4">
         <div className="flex-1 h-px bg-gray-200" />
