@@ -16,7 +16,7 @@ type ExistingLinkRow = {
 
 function toOptionalString(value: unknown): string | undefined {
   if (value === undefined) return undefined
-  return typeof value === 'string' ? value.trim() : ''
+  return typeof value === 'string' ? value.trim() : undefined
 }
 
 export async function PATCH(

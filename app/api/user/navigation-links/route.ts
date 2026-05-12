@@ -12,7 +12,7 @@ type LatestLinkRow = {
   sort_order: number
 }
 
-function toOptionalString(value: unknown): string {
+function toTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
@@ -41,12 +41,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '无效请求体' }, { status: 400 })
   }
 
-  const normalizedUrl = normalizeNavigationUrl(toOptionalString((body as Record<string, unknown>).url))
+  const normalizedUrl = normalizeNavigationUrl(toTrimmedString((body as Record<string, unknown>).url))
   if (!normalizedUrl || !isValidNavigationUrl(normalizedUrl)) {
     return NextResponse.json({ error: '请输入正确的网址' }, { status: 400 })
   }
 
-  const normalizedTitleInput = toOptionalString((body as Record<string, unknown>).title)
+  const normalizedTitleInput = toTrimmedString((body as Record<string, unknown>).title)
   const normalizedTitle = normalizedTitleInput || getFriendlySiteName(normalizedUrl)
   if (!normalizedTitle) {
     return NextResponse.json({ error: '请输入网站名称' }, { status: 400 })
