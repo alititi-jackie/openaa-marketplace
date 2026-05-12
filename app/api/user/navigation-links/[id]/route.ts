@@ -58,9 +58,8 @@ export async function PATCH(
     return NextResponse.json({ error: '请输入正确的网址' }, { status: 400 })
   }
 
-  const normalizedTitle = titleInput === undefined
-    ? existingLink.title
-    : titleInput || getFriendlySiteName(normalizedUrl)
+  const normalizedTitle =
+    titleInput === undefined ? existingLink.title : titleInput || getFriendlySiteName(normalizedUrl)
 
   if (!normalizedTitle) {
     return NextResponse.json({ error: '请输入网站名称' }, { status: 400 })

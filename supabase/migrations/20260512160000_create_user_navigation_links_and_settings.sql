@@ -65,6 +65,12 @@ for update
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own navigation links" on public.user_navigation_links;
+create policy "Users can delete own navigation links"
+on public.user_navigation_links
+for delete
+using (auth.uid() = user_id);
+
 create table if not exists public.user_settings (
   user_id uuid primary key references auth.users(id) on delete cascade,
   navigation_default text not null default 'public',
@@ -99,5 +105,11 @@ on public.user_settings
 for update
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete own settings" on public.user_settings;
+create policy "Users can delete own settings"
+on public.user_settings
+for delete
+using (auth.uid() = user_id);
 
 commit;

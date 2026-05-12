@@ -45,6 +45,15 @@ export function sanitizeRedirectPath(value: string | null | undefined): string |
   return trimmed
 }
 
+export function resolveRedirectPath(...values: Array<string | null | undefined>): string {
+  for (const value of values) {
+    const redirectPath = sanitizeRedirectPath(value)
+    if (redirectPath) return redirectPath
+  }
+
+  return '/profile'
+}
+
 export function normalizeNavigationUrl(rawUrl: string): string {
   const trimmed = rawUrl.trim()
   if (!trimmed) return ''
@@ -88,7 +97,7 @@ export function getFriendlySiteName(url: string): string {
     return FRIENDLY_SITE_NAMES[hostname]
   }
 
-  const primaryLabel = hostname.split('.')[0] ?? ''
+  const primaryLabel = hostname.split('.')[0]
   if (!primaryLabel) return ''
 
   return primaryLabel.charAt(0).toUpperCase() + primaryLabel.slice(1)
