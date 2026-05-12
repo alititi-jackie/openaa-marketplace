@@ -62,6 +62,7 @@ export default function SearchContent({ autoFocus = false, onResultClick }: Sear
       setResults(json.data ?? [])
       setStatus('done')
     } catch {
+      setResults([])
       setStatus('error')
     }
   }, [])

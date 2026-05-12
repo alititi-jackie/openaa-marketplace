@@ -13,6 +13,28 @@ interface SearchResult {
   created_at: string
 }
 
+interface ModuleQueryResult<T> {
+  ok: boolean
+  data: T[]
+}
+
+async function runModuleQuery<T>(
+  moduleName: string,
+  queryPromise: PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<ModuleQueryResult<T>> {
+  try {
+    const { data, error } = await queryPromise
+    if (error) {
+      console.error(`[api/search] ${moduleName} query failed`, error)
+      return { ok: false, data: [] }
+    }
+    return { ok: true, data: data ?? [] }
+  } catch (error) {
+    console.error(`[api/search] ${moduleName} query failed`, error)
+    return { ok: false, data: [] }
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const rawQ = searchParams.get('q') ?? ''
@@ -33,55 +55,74 @@ export async function GET(request: NextRequest) {
 
   const [newsResult, jobsResult, housingResult, secondhandResult, servicesResult] = await Promise.all([
     // News: only is_published = true
-    supabase
-      .from('news_posts')
-      .select('id, slug, title, summary, category, created_at, published_at')
-      .eq('is_published', true)
-      .or(`${like('title')},${like('summary')},${like('category')}`)
-      .order('created_at', { ascending: false })
-      .limit(5),
+    runModuleQuery(
+      'news_posts',
+      supabase
+        .from('news_posts')
+        .select('id, slug, title, summary, category, created_at, published_at')
+        .eq('is_published', true)
+        .or(`${like('title')},${like('summary')},${like('category')}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
 
     // Jobs: only status = 'published'
-    supabase
-      .from('job_postings')
-      .select('id, title, company, description, location, created_at')
-      .eq('status', 'published')
-      .or(`${like('title')},${like('company')},${like('description')},${like('location')}`)
-      .order('created_at', { ascending: false })
-      .limit(5),
+    runModuleQuery(
+      'job_postings',
+      supabase
+        .from('job_postings')
+        .select('id, title, company, description, location, created_at')
+        .eq('status', 'published')
+        .or(`${like('title')},${like('company')},${like('description')},${like('location')}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
 
     // Housing: only status = 'published'
-    supabase
-      .from('housing_posts')
-      .select('id, title, description, location, created_at')
-      .eq('status', 'published')
-      .or(`${like('title')},${like('description')},${like('location')}`)
-      .order('created_at', { ascending: false })
-      .limit(5),
+    runModuleQuery(
+      'housing_posts',
+      supabase
+        .from('housing_posts')
+        .select('id, title, description, location, created_at')
+        .eq('status', 'published')
+        .or(`${like('title')},${like('description')},${like('location')}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
 
     // Secondhand: only status = 'published' (table is secondhand_items)
-    supabase
-      .from('secondhand_items')
-      .select('id, title, description, category, created_at')
-      .eq('status', 'published')
-      .or(`${like('title')},${like('description')},${like('category')}`)
-      .order('created_at', { ascending: false })
-      .limit(5),
+    runModuleQuery(
+      'secondhand_items',
+      supabase
+        .from('secondhand_items')
+        .select('id, title, description, category, created_at')
+        .eq('status', 'published')
+        .or(`${like('title')},${like('description')},${like('category')}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
 
     // Services: only status = 'active' AND is_active = true
-    supabase
-      .from('service_posts')
-      .select('id, title, description, category, location, created_at')
-      .eq('status', 'active')
-      .eq('is_active', true)
-      .or(`${like('title')},${like('description')},${like('category')},${like('location')}`)
-      .order('created_at', { ascending: false })
-      .limit(5),
+    runModuleQuery(
+      'service_posts',
+      supabase
+        .from('service_posts')
+        .select('id, title, description, category, location, created_at')
+        .eq('status', 'active')
+        .eq('is_active', true)
+        .or(`${like('title')},${like('description')},${like('category')},${like('location')}`)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
   ])
+
+  if (![newsResult, jobsResult, housingResult, secondhandResult, servicesResult].some((item) => item.ok)) {
+    return NextResponse.json({ error: '搜索服务暂时不可用' }, { status: 500 })
+  }
 
   const results: SearchResult[] = []
 
-  for (const item of (newsResult.data ?? [])) {
+  for (const item of newsResult.data) {
     results.push({
       type: 'news',
       label: '新闻',
@@ -93,7 +134,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of (jobsResult.data ?? [])) {
+  for (const item of jobsResult.data) {
     const loc = item.location ? ` · ${item.location}` : ''
     results.push({
       type: 'job',
@@ -106,7 +147,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of (housingResult.data ?? [])) {
+  for (const item of housingResult.data) {
     results.push({
       type: 'housing',
       label: '房屋',
@@ -118,7 +159,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of (secondhandResult.data ?? [])) {
+  for (const item of secondhandResult.data) {
     results.push({
       type: 'secondhand',
       label: '二手',
@@ -130,7 +171,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of (servicesResult.data ?? [])) {
+  for (const item of servicesResult.data) {
     const loc = item.location ? ` · ${item.location}` : ''
     results.push({
       type: 'service',
