@@ -1,4 +1,5 @@
 import AppTopSection from '@/components/AppTopSection'
+import BackToTopButton from '@/components/BackToTopButton'
 import Link from 'next/link'
 import {
   AlertTriangle,
@@ -199,6 +200,7 @@ export default function DMVPage() {
         </div>
       </section>
       </div>
+      <BackToTopButton />
     </div>
   )
 }
