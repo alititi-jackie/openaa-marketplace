@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ExternalLink, PencilLine, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
@@ -111,6 +112,7 @@ function MyNavigationForm({
 }
 
 export default function MyNavigationClient() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [userReady, setUserReady] = useState(false)
   const [accessToken, setAccessToken] = useState<string | null>(null)
@@ -429,6 +431,9 @@ export default function MyNavigationClient() {
 
       setNavigationDefault(nextDefault)
       setMessage(nextDefault === 'my' ? '设置成功' : '已切换回 OpenAA 导航')
+      if (nextDefault === 'public') {
+        router.push('/navigation')
+      }
     } catch {
       setMessage('设置失败，请稍后重试')
     } finally {
