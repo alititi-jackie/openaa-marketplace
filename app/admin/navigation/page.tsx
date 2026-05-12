@@ -52,6 +52,16 @@ const OPEN_MODE_LABELS: Record<OpenMode, string> = {
   new: '新窗口',
 }
 
+function linkToFormState(link: NavLink): LinkFormState {
+  return {
+    title: link.title,
+    url: link.url,
+    open_mode: link.open_mode,
+    sort_order: link.sort_order,
+    is_active: link.is_active,
+  }
+}
+
 // ─── CategoryRow ──────────────────────────────────────────────────────────────
 
 function CategoryRow({
@@ -74,12 +84,9 @@ function CategoryRow({
     const sortNum = Number(sortOrder)
     const limitNum = Number(displayLimit)
 
-    const validationError =
-      !name.trim() ? '分类名称不能为空' :
-      (!Number.isInteger(sortNum) || sortNum < 0) ? '排序必须是大于等于 0 的整数' :
-      (!Number.isInteger(limitNum) || limitNum < 1 || limitNum > 50) ? '显示数量必须是 1–50 的整数' :
-      null
-    if (validationError) { setMsg(validationError); return }
+    if (!name.trim()) { setMsg('分类名称不能为空'); return }
+    if (!Number.isInteger(sortNum) || sortNum < 0) { setMsg('排序必须是大于等于 0 的整数'); return }
+    if (!Number.isInteger(limitNum) || limitNum < 1 || limitNum > 50) { setMsg('显示数量必须是 1–50 的整数'); return }
 
     setSaving(true)
     try {
@@ -195,13 +202,7 @@ function LinkRow({
   onDeleted: (id: string) => void
 }) {
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<LinkFormState>({
-    title: link.title,
-    url: link.url,
-    open_mode: link.open_mode,
-    sort_order: link.sort_order,
-    is_active: link.is_active,
-  })
+  const [form, setForm] = useState<LinkFormState>(linkToFormState(link))
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useAutoMessage()
 
@@ -387,7 +388,7 @@ function LinkRow({
       <div className="flex flex-wrap gap-1.5 shrink-0">
         <button
           type="button"
-          onClick={() => { setForm({ title: link.title, url: link.url, open_mode: link.open_mode, sort_order: link.sort_order, is_active: link.is_active }); setEditing(true) }}
+          onClick={() => { setForm(linkToFormState(link)); setEditing(true) }}
           className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
         >
           编辑
@@ -684,9 +685,13 @@ export default function AdminNavigationPage() {
       const links = (linkJson as { data: NavLink[] }).data ?? []
 
       setCategories(cats)
+      // Build grouped links in a single O(n) pass
       const grouped: Record<string, NavLink[]> = {}
-      for (const cat of cats) {
-        grouped[cat.id] = links.filter((l) => l.category_id === cat.id)
+      for (const cat of cats) grouped[cat.id] = []
+      for (const link of links) {
+        if (grouped[link.category_id]) {
+          grouped[link.category_id].push(link)
+        }
       }
       setLinksByCategory(grouped)
     } catch {

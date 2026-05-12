@@ -67,7 +67,7 @@ function LinkCard({ link }: { link: NavLink }) {
 
   const inner = (
     <div className="flex items-center justify-between gap-2">
-      <div className="text-[12.5px] font-bold text-zinc-900 truncate">{link.title}</div>
+      <div className="text-[12.5px] font-bold text-zinc-900 truncate" title={link.title}>{link.title}</div>
       {isNew && <ExternalLink size={13} className="shrink-0 text-zinc-400" />}
     </div>
   )
