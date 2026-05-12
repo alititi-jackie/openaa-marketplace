@@ -81,6 +81,22 @@ function linkToFormState(link: NavLink): LinkFormState {
   }
 }
 
+function getNextLinkFormForUrlChange(
+  current: LinkFormState,
+  url: string,
+  titleEdited: boolean
+): LinkFormState {
+  return {
+    ...current,
+    url,
+    title: titleEdited ? current.title : getFriendlySiteName(url),
+  }
+}
+
+function isTitleEdited(value: string): boolean {
+  return value.trim().length > 0
+}
+
 // ─── CategoryRow ──────────────────────────────────────────────────────────────
 
 function CategoryRow({
@@ -325,11 +341,7 @@ function LinkRow({
               value={form.url}
               onChange={(e) => {
                 const value = e.target.value
-                setForm((p) => ({
-                  ...p,
-                  url: value,
-                  title: titleEdited ? p.title : getFriendlySiteName(value),
-                }))
+                setForm((p) => getNextLinkFormForUrlChange(p, value, titleEdited))
               }}
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             />
@@ -342,7 +354,7 @@ function LinkRow({
               onChange={(e) => {
                 const value = e.target.value
                 setForm((p) => ({ ...p, title: value }))
-                setTitleEdited(value.trim().length > 0)
+                setTitleEdited(isTitleEdited(value))
               }}
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             />
@@ -528,11 +540,7 @@ function AddLinkForm({
             value={form.url}
             onChange={(e) => {
               const value = e.target.value
-              setForm((p) => ({
-                ...p,
-                url: value,
-                title: titleEdited ? p.title : getFriendlySiteName(value),
-              }))
+              setForm((p) => getNextLinkFormForUrlChange(p, value, titleEdited))
             }}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             placeholder="例如：https://example.com 或 /jobs"
@@ -546,7 +554,7 @@ function AddLinkForm({
             onChange={(e) => {
               const value = e.target.value
               setForm((p) => ({ ...p, title: value }))
-              setTitleEdited(value.trim().length > 0)
+              setTitleEdited(isTitleEdited(value))
             }}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             placeholder="例如：Google 翻译"
