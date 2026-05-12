@@ -574,7 +574,7 @@ export default function MyNavigationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(true)}
-                  className="inline-flex justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[14px] font-bold text-white transition hover:bg-blue-700"
+                  className="inline-flex justify-center rounded-2xl bg-slate-700 px-4 py-3 text-[14px] font-bold text-white transition hover:bg-slate-600"
                 >
                   + 添加网址
                 </button>
