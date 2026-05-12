@@ -52,6 +52,21 @@ const OPEN_MODE_LABELS: Record<OpenMode, string> = {
   new: '新窗口',
 }
 
+const SLUG_SHORT_NAME: Record<string, string> = {
+  featured: '热门',
+  government: '政府',
+  finance: '银行',
+  shopping: '购物',
+  telecom: '通讯',
+  ai: 'AI',
+  video: '视频',
+  social: '社交',
+  life: '生活',
+  other: '其它',
+}
+
+const TAB_SCROLL_DISTANCE = 200
+
 function linkToFormState(link: NavLink): LinkFormState {
   return {
     title: link.title,
@@ -549,6 +564,79 @@ function AddLinkForm({
   )
 }
 
+function AdminCategoryTabs({
+  categories,
+  activeSlug,
+  onSelect,
+}: {
+  categories: NavCategory[]
+  activeSlug: string
+  onSelect: (slug: string) => void
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const tabCls = (active: boolean) =>
+    `flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium border transition ${
+      active
+        ? 'bg-[#1976d2] text-white border-[#1976d2]'
+        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+    }`
+
+  return (
+    <div className="mb-4 rounded-xl border border-zinc-200 bg-white/95 p-2">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className={tabCls(activeSlug === 'all')}
+          onClick={() => onSelect('all')}
+        >
+          全部
+        </button>
+
+        <div className="min-w-0 flex-1 relative flex items-center">
+          <button
+            type="button"
+            onClick={() => scrollRef.current?.scrollBy({ left: -TAB_SCROLL_DISTANCE, behavior: 'smooth' })}
+            className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition mr-1"
+            aria-label="向左滚动分类"
+          >
+            ‹
+          </button>
+
+          <div
+            ref={scrollRef}
+            className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            role="region"
+            aria-label="网址分类导航"
+          >
+            <div className="flex items-center gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={tabCls(activeSlug === cat.slug)}
+                  onClick={() => onSelect(cat.slug)}
+                >
+                  {SLUG_SHORT_NAME[cat.slug] ?? cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollRef.current?.scrollBy({ left: TAB_SCROLL_DISTANCE, behavior: 'smooth' })}
+            className="hidden md:flex flex-shrink-0 items-center justify-center w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm hover:bg-gray-50 transition ml-1"
+            aria-label="向右滚动分类"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── CategoryLinksSection ─────────────────────────────────────────────────────
 
 function CategoryLinksSection({
@@ -556,11 +644,15 @@ function CategoryLinksSection({
   links,
   token,
   onLinksChange,
+  sectionId,
+  sectionRef,
 }: {
   category: NavCategory
   links: NavLink[]
   token: string
   onLinksChange: (categoryId: string, updatedLinks: NavLink[]) => void
+  sectionId?: string
+  sectionRef?: (node: HTMLDivElement | null) => void
 }) {
   const [showAddForm, setShowAddForm] = useState(false)
 
@@ -584,7 +676,7 @@ function CategoryLinksSection({
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+    <div id={sectionId} ref={sectionRef} data-category-slug={category.slug} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 scroll-mt-24">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-zinc-900">{category.name}</h3>
@@ -644,9 +736,12 @@ export default function AdminNavigationPage() {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<NavCategory[]>([])
   const [linksByCategory, setLinksByCategory] = useState<Record<string, NavLink[]>>({})
+  const [activeCategorySlug, setActiveCategorySlug] = useState('all')
   const [errorMessage, setErrorMessage] = useAutoMessage()
   const [successMessage, setSuccessMessage] = useAutoMessage()
   const loadedRef = useRef(false)
+  const linkManagementTopRef = useRef<HTMLDivElement>(null)
+  const categorySectionRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
   const fetchData = useCallback(async (adminToken: string) => {
     if (!adminToken) return
@@ -733,6 +828,7 @@ export default function AdminNavigationPage() {
     setShowTokenEditor(false)
     setCategories([])
     setLinksByCategory({})
+    setActiveCategorySlug('all')
     setErrorMessage('')
     setSuccessMessage('')
     loadedRef.current = false
@@ -745,6 +841,60 @@ export default function AdminNavigationPage() {
   function handleLinksChange(categoryId: string, updatedLinks: NavLink[]) {
     setLinksByCategory((prev) => ({ ...prev, [categoryId]: updatedLinks }))
   }
+
+  const handleSelectCategory = useCallback((slug: string) => {
+    setActiveCategorySlug(slug)
+    if (slug === 'all') {
+      linkManagementTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+    categorySectionRefs.current.get(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  useEffect(() => {
+    if (!token || categories.length === 0) return
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        const topVisible = visibleEntries[0]
+        const slug = topVisible?.target.getAttribute('data-category-slug')
+        if (slug) setActiveCategorySlug(slug)
+      },
+      {
+        root: null,
+        rootMargin: '-96px 0px -65% 0px',
+        threshold: [0, 0.2, 0.4],
+      }
+    )
+
+    for (const cat of categories) {
+      const node = categorySectionRefs.current.get(cat.slug)
+      if (node) sectionObserver.observe(node)
+    }
+
+    const topNode = linkManagementTopRef.current
+    const topObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setActiveCategorySlug('all')
+        }
+      },
+      {
+        root: null,
+        rootMargin: '-96px 0px -85% 0px',
+        threshold: [0, 1],
+      }
+    )
+    if (topNode) topObserver.observe(topNode)
+
+    return () => {
+      sectionObserver.disconnect()
+      topObserver.disconnect()
+    }
+  }, [token, categories])
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 md:py-8">
@@ -808,6 +958,12 @@ export default function AdminNavigationPage() {
               <h2 className="mb-4 text-lg font-bold text-zinc-900 border-b border-zinc-200 pb-2">
                 网址管理
               </h2>
+              <div ref={linkManagementTopRef} className="scroll-mt-24" />
+              <AdminCategoryTabs
+                categories={categories}
+                activeSlug={activeCategorySlug}
+                onSelect={handleSelectCategory}
+              />
               <div className="space-y-4">
                 {categories.map((cat) => (
                   <CategoryLinksSection
@@ -816,6 +972,14 @@ export default function AdminNavigationPage() {
                     links={linksByCategory[cat.id] ?? []}
                     token={token}
                     onLinksChange={handleLinksChange}
+                    sectionId={`admin-navigation-category-${cat.slug}`}
+                    sectionRef={(node) => {
+                      if (node) {
+                        categorySectionRefs.current.set(cat.slug, node)
+                      } else {
+                        categorySectionRefs.current.delete(cat.slug)
+                      }
+                    }}
                   />
                 ))}
               </div>
