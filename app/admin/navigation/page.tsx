@@ -33,6 +33,7 @@ interface NavLink {
 interface LinkFormState {
   title: string
   url: string
+  description: string
   open_mode: OpenMode
   sort_order: number
   is_active: boolean
@@ -41,6 +42,7 @@ interface LinkFormState {
 const EMPTY_LINK_FORM: LinkFormState = {
   title: '',
   url: '',
+  description: '',
   open_mode: 'auto',
   sort_order: 0,
   is_active: true,
@@ -71,6 +73,7 @@ function linkToFormState(link: NavLink): LinkFormState {
   return {
     title: link.title,
     url: link.url,
+    description: link.description ?? '',
     open_mode: link.open_mode,
     sort_order: link.sort_order,
     is_active: link.is_active,
@@ -232,6 +235,7 @@ function LinkRow({
         body: JSON.stringify({
           title: form.title.trim(),
           url: form.url.trim(),
+          description: form.description.trim(),
           open_mode: form.open_mode,
           sort_order: form.sort_order,
           is_active: form.is_active,
@@ -327,6 +331,16 @@ function LinkRow({
               value={form.url}
               onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600">说明</label>
+            <input
+              type="text"
+              value={form.description}
+              onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+              placeholder="例如：Amazon 电商平台。"
             />
           </div>
           <div>
@@ -462,6 +476,7 @@ function AddLinkForm({
           category_id: categoryId,
           title: form.title.trim(),
           url: form.url.trim(),
+          description: form.description.trim(),
           open_mode: form.open_mode,
           sort_order: form.sort_order,
           is_active: form.is_active,
@@ -507,6 +522,16 @@ function AddLinkForm({
             onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             placeholder="例如：https://example.com 或 /jobs"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-zinc-600">说明</label>
+          <input
+            type="text"
+            value={form.description}
+            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            placeholder="例如：Amazon 电商平台。"
           />
         </div>
         <div>
