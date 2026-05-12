@@ -1,3 +1,4 @@
+import AppTopSection from '@/components/AppTopSection'
 import Link from 'next/link'
 import {
   AlertTriangle,
@@ -55,7 +56,9 @@ const dmvGuides = [
 
 export default function DMVPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 pt-5 pb-28">
+    <div className="min-h-screen bg-zinc-50 pb-28">
+      <AppTopSection bannerPosition="dmv" />
+      <div className="px-4 pt-4">
       <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
         <h1 className="text-2xl font-black text-zinc-900">OpenAA DMV 工具中心</h1>
         <p className="mt-2 text-sm font-medium text-blue-700">纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口</p>
@@ -195,6 +198,7 @@ export default function DMVPage() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   )
 }

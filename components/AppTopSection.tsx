@@ -4,7 +4,7 @@ import BannerCarousel from '@/components/BannerCarousel'
 import SearchBar from '@/components/SearchBar'
 import GridMenu from '@/components/GridMenu'
 
-type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news'
+type BannerPosition = 'home' | 'jobs' | 'secondhand' | 'navigation' | 'housing' | 'services' | 'news' | 'dmv'
 
 interface Props {
   bannerPosition?: BannerPosition
