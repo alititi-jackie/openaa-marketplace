@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import AdminPageHeader from '@/components/AdminPageHeader'
 import BackToTopButton from '@/components/BackToTopButton'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import { getFriendlySiteName, normalizeNavigationUrl } from '@/lib/user-navigation'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -78,6 +79,22 @@ function linkToFormState(link: NavLink): LinkFormState {
     sort_order: link.sort_order,
     is_active: link.is_active,
   }
+}
+
+function getNextLinkFormForUrlChange(
+  current: LinkFormState,
+  url: string,
+  titleEdited: boolean
+): LinkFormState {
+  return {
+    ...current,
+    url,
+    title: titleEdited ? current.title : getFriendlySiteName(url),
+  }
+}
+
+function isTitleEdited(value: string): boolean {
+  return value.trim().length > 0
 }
 
 // ─── CategoryRow ──────────────────────────────────────────────────────────────
@@ -221,12 +238,14 @@ function LinkRow({
 }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<LinkFormState>(linkToFormState(link))
+  const [titleEdited, setTitleEdited] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useAutoMessage()
 
   async function handleSave() {
+    const normalizedUrl = normalizeNavigationUrl(form.url)
     if (!form.title.trim()) { setMsg('名称不能为空'); return }
-    if (!form.url.trim()) { setMsg('链接不能为空'); return }
+    if (!normalizedUrl) { setMsg('链接不能为空'); return }
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/navigation/links/${link.id}`, {
@@ -234,7 +253,7 @@ function LinkRow({
         headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
         body: JSON.stringify({
           title: form.title.trim(),
-          url: form.url.trim(),
+          url: normalizedUrl,
           description: form.description.trim(),
           open_mode: form.open_mode,
           sort_order: form.sort_order,
@@ -316,20 +335,27 @@ function LinkRow({
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 space-y-2">
         <div className="grid gap-2 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-600">网站名称</label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600">网址</label>
             <input
               type="text"
               value={form.url}
-              onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm((p) => getNextLinkFormForUrlChange(p, value, titleEdited))
+              }}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600">网站名称</label>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm((p) => ({ ...p, title: value }))
+                setTitleEdited(isTitleEdited(value))
+              }}
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             />
           </div>
@@ -417,7 +443,7 @@ function LinkRow({
       <div className="flex flex-wrap gap-1.5 shrink-0">
         <button
           type="button"
-          onClick={() => { setForm(linkToFormState(link)); setEditing(true) }}
+          onClick={() => { setForm(linkToFormState(link)); setTitleEdited(false); setEditing(true) }}
           className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
         >
           编辑
@@ -460,13 +486,15 @@ function AddLinkForm({
   onCancel: () => void
 }) {
   const [form, setForm] = useState<LinkFormState>(EMPTY_LINK_FORM)
+  const [titleEdited, setTitleEdited] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useAutoMessage()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const normalizedUrl = normalizeNavigationUrl(form.url)
     if (!form.title.trim()) { setMsg('名称不能为空'); return }
-    if (!form.url.trim()) { setMsg('链接不能为空'); return }
+    if (!normalizedUrl) { setMsg('链接不能为空'); return }
     setSaving(true)
     try {
       const res = await fetch('/api/admin/navigation/links', {
@@ -475,7 +503,7 @@ function AddLinkForm({
         body: JSON.stringify({
           category_id: categoryId,
           title: form.title.trim(),
-          url: form.url.trim(),
+          url: normalizedUrl,
           description: form.description.trim(),
           open_mode: form.open_mode,
           sort_order: form.sort_order,
@@ -493,6 +521,7 @@ function AddLinkForm({
       }
       onAdded((json as { data: NavLink }).data)
       setForm(EMPTY_LINK_FORM)
+      setTitleEdited(false)
     } catch {
       setMsg('网络错误，请稍后重试')
     } finally {
@@ -505,23 +534,30 @@ function AddLinkForm({
       <p className="text-sm font-medium text-zinc-700">新增网址</p>
       <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">网站名称</label>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
-            placeholder="例如：Google 翻译"
-          />
-        </div>
-        <div>
           <label className="mb-1 block text-xs font-medium text-zinc-600">网址</label>
           <input
             type="text"
             value={form.url}
-            onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+            onChange={(e) => {
+              const value = e.target.value
+              setForm((p) => getNextLinkFormForUrlChange(p, value, titleEdited))
+            }}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
             placeholder="例如：https://example.com 或 /jobs"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-zinc-600">网站名称</label>
+          <input
+            type="text"
+            value={form.title}
+            onChange={(e) => {
+              const value = e.target.value
+              setForm((p) => ({ ...p, title: value }))
+              setTitleEdited(isTitleEdited(value))
+            }}
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+            placeholder="例如：Google 翻译"
           />
         </div>
         <div>
