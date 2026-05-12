@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
+import BackToTopButton from '@/components/BackToTopButton'
 
 type ScanItem = {
   bucket: 'news-covers' | 'ads' | 'post-images'
@@ -397,6 +398,7 @@ export default function AdminImageCleanupPage() {
       ) : token && !loading ? (
         <div className="rounded-xl border bg-white p-4 text-sm text-zinc-600">暂无扫描结果，请点击“开始扫描”。</div>
       ) : null}
+      <BackToTopButton />
     </div>
   )
 }

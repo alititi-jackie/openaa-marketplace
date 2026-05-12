@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { UnifiedPost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import BackToTopButton from '@/components/BackToTopButton'
 
 const MODULE_FILTERS = [
   { key: 'all', label: '全部模块' },
@@ -729,8 +730,11 @@ function AdminPostsContent() {
 
 export default function AdminPostsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
-      <AdminPostsContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
+        <AdminPostsContent />
+      </Suspense>
+      <BackToTopButton />
+    </>
   )
 }
