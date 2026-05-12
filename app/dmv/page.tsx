@@ -11,12 +11,12 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
-const practiceLink = '/news?category=DMV教程'
-const ticketsLink = 'https://dmv.ny.gov/tickets'
+const practiceLink = 'https://openaa.com/dmv/ny/practice/index.html'
+const ticketsLink = 'https://openaa.com/dmv/tickets/index.html'
 
 const quickTools = [
   { title: 'DMV 笔试模拟', desc: 'Learner Permit 练习入口', href: practiceLink, Icon: BookOpen, external: false },
-  { title: '罚单查询', desc: '交通罚单与处理指引', href: ticketsLink, Icon: AlertTriangle, external: true },
+  { title: '罚单查询', desc: '交通罚单与处理指引', href: ticketsLink, Icon: AlertTriangle, external: false },
   { title: '驾照申请', desc: 'Learner Permit 官方入口', href: 'https://dmv.ny.gov/driver-license/get-learner-permit', Icon: FileText, external: true },
   { title: '车辆注册', desc: '车辆注册与牌照流程', href: 'https://dmv.ny.gov/registration/register-and-title-vehicle-new-york-state', Icon: Car, external: true },
   { title: '驾照更新', desc: '到期续期与资料要求', href: 'https://dmv.ny.gov/driver-license/renew-license', Icon: RefreshCw, external: true },
@@ -129,8 +129,6 @@ export default function DMVPage() {
           </div>
           <Link
             href={ticketsLink}
-            target="_blank"
-            rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1.5 text-sm font-medium text-white"
           >
             查询罚单
