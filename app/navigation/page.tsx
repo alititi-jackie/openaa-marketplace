@@ -280,10 +280,10 @@ export default function NavigationPage() {
       {/* Top section – keeps banner + latest ticker; layout provides Header */}
       <AppTopSection bannerPosition="navigation" />
 
-      <div className="mx-auto w-full max-w-[860px] px-4 pt-4">
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-4 mb-4">
         <Link
           href="/navigation/my"
-          className="block rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_14px_38px_rgba(0,0,0,0.08)]"
+          className="block rounded-3xl bg-gradient-to-r from-blue-50 to-sky-50 ring-1 ring-blue-100 shadow-[0_10px_35px_rgba(0,0,0,0.06)] px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_14px_38px_rgba(0,0,0,0.08)]"
         >
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -292,7 +292,7 @@ export default function NavigationPage() {
                 保存自己的常用网站，下次打开更方便
               </div>
             </div>
-            <div className="shrink-0 text-[13px] font-bold text-blue-600">进入 →</div>
+            <div className="shrink-0 rounded-2xl bg-blue-600 px-3 py-1.5 text-[13px] font-bold text-white">进入 →</div>
           </div>
         </Link>
       </div>
