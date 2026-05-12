@@ -539,7 +539,7 @@ export default function MyNavigationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(true)}
-                  className="inline-flex items-center gap-1 rounded-2xl bg-zinc-900 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-zinc-800"
+                  className="inline-flex items-center gap-1 rounded-2xl bg-blue-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-blue-500"
                 >
                   <Plus size={15} />
                   添加网址
@@ -574,7 +574,7 @@ export default function MyNavigationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(true)}
-                  className="inline-flex justify-center rounded-2xl bg-slate-700 px-4 py-3 text-[14px] font-bold text-white transition hover:bg-slate-600"
+                  className="inline-flex justify-center rounded-2xl bg-blue-600 px-4 py-3 text-[14px] font-bold text-white transition hover:bg-blue-500"
                 >
                   + 添加网址
                 </button>
