@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
+import BackToTopButton from '@/components/BackToTopButton'
 
 const SERVICE_CATEGORIES_FILTER = [
   '全部',
@@ -587,8 +588,11 @@ function AdminServicesContent() {
 
 export default function AdminServicesPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
-      <AdminServicesContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
+        <AdminServicesContent />
+      </Suspense>
+      <BackToTopButton />
+    </>
   )
 }
