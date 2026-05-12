@@ -86,7 +86,7 @@ export async function PATCH(
     .from('navigation_categories')
     .update(updates)
     .eq('id', id)
-    .select('id, name, slug, sort_order, display_limit, is_active, updated_at')
+    .select('id, name, slug, sort_order, display_limit, is_active, created_at, updated_at')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

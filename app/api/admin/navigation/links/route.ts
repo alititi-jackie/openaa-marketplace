@@ -43,8 +43,10 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('navigation_links')
     .select('id, category_id, title, url, description, open_mode, sort_order, is_active, created_at, updated_at')
+    .order('is_active', { ascending: false })
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
+    .order('title', { ascending: true })
 
   if (categoryId) {
     query = query.eq('category_id', categoryId)

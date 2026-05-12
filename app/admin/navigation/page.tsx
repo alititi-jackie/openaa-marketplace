@@ -17,6 +17,7 @@ interface NavCategory {
   sort_order: number
   display_limit: number
   is_active: boolean
+  created_at?: string
 }
 
 interface NavLink {
@@ -28,6 +29,7 @@ interface NavLink {
   open_mode: OpenMode
   sort_order: number
   is_active: boolean
+  created_at?: string
 }
 
 interface LinkFormState {
@@ -60,6 +62,28 @@ function linkToFormState(link: NavLink): LinkFormState {
     sort_order: link.sort_order,
     is_active: link.is_active,
   }
+}
+
+function sortCategoriesForAdmin(items: NavCategory[]): NavCategory[] {
+  return [...items].sort((a, b) => {
+    if (a.is_active !== b.is_active) return a.is_active ? -1 : 1
+    if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order
+    if (a.created_at && b.created_at && a.created_at !== b.created_at) {
+      return a.created_at.localeCompare(b.created_at)
+    }
+    return a.name.localeCompare(b.name)
+  })
+}
+
+function sortLinksForAdmin(items: NavLink[]): NavLink[] {
+  return [...items].sort((a, b) => {
+    if (a.is_active !== b.is_active) return a.is_active ? -1 : 1
+    if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order
+    if (a.created_at && b.created_at && a.created_at !== b.created_at) {
+      return a.created_at.localeCompare(b.created_at)
+    }
+    return a.title.localeCompare(b.title)
+  })
 }
 
 // ─── CategoryRow ──────────────────────────────────────────────────────────────
@@ -684,7 +708,7 @@ export default function AdminNavigationPage() {
       const cats = (catJson as { data: NavCategory[] }).data ?? []
       const links = (linkJson as { data: NavLink[] }).data ?? []
 
-      setCategories(cats)
+      setCategories(sortCategoriesForAdmin(cats))
       // Build grouped links in a single O(n) pass
       const grouped: Record<string, NavLink[]> = {}
       for (const cat of cats) grouped[cat.id] = []
@@ -692,6 +716,9 @@ export default function AdminNavigationPage() {
         if (grouped[link.category_id]) {
           grouped[link.category_id].push(link)
         }
+      }
+      for (const categoryId in grouped) {
+        grouped[categoryId] = sortLinksForAdmin(grouped[categoryId])
       }
       setLinksByCategory(grouped)
     } catch {
@@ -739,11 +766,11 @@ export default function AdminNavigationPage() {
   }
 
   function handleCategoryUpdated(updated: NavCategory) {
-    setCategories((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+    setCategories((prev) => sortCategoriesForAdmin(prev.map((c) => (c.id === updated.id ? updated : c))))
   }
 
   function handleLinksChange(categoryId: string, updatedLinks: NavLink[]) {
-    setLinksByCategory((prev) => ({ ...prev, [categoryId]: updatedLinks }))
+    setLinksByCategory((prev) => ({ ...prev, [categoryId]: sortLinksForAdmin(updatedLinks) }))
   }
 
   return (

@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('navigation_categories')
     .select('id, name, slug, sort_order, display_limit, is_active, created_at, updated_at')
+    .order('is_active', { ascending: false })
     .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true })
+    .order('name', { ascending: true })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ data: data ?? [] })
