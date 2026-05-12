@@ -41,11 +41,21 @@ export async function signUpWithEmail(email: string, password: string, username:
   return { data, error }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(redirectPath?: string) {
+  const redirectBaseUrl =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.openaa.com'
+  const redirectUrl = new URL('/auth/callback', redirectBaseUrl)
+
+  if (redirectPath) {
+    redirectUrl.searchParams.set('redirect', redirectPath)
+  }
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: redirectUrl.toString(),
     },
   })
   return { data, error }

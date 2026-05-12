@@ -9,6 +9,7 @@ import {
   BookOpen,
   Wrench,
 } from 'lucide-react'
+import NavigationMenuEntry from '@/components/NavigationMenuEntry'
 
 const menuItems = [
   {
@@ -82,20 +83,24 @@ export default function GridMenu() {
     <div className="mt-4 bg-zinc-50 border-y border-zinc-100 py-5 px-4">
       <div className="grid grid-cols-4 gap-y-4 gap-x-2">
         {menuItems.map(({ label, Icon, href, bg, color, ring }) => (
-          <Link
-            key={href}
-            href={href}
-            className="flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150"
-          >
-            <div
-              className={`w-[54px] h-[54px] rounded-[18px] ${bg} ring-1 ${ring} flex items-center justify-center shadow-sm`}
+          label === '导航' ? (
+            <NavigationMenuEntry key={href} />
+          ) : (
+            <Link
+              key={href}
+              href={href}
+              className="flex flex-col items-center gap-2 active:scale-90 transition-transform duration-150"
             >
-              <Icon size={25} className={color} strokeWidth={1.7} />
-            </div>
-            <span className="text-[14px] font-medium text-zinc-800 text-center leading-tight">
-              {label}
-            </span>
-          </Link>
+              <div
+                className={`w-[54px] h-[54px] rounded-[18px] ${bg} ring-1 ${ring} flex items-center justify-center shadow-sm`}
+              >
+                <Icon size={25} className={color} strokeWidth={1.7} />
+              </div>
+              <span className="text-[14px] font-medium text-zinc-800 text-center leading-tight">
+                {label}
+              </span>
+            </Link>
+          )
         ))}
       </div>
     </div>
