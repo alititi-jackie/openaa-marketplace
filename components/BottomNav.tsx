@@ -4,7 +4,7 @@ import type { ComponentType } from 'react'
 import type { LucideProps } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Briefcase, HomeIcon, User, Navigation } from 'lucide-react'
+import { Home, Briefcase, HomeIcon, User, Newspaper } from 'lucide-react'
 
 type NavItem = {
   href: string
@@ -17,7 +17,7 @@ const items: NavItem[] = [
   { href: '/', label: '首页', Icon: Home, exact: true },
   { href: '/jobs', label: '招聘', Icon: Briefcase, exact: false },
   { href: '/housing', label: '房屋', Icon: HomeIcon, exact: false },
-  { href: 'https://openaa.com/', label: '导航', Icon: Navigation, exact: false },
+  { href: '/news', label: '新闻', Icon: Newspaper, exact: false },
   { href: '/profile', label: '我的', Icon: User, exact: false },
 ]
 
