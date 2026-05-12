@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import PostSafetyNotice from '@/components/PostSafetyNotice'
+import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
@@ -152,6 +153,7 @@ export default function HousingDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
+      <AdminReturnButton />
       <DetailBackButton fallbackHref="/housing" />
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">

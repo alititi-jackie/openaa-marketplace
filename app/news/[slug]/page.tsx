@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
+import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import NewsTipCard from '@/components/NewsTipCard'
@@ -182,6 +183,7 @@ export default async function NewsDetailPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
+        <AdminReturnButton />
         <DetailBackButton fallbackHref="/news" label="← 返回" />
 
         <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">

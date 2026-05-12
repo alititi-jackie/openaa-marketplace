@@ -90,9 +90,9 @@ function statusBadge(status: string) {
 }
 
 function moduleDetailHref(post: UnifiedPost): string {
-  if (post.module === 'jobs') return `/jobs/${post.id}`
-  if (post.module === 'housing') return `/housing/${post.id}`
-  return `/secondhand/${post.id}`
+  if (post.module === 'jobs') return `/jobs/${post.id}?from_admin=1&return_to=/admin/posts`
+  if (post.module === 'housing') return `/housing/${post.id}?from_admin=1&return_to=/admin/posts`
+  return `/secondhand/${post.id}?from_admin=1&return_to=/admin/posts`
 }
 
 function typeLabel(post: UnifiedPost): string | null {
