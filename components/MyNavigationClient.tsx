@@ -372,6 +372,45 @@ export default function MyNavigationClient() {
     }
   }
 
+  const reorderLinks = useCallback(
+    async (id1: string, id2: string) => {
+      if (!authHeaders) return
+
+      setSubmitting(true)
+      try {
+        const res = await fetch('/api/user/navigation-links/reorder', {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ id1, id2 }),
+        })
+
+        if (!res.ok) {
+          setMessage('调整顺序失败，请稍后再试')
+          return
+        }
+
+        // Swap sort_order in local state and re-sort
+        setLinks((current) => {
+          const link1 = current.find((l) => l.id === id1)
+          const link2 = current.find((l) => l.id === id2)
+          if (!link1 || !link2) return current
+          return sortLinks(
+            current.map((l) => {
+              if (l.id === id1) return { ...l, sort_order: link2.sort_order }
+              if (l.id === id2) return { ...l, sort_order: link1.sort_order }
+              return l
+            })
+          )
+        })
+      } catch {
+        setMessage('调整顺序失败，请稍后再试')
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [authHeaders, setMessage]
+  )
+
   const removeLink = async (id: string) => {
     if (!authHeaders) return
     if (!window.confirm('确定删除这个网址吗？')) return
@@ -594,7 +633,7 @@ export default function MyNavigationClient() {
             <div className="space-y-3">
               <div className="px-1 text-[13px] font-black text-zinc-900">我的常用</div>
               <div className="grid grid-cols-2 gap-3">
-                {links.map((link) =>
+                {links.map((link, index) =>
                   editingId === link.id ? (
                     <div key={link.id} className="col-span-2">
                       <MyNavigationForm
@@ -638,9 +677,25 @@ export default function MyNavigationClient() {
                         )
                       })()}
 
-                      <div className="mt-2 grid grid-cols-2 gap-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
                         {isManaging && (
                           <>
+                            <button
+                              type="button"
+                              disabled={index === 0 || submitting}
+                              onClick={() => void reorderLinks(link.id, links[index - 1].id)}
+                              className="inline-flex items-center justify-center gap-1 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-[12px] font-bold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              ↑ 上移
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === links.length - 1 || submitting}
+                              onClick={() => void reorderLinks(link.id, links[index + 1].id)}
+                              className="inline-flex items-center justify-center gap-1 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-[12px] font-bold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              ↓ 下移
+                            </button>
                             <button
                               type="button"
                               onClick={() => beginEdit(link)}
