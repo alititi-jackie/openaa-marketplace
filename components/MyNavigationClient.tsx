@@ -117,6 +117,7 @@ export default function MyNavigationClient() {
   const [links, setLinks] = useState<UserNavigationLink[]>([])
   const [navigationDefault, setNavigationDefault] = useState<NavigationDefault>('public')
   const [savingDefault, setSavingDefault] = useState(false)
+  const [isManaging, setIsManaging] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [addForm, setAddForm] = useState<LinkFormState>({ title: '', url: '' })
   const [addTitleEdited, setAddTitleEdited] = useState(false)
@@ -483,10 +484,10 @@ export default function MyNavigationClient() {
         ) : null}
 
         <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-[3fr_2fr] gap-2">
             <Link
               href="/navigation"
-              className="rounded-[22px] bg-zinc-50 px-4 py-4 ring-1 ring-zinc-100 transition hover:bg-white hover:ring-zinc-200"
+              className="rounded-[22px] bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-4 ring-1 ring-blue-100 transition hover:from-blue-100 hover:to-sky-100"
             >
               <div className="text-[14px] font-black text-zinc-900">OpenAA 导航</div>
               <div className="mt-1 text-[12px] text-zinc-500">平台常用网站</div>
@@ -499,10 +500,10 @@ export default function MyNavigationClient() {
               className="text-left rounded-[22px] bg-zinc-50 px-4 py-4 ring-1 ring-zinc-100 transition hover:bg-white hover:ring-zinc-200 disabled:opacity-60"
             >
               <div className="text-[14px] font-black text-zinc-900">
-                {navigationDefault === 'my' ? '改回 OpenAA 导航' : '设为默认导航'}
+                {navigationDefault === 'my' ? '改回默认' : '设为默认'}
               </div>
               <div className="mt-1 text-[12px] text-zinc-500">
-                {navigationDefault === 'my' ? '当前默认我的导航' : '下次优先打开我的导航'}
+                {navigationDefault === 'my' ? 'OpenAA 导航' : '下次打开我的'}
               </div>
             </button>
           </div>
@@ -516,14 +517,34 @@ export default function MyNavigationClient() {
             </div>
 
             {!showAddForm && (
-              <button
-                type="button"
-                onClick={() => setShowAddForm(true)}
-                className="inline-flex items-center gap-1 rounded-2xl bg-zinc-900 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-zinc-800"
-              >
-                <Plus size={15} />
-                添加网址
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isManaging) {
+                      setIsManaging(false)
+                      resetEditForm()
+                    } else {
+                      setIsManaging(true)
+                    }
+                  }}
+                  className={`inline-flex items-center gap-1 rounded-2xl px-4 py-2.5 text-[13px] font-bold transition ${
+                    isManaging
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
+                  }`}
+                >
+                  {isManaging ? '完成' : '管理'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(true)}
+                  className="inline-flex items-center gap-1 rounded-2xl bg-zinc-900 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-zinc-800"
+                >
+                  <Plus size={15} />
+                  添加网址
+                </button>
+              </div>
             )}
           </div>
 
@@ -614,22 +635,26 @@ export default function MyNavigationClient() {
                       })()}
 
                       <div className="mt-2 grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => beginEdit(link)}
-                          className="inline-flex items-center justify-center gap-1 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-[12px] font-bold text-zinc-700 transition hover:bg-zinc-50"
-                        >
-                          <PencilLine size={14} />
-                          编辑
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void removeLink(link.id)}
-                          className="inline-flex items-center justify-center gap-1 rounded-2xl border border-red-100 bg-red-50 px-3 py-2 text-[12px] font-bold text-red-600 transition hover:bg-red-100"
-                        >
-                          <Trash2 size={14} />
-                          删除
-                        </button>
+                        {isManaging && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => beginEdit(link)}
+                              className="inline-flex items-center justify-center gap-1 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-[12px] font-bold text-zinc-700 transition hover:bg-zinc-50"
+                            >
+                              <PencilLine size={14} />
+                              编辑
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void removeLink(link.id)}
+                              className="inline-flex items-center justify-center gap-1 rounded-2xl border border-red-100 bg-red-50 px-3 py-2 text-[12px] font-bold text-red-600 transition hover:bg-red-100"
+                            >
+                              <Trash2 size={14} />
+                              删除
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   )
