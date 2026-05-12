@@ -852,27 +852,36 @@ export default function AdminNewsPage() {
           <p className="text-sm text-gray-400">暂无符合条件的新闻</p>
         )}
         {filteredPosts.map((post) => (
-          <div key={post.id} className="rounded-xl border bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-zinc-900">{post.title}</p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {post.category} · {post.is_published ? '已发布' : '草稿'}
-                </p>
-                {post.is_pinned ? (
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-700">已置顶</span>
-                    <span className="text-zinc-500">排序 {post.pinned_order ?? 0}</span>
-                    <span className="text-zinc-500">
-                      {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
-                    </span>
-                  </div>
-                ) : null}
-                <p className="mt-1 text-xs text-zinc-400">
-                  发布时间：{formatDate(post.published_at)} · 更新时间：{formatDate(post.updated_at)}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
+          <div key={post.id} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <p className="text-base font-bold leading-snug text-zinc-900 line-clamp-2 break-words">{post.title}</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-zinc-600 ring-1 ring-zinc-100">{post.category}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs ring-1 ${
+                  post.is_published
+                    ? 'bg-blue-50 text-blue-700 ring-blue-100'
+                    : 'bg-gray-50 text-gray-600 ring-gray-200'
+                }`}
+              >
+                {post.is_published ? '已发布' : '草稿'}
+              </span>
+              {post.is_pinned ? (
+                <>
+                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">已置顶</span>
+                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-700 ring-1 ring-indigo-100">
+                    排序 {post.pinned_order ?? 0}
+                  </span>
+                  <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs text-purple-700 ring-1 ring-purple-100 break-words">
+                    {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
+                  </span>
+                </>
+              ) : null}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-zinc-500">
+              <span>发布时间：{formatDate(post.published_at)}</span>
+              <span>更新时间：{formatDate(post.updated_at)}</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => startEdit(post)}
@@ -920,7 +929,6 @@ export default function AdminNewsPage() {
                 >
                   删除
                 </button>
-              </div>
             </div>
           </div>
         ))}

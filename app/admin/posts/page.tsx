@@ -634,44 +634,41 @@ function AdminPostsContent() {
           const deleted = isDeleted(post.status)
           const active = isActive(post.status)
           return (
-            <div key={`${post.module}-${post.id}`} className="p-4 bg-white rounded-xl border shadow-sm">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-gray-900 text-sm truncate">{post.title}</span>
-                    {moduleBadge(post.module)}
-                    {statusBadge(post.status)}
-                    {label ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-500 ring-1 ring-zinc-100">
-                        {label}
-                      </span>
-                    ) : null}
-                    {price ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 ring-1 ring-green-100">
-                        {price}
-                      </span>
-                    ) : null}
-                    {isEffectivePinned(post, Date.now()) ? (
-                      <>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100">已置顶</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
-                          排序 {post.pinned_order ?? 0}
-                        </span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-100">
-                          {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
-                        </span>
-                      </>
-                    ) : null}
-                  </div>
-                  <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-gray-500">
-                    {post.location ? <span>📍 {post.location}</span> : null}
-                    {post.contact_name ? <span>👤 {post.contact_name}</span> : null}
-                    {post.phone ? <span>📞 {post.phone}</span> : null}
-                    {post.wechat ? <span>💬 {post.wechat}</span> : null}
-                    <span>🕒 {formatDate(post.created_at)}</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 flex-shrink-0">
+            <div key={`${post.module}-${post.id}`} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+              <p className="text-base font-bold leading-snug text-zinc-900 line-clamp-2 break-words">{post.title}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {moduleBadge(post.module)}
+                {statusBadge(post.status)}
+                {label ? (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-500 ring-1 ring-zinc-100">
+                    {label}
+                  </span>
+                ) : null}
+                {price ? (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 ring-1 ring-green-100">
+                    {price}
+                  </span>
+                ) : null}
+                {isEffectivePinned(post, Date.now()) ? (
+                  <>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100">已置顶</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
+                      排序 {post.pinned_order ?? 0}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-100 break-words">
+                      {post.pinned_until ? `到期：${formatPinnedUntil(post.pinned_until)}` : '长期置顶'}
+                    </span>
+                  </>
+                ) : null}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-zinc-500">
+                {post.location ? <span className="break-words">📍 {post.location}</span> : null}
+                {post.contact_name ? <span className="break-words">👤 {post.contact_name}</span> : null}
+                {post.phone ? <span className="break-words">📞 {post.phone}</span> : null}
+                {post.wechat ? <span className="break-words">💬 {post.wechat}</span> : null}
+                <span>🕒 {formatDate(post.created_at)}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
                   <Link
                     href={moduleDetailHref(post)}
                     target="_blank"
@@ -714,7 +711,6 @@ function AdminPostsContent() {
                       删除
                     </button>
                   ) : null}
-                </div>
               </div>
             </div>
           )
