@@ -81,7 +81,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-zinc-100">
-      <div className="mx-auto max-w-[560px] px-4 pt-6 pb-24 space-y-4">
+      <div className="mx-auto max-w-[560px] px-4 pt-6 pb-6 space-y-4">
         <div className="px-1">
           <h1 className="text-[18px] font-black text-zinc-900 tracking-tight">OpenAA 用户中心</h1>
           <p className="mt-1 text-[12px] text-zinc-500">管理我的信息与发布入口</p>
@@ -158,6 +158,19 @@ export default function ProfilePage() {
 
         {/* Menu */}
         <div className="bg-white rounded-2xl shadow-[0_2px_14px_rgba(0,0,0,0.06)] ring-1 ring-black/5 overflow-hidden">
+          {/* 管理我的导航 */}
+          <Link
+            href="/navigation/my"
+            aria-label="管理我的导航 - 添加和整理自己的常用网站"
+            className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-900 font-medium">🧭 管理我的导航</span>
+              <span className="text-[11px] text-zinc-400">添加和整理自己的常用网站</span>
+            </div>
+            <span className="text-zinc-300">›</span>
+          </Link>
+
           {/* 我要发布 (expand) */}
           <button
             type="button"
@@ -241,38 +254,40 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Menu order (exact) */}
-          <Link
-            href="/profile/my-items"
-            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
-          >
-            <span className="text-zinc-900">🛍️ 我的商品</span>
-            <span className="text-zinc-300">›</span>
-          </Link>
+          {/* Menu order (2-column grid) */}
+          <div className="grid grid-cols-2 border-b border-zinc-100">
+            <Link
+              href="/profile/my-items"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-r border-zinc-100"
+            >
+              <span className="text-zinc-900">🛍️ 我的商品</span>
+              <span className="text-zinc-300">›</span>
+            </Link>
 
-          <Link
-            href="/profile/my-jobs"
-            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
-          >
-            <span className="text-zinc-900">💼 我的招聘</span>
-            <span className="text-zinc-300">›</span>
-          </Link>
+            <Link
+              href="/profile/my-jobs"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition"
+            >
+              <span className="text-zinc-900">💼 我的招聘</span>
+              <span className="text-zinc-300">›</span>
+            </Link>
 
-          <Link
-            href="/profile/my-housing"
-            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
-          >
-            <span className="text-zinc-900">🏠 我的房屋</span>
-            <span className="text-zinc-300">›</span>
-          </Link>
+            <Link
+              href="/profile/my-housing"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-t border-r border-zinc-100"
+            >
+              <span className="text-zinc-900">🏠 我的房屋</span>
+              <span className="text-zinc-300">›</span>
+            </Link>
 
-          <Link
-            href="/profile/my-services"
-            className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-b border-zinc-100"
-          >
-            <span className="text-zinc-900">🛠️ 我的服务</span>
-            <span className="text-zinc-300">›</span>
-          </Link>
+            <Link
+              href="/profile/my-services"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-t border-zinc-100"
+            >
+              <span className="text-zinc-900">🛠️ 我的服务</span>
+              <span className="text-zinc-300">›</span>
+            </Link>
+          </div>
 
           <Link
             href="/feedback"
@@ -305,6 +320,18 @@ export default function ProfilePage() {
             <div className="p-4 text-[12px] text-zinc-400">登录后可使用更多功能</div>
           )}
         </div>
+      </div>
+
+      {/* 平台公告 */}
+      <div className="mx-auto max-w-[560px] px-4 pb-24">
+        <Link
+          href="/news"
+          aria-label="查看平台公告和最新规则更新"
+          className="block bg-blue-50 border border-blue-100 rounded-2xl px-4 py-4 text-center hover:bg-blue-100 transition"
+        >
+          <p className="text-[14px] font-bold text-blue-700">平台公告</p>
+          <p className="mt-1 text-[12px] text-blue-500">查看 OpenAA 最新规则与更新</p>
+        </Link>
       </div>
 
       {toast ? (
