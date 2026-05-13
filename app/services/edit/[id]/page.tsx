@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
 import { validateContactFields } from '@/lib/contactValidation'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import type { ServicePost } from '@/types'
 
 type PreviewImage =
@@ -120,6 +121,14 @@ export default function ServiceEditPage({
         return
       }
 
+      const permission = await assertUserCanPostOrEdit(supabase, user.id)
+      if (cancelled) return
+      if (!permission.allowed) {
+        setError(BANNED_ACCOUNT_MESSAGE)
+        setLoading(false)
+        return
+      }
+
       const { data, error: fetchError } = await supabase
         .from('service_posts')
         .select('*')
@@ -185,6 +194,13 @@ export default function ServiceEditPage({
     const user = authData?.user
     if (!user || !post) {
       router.push('/auth/login')
+      return
+    }
+
+    const permission = await assertUserCanPostOrEdit(supabase, user.id)
+    if (!permission.allowed) {
+      setError(BANNED_ACCOUNT_MESSAGE)
+      setSaving(false)
       return
     }
 
