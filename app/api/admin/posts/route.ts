@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const moduleFilter = searchParams.get('module') // 'all' | 'jobs' | 'housing' | 'secondhand'
+  const userIdFilter = searchParams.get('user_id')?.trim()
 
   const supabase = getServiceClient()
   const results: UnifiedPost[] = []
@@ -57,24 +58,33 @@ export async function GET(request: NextRequest) {
 
   const [jobsResult, housingResult, secondhandResult] = await Promise.all([
     wantJobs
-      ? supabase
-          .from('job_postings')
-          .select('*')
-          .order('created_at', { ascending: false })
+      ? (() => {
+          const query = supabase
+            .from('job_postings')
+            .select('*')
+            .order('created_at', { ascending: false })
+          return userIdFilter ? query.eq('user_id', userIdFilter) : query
+        })()
       : Promise.resolve({ data: null, error: null }),
 
     wantHousing
-      ? supabase
-          .from('housing_posts')
-          .select('*')
-          .order('created_at', { ascending: false })
+      ? (() => {
+          const query = supabase
+            .from('housing_posts')
+            .select('*')
+            .order('created_at', { ascending: false })
+          return userIdFilter ? query.eq('user_id', userIdFilter) : query
+        })()
       : Promise.resolve({ data: null, error: null }),
 
     wantSecondhand
-      ? supabase
-          .from('secondhand_items')
-          .select('*')
-          .order('created_at', { ascending: false })
+      ? (() => {
+          const query = supabase
+            .from('secondhand_items')
+            .select('*')
+            .order('created_at', { ascending: false })
+          return userIdFilter ? query.eq('user_id', userIdFilter) : query
+        })()
       : Promise.resolve({ data: null, error: null }),
   ])
 
