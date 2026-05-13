@@ -27,6 +27,8 @@ type LatestTickerPayload = {
   sections: LatestTickerSectionSettings[]
 }
 
+type SectionDraft = Pick<EditableSection, 'is_visible' | 'display_order' | 'limit_count'>
+
 function sortSections(a: EditableSection, b: EditableSection) {
   return a.display_order - b.display_order
 }
@@ -51,6 +53,8 @@ export default function AdminHomeSectionsPage() {
   const [mainMessage, setMainMessage] = useAutoMessage()
   const [newsSaving, setNewsSaving] = useState(false)
   const [newsMessage, setNewsMessage] = useAutoMessage()
+  const [mainDraftValues, setMainDraftValues] = useState<Record<string, SectionDraft>>({})
+  const [newsDraftValues, setNewsDraftValues] = useState<Record<string, SectionDraft>>({})
   const [activeNav, setActiveNav] = useState<'main' | 'news' | 'dynamic'>('main')
 
   async function fetchSections(adminToken: string) {
@@ -75,6 +79,8 @@ export default function AdminHomeSectionsPage() {
       } else {
         setSections(DEFAULT_HOME_LATEST_SECTIONS)
       }
+      setMainDraftValues({})
+      setNewsDraftValues({})
       const latestTickerGlobal = normalizeLatestTickerGlobalSettings(json.latest_ticker?.global)
       const latestTickerSections = normalizeLatestTickerSections(json.latest_ticker?.sections)
       setLatestTickerGlobal(latestTickerGlobal)
@@ -122,8 +128,54 @@ export default function AdminHomeSectionsPage() {
     setLatestTickerSections(DEFAULT_LATEST_TICKER_SECTION_SETTINGS)
   }
 
-  function updateSection(sectionKey: string, patch: Partial<EditableSection>) {
-    setSections((prev) => prev.map((item) => (item.section_key === sectionKey ? { ...item, ...patch } : item)))
+  function updateSectionDraft(
+    sectionKey: string,
+    patch: Partial<SectionDraft>,
+    sectionType: 'main' | 'news',
+    fallback: EditableSection,
+  ) {
+    const setDraftValues = sectionType === 'main' ? setMainDraftValues : setNewsDraftValues
+    setDraftValues((prev) => {
+      const current = prev[sectionKey] ?? {
+        is_visible: fallback.is_visible,
+        display_order: fallback.display_order,
+        limit_count: fallback.limit_count,
+      }
+      return {
+        ...prev,
+        [sectionKey]: {
+          ...current,
+          ...patch,
+        },
+      }
+    })
+  }
+
+  function getSectionDraft(section: EditableSection, sectionType: 'main' | 'news'): SectionDraft {
+    const draftValues = sectionType === 'main' ? mainDraftValues : newsDraftValues
+    return draftValues[section.section_key] ?? {
+      is_visible: section.is_visible,
+      display_order: section.display_order,
+      limit_count: section.limit_count,
+    }
+  }
+
+  async function refetchSectionSubset(adminToken: string, sectionType: 'main' | 'news') {
+    const res = await fetch('/api/admin/home-sections', {
+      headers: { 'x-admin-token': adminToken },
+    })
+    const json = (await res.json()) as { error?: string; data?: EditableSection[] }
+    if (!res.ok || !Array.isArray(json.data) || json.data.length === 0) {
+      return
+    }
+    const sectionFilter =
+      sectionType === 'main'
+        ? (section: EditableSection) => section.section_type === 'main'
+        : (section: EditableSection) => section.section_type === 'news_category' && section.parent_key === 'latest_news'
+    const nextSectionMap = new Map(
+      json.data.filter(sectionFilter).map((section) => [section.section_key, section]),
+    )
+    setSections((prev) => prev.map((section) => nextSectionMap.get(section.section_key) ?? section))
   }
 
   function updateLatestTickerSection(sectionKey: string, patch: Partial<LatestTickerSectionSettings>) {
@@ -199,9 +251,9 @@ export default function AdminHomeSectionsPage() {
     try {
       const payload = mainSections.map((item) => ({
         section_key: item.section_key,
-        is_visible: item.is_visible,
-        display_order: item.display_order,
-        limit_count: item.limit_count,
+        is_visible: getSectionDraft(item, 'main').is_visible,
+        display_order: getSectionDraft(item, 'main').display_order,
+        limit_count: getSectionDraft(item, 'main').limit_count,
       }))
       const res = await fetch('/api/admin/home-sections', {
         method: 'PATCH',
@@ -216,9 +268,8 @@ export default function AdminHomeSectionsPage() {
         setMainMessage(json.error || '保存失败')
         return
       }
-      if (Array.isArray(json.data) && json.data.length > 0) {
-        setSections(json.data)
-      }
+      await refetchSectionSubset(token, 'main')
+      setMainDraftValues({})
       setMainMessage('保存成功')
     } catch {
       setMainMessage('网络错误，请稍后重试')
@@ -237,9 +288,9 @@ export default function AdminHomeSectionsPage() {
     try {
       const payload = newsSections.map((item) => ({
         section_key: item.section_key,
-        is_visible: item.is_visible,
-        display_order: item.display_order,
-        limit_count: item.limit_count,
+        is_visible: getSectionDraft(item, 'news').is_visible,
+        display_order: getSectionDraft(item, 'news').display_order,
+        limit_count: getSectionDraft(item, 'news').limit_count,
       }))
       const res = await fetch('/api/admin/home-sections', {
         method: 'PATCH',
@@ -254,9 +305,8 @@ export default function AdminHomeSectionsPage() {
         setNewsMessage(json.error || '保存失败')
         return
       }
-      if (Array.isArray(json.data) && json.data.length > 0) {
-        setSections(json.data)
-      }
+      await refetchSectionSubset(token, 'news')
+      setNewsDraftValues({})
       setNewsMessage('保存成功')
     } catch {
       setNewsMessage('网络错误，请稍后重试')
@@ -348,8 +398,10 @@ export default function AdminHomeSectionsPage() {
                     <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
                       <input
                         type="checkbox"
-                        checked={section.is_visible}
-                        onChange={(e) => updateSection(section.section_key, { is_visible: e.target.checked })}
+                        checked={getSectionDraft(section, 'main').is_visible}
+                        onChange={(e) =>
+                          updateSectionDraft(section.section_key, { is_visible: e.target.checked }, 'main', section)
+                        }
                       />
                       显示
                     </label>
@@ -360,9 +412,14 @@ export default function AdminHomeSectionsPage() {
                       <input
                         type="number"
                         min={0}
-                        value={section.display_order}
+                        value={getSectionDraft(section, 'main').display_order}
                         onChange={(e) =>
-                          updateSection(section.section_key, { display_order: Math.max(0, Number(e.target.value)) })
+                          updateSectionDraft(
+                            section.section_key,
+                            { display_order: Math.max(0, Number(e.target.value)) },
+                            'main',
+                            section,
+                          )
                         }
                         className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
                       />
@@ -373,11 +430,14 @@ export default function AdminHomeSectionsPage() {
                         type="number"
                         min={1}
                         max={30}
-                        value={section.limit_count}
+                        value={getSectionDraft(section, 'main').limit_count}
                         onChange={(e) =>
-                          updateSection(section.section_key, {
-                            limit_count: Math.min(30, Math.max(1, Number(e.target.value))),
-                          })
+                          updateSectionDraft(
+                            section.section_key,
+                            { limit_count: Math.min(30, Math.max(1, Number(e.target.value))) },
+                            'main',
+                            section,
+                          )
                         }
                         className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
                       />
@@ -417,8 +477,10 @@ export default function AdminHomeSectionsPage() {
                     <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
                       <input
                         type="checkbox"
-                        checked={section.is_visible}
-                        onChange={(e) => updateSection(section.section_key, { is_visible: e.target.checked })}
+                        checked={getSectionDraft(section, 'news').is_visible}
+                        onChange={(e) =>
+                          updateSectionDraft(section.section_key, { is_visible: e.target.checked }, 'news', section)
+                        }
                       />
                       显示
                     </label>
@@ -429,9 +491,14 @@ export default function AdminHomeSectionsPage() {
                       <input
                         type="number"
                         min={0}
-                        value={section.display_order}
+                        value={getSectionDraft(section, 'news').display_order}
                         onChange={(e) =>
-                          updateSection(section.section_key, { display_order: Math.max(0, Number(e.target.value)) })
+                          updateSectionDraft(
+                            section.section_key,
+                            { display_order: Math.max(0, Number(e.target.value)) },
+                            'news',
+                            section,
+                          )
                         }
                         className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
                       />
@@ -442,11 +509,14 @@ export default function AdminHomeSectionsPage() {
                         type="number"
                         min={1}
                         max={30}
-                        value={section.limit_count}
+                        value={getSectionDraft(section, 'news').limit_count}
                         onChange={(e) =>
-                          updateSection(section.section_key, {
-                            limit_count: Math.min(30, Math.max(1, Number(e.target.value))),
-                          })
+                          updateSectionDraft(
+                            section.section_key,
+                            { limit_count: Math.min(30, Math.max(1, Number(e.target.value))) },
+                            'news',
+                            section,
+                          )
                         }
                         className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
                       />
