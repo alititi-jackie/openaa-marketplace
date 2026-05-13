@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signInWithEmail } from '@/lib/auth'
-import GoogleLoginButton from './GoogleLoginButton'
 
 export default function LoginForm({ redirectPath = '/profile' }: { redirectPath?: string }) {
   const router = useRouter()
@@ -41,14 +40,6 @@ export default function LoginForm({ redirectPath = '/profile' }: { redirectPath?
         <p className="mt-1 text-[12px] text-zinc-400">
           Login to post listings, jobs and manage your OpenAA account.
         </p>
-      </div>
-
-      <GoogleLoginButton redirectPath={redirectPath} />
-
-      <div className="flex items-center gap-3 my-4">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-gray-400 text-sm">或</span>
-        <div className="flex-1 h-px bg-gray-200" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
