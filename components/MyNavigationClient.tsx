@@ -72,7 +72,7 @@ function MyNavigationForm({
             inputMode="url"
             value={form.url}
             onChange={(event) => onUrlChange(event.target.value)}
-            placeholder="https://example.com"
+            placeholder="https://openaa.com"
             className="w-full rounded-2xl border border-zinc-200 px-3.5 py-3 text-[14px] text-zinc-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
@@ -83,7 +83,7 @@ function MyNavigationForm({
             type="text"
             value={form.title}
             onChange={(event) => onTitleChange(event.target.value)}
-            placeholder="例如：Amazon"
+            placeholder="例如：华人OpenAA"
             className="w-full rounded-2xl border border-zinc-200 px-3.5 py-3 text-[14px] text-zinc-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
