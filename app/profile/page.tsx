@@ -324,7 +324,7 @@ export default function ProfilePage() {
       {/* 平台公告 */}
       <div className="mx-auto max-w-[560px] px-4 pb-24">
         <Link
-          href="/news?category=平台公告"
+          href={`/news?category=${encodeURIComponent('平台公告')}`}
           aria-label="查看平台公告和最新规则更新"
           className="block bg-blue-50 border border-blue-100 rounded-2xl px-4 py-4 text-center hover:bg-blue-100 transition"
         >
