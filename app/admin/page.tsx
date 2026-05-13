@@ -99,8 +99,9 @@ const ADMIN_ENTRIES: AdminEntry[] = [
     id: 'users',
     icon: '👥',
     title: '用户管理',
-    description: '管理用户状态、封禁与审核。',
-    status: '待开发',
+    description: '管理注册用户、账号状态、禁用与备注。',
+    status: '已可用',
+    href: '/admin/users',
   },
 ]
 
@@ -116,10 +117,30 @@ export default function AdminHomePage() {
   const [tokenInput, setTokenInput] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [totalUsers, setTotalUsers] = useState<number | null>(null)
+
+  async function fetchTotalUsers(token: string) {
+    try {
+      const res = await fetch('/api/admin/users?limit=1', {
+        headers: { 'x-admin-token': token },
+        cache: 'no-store',
+      })
+      if (!res.ok) {
+        setTotalUsers(null)
+        return
+      }
+      const json = (await res.json()) as { total?: number }
+      setTotalUsers(typeof json.total === 'number' ? json.total : null)
+    } catch {
+      setTotalUsers(null)
+    }
+  }
 
   useEffect(() => {
-    setIsLoggedIn(Boolean(getAdminToken()))
+    const stored = getAdminToken()
+    setIsLoggedIn(Boolean(stored))
     setIsReady(true)
+    if (stored) void fetchTotalUsers(stored)
   }, [])
 
   function handleLogin() {
@@ -128,12 +149,14 @@ export default function AdminHomePage() {
     setAdminToken(token)
     setIsLoggedIn(true)
     setTokenInput('')
+    void fetchTotalUsers(token)
   }
 
   function handleLogout() {
     clearAdminToken()
     setTokenInput('')
     setIsLoggedIn(false)
+    setTotalUsers(null)
   }
 
   return (
@@ -203,6 +226,11 @@ export default function AdminHomePage() {
                       <p className="text-lg leading-none">{entry.icon}</p>
                       <h2 className="mt-2 text-base font-semibold text-zinc-900">{entry.title}</h2>
                       <p className="mt-1 text-sm text-zinc-600">{entry.description}</p>
+                      {entry.id === 'users' ? (
+                        <p className="mt-2 text-sm text-zinc-500">
+                          总用户：{totalUsers === null ? '--' : totalUsers}
+                        </p>
+                      ) : null}
                     </div>
                     <span
                       className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${
