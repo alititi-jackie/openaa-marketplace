@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import JobForm from '@/components/JobForm'
 import type { JobPosting, JobPostingType } from '@/types'
 
@@ -55,6 +56,16 @@ function PublishJobPageInner() {
         if (!user.email_confirmed_at) {
           if (!cancelled) {
             setAuthStatus('email-not-verified')
+            setChecking(false)
+          }
+          return
+        }
+
+        const permission = await assertUserCanPostOrEdit(supabase, user.id)
+        if (!permission.allowed) {
+          if (!cancelled) {
+            setAuthStatus('ok')
+            setError(BANNED_ACCOUNT_MESSAGE)
             setChecking(false)
           }
           return
