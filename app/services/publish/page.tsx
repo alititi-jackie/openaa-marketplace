@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
@@ -117,6 +118,15 @@ function ServicesPublishClient() {
           if (!cancelled) { setAuthStatus('email-not-verified'); setChecking(false) }
           return
         }
+        const permission = await assertUserCanPostOrEdit(supabase, user.id)
+        if (!permission.allowed) {
+          if (!cancelled) {
+            setAuthStatus('ok')
+            setError(BANNED_ACCOUNT_MESSAGE)
+            setChecking(false)
+          }
+          return
+        }
         if (!cancelled) { setAuthStatus('ok'); setChecking(false) }
       } catch {
         if (!cancelled) { setAuthStatus('not-logged-in'); setChecking(false) }
@@ -146,6 +156,13 @@ function ServicesPublishClient() {
     const user = authData?.user
     if (!user) {
       router.push('/auth/login')
+      return
+    }
+
+    const permission = await assertUserCanPostOrEdit(supabase, user.id)
+    if (!permission.allowed) {
+      setError(BANNED_ACCOUNT_MESSAGE)
+      setLoading(false)
       return
     }
 
@@ -269,7 +286,10 @@ function ServicesPublishClient() {
     <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">发布服务</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+      {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>}
+
+      {!error ? (
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -492,7 +512,8 @@ function ServicesPublishClient() {
         >
           {loading ? '发布中...' : '发布服务'}
         </button>
-      </form>
+        </form>
+      ) : null}
     </div>
   )
 }
