@@ -170,7 +170,7 @@ export default function SecondhandPage() {
             onChange={(e) => setCategory(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
           >
-            <option value="">全部分类</option>
+            <option value="">不限</option>
             {SECONDHAND_CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}

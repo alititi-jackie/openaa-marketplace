@@ -1,12 +1,12 @@
 export const SECONDHAND_CATEGORIES = [
-  '电子产品',
-  '家具家居',
-  '服装鞋帽',
-  '图书教材',
-  '运动健身',
+  '生活用品',
   '母婴用品',
-  '汽车用品',
-  '其他',
+  '电子产品',
+  '服饰箱包',
+  '办公用品',
+  '宠物',
+  '家具家电',
+  '其它二手',
 ]
 
 export { JOB_CATEGORY_OPTIONS as JOB_CATEGORIES, DEFAULT_JOB_CATEGORY } from '@/lib/jobOptions'
