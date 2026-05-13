@@ -7,6 +7,7 @@ import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { ServicePost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import BackToTopButton from '@/components/BackToTopButton'
+import FilterDropdown from '@/components/FilterDropdown'
 
 const SERVICE_CATEGORIES_FILTER = [
   '全部',
@@ -33,6 +34,7 @@ const STATUS_FILTERS = [
 ] as const
 
 type StatusFilter = 'all' | 'active' | 'hidden' | 'deleted'
+type OpenFilterKey = 'category' | 'location' | 'status' | null
 type PinFormState = {
   is_pinned: boolean
   pinned_order: number
@@ -102,6 +104,7 @@ function AdminServicesContent() {
   const [categoryFilter, setCategoryFilter] = useState('全部')
   const [locationFilter, setLocationFilter] = useState('全部')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [openFilterKey, setOpenFilterKey] = useState<OpenFilterKey>(null)
   const [pinEditingId, setPinEditingId] = useState<string | null>(null)
   const [pinForm, setPinForm] = useState<PinFormState>({
     is_pinned: false,
@@ -382,56 +385,45 @@ function AdminServicesContent() {
           placeholder="搜索标题 / 联系人 / 电话 / 微信..."
           className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <div className="flex flex-wrap gap-2">
-          {SERVICE_CATEGORIES_FILTER.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategoryFilter(cat)}
-              className={
-                'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                (categoryFilter === cat
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-              }
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {SERVICE_LOCATIONS_FILTER.map((loc) => (
-            <button
-              key={loc}
-              type="button"
-              onClick={() => setLocationFilter(loc)}
-              className={
-                'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                (locationFilter === loc
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-              }
-            >
-              {loc === '全部' ? '全部地区' : loc}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((sf) => (
-            <button
-              key={sf.key}
-              type="button"
-              onClick={() => setStatusFilter(sf.key)}
-              className={
-                'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                (statusFilter === sf.key
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-              }
-            >
-              {sf.label}
-            </button>
-          ))}
+        <div className="sticky top-14 z-20 -mx-4 border-y border-zinc-100 bg-zinc-50/95 px-4 py-2 shadow-[0_6px_16px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+          <div className="flex flex-wrap gap-2">
+            <FilterDropdown
+              value={categoryFilter}
+              options={SERVICE_CATEGORIES_FILTER.map((cat) => ({
+                value: cat,
+                label: cat === '全部' ? '全部服务分类' : cat,
+              }))}
+              onChange={(next) => setCategoryFilter(String(next))}
+              placeholder="全部服务分类"
+              className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+              isOpen={openFilterKey === 'category'}
+              onOpenChange={(open) => setOpenFilterKey(open ? 'category' : null)}
+            />
+            <FilterDropdown
+              value={locationFilter}
+              options={SERVICE_LOCATIONS_FILTER.map((loc) => ({
+                value: loc,
+                label: loc === '全部' ? '全部地区' : loc,
+              }))}
+              onChange={(next) => setLocationFilter(String(next))}
+              placeholder="全部地区"
+              className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+              isOpen={openFilterKey === 'location'}
+              onOpenChange={(open) => setOpenFilterKey(open ? 'location' : null)}
+            />
+            <FilterDropdown
+              value={statusFilter}
+              options={STATUS_FILTERS.map((sf) => ({
+                value: sf.key,
+                label: sf.label,
+              }))}
+              onChange={(next) => setStatusFilter(next as StatusFilter)}
+              placeholder="全部状态"
+              className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+              isOpen={openFilterKey === 'status'}
+              onOpenChange={(open) => setOpenFilterKey(open ? 'status' : null)}
+            />
+          </div>
         </div>
       </div>
 

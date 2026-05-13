@@ -7,6 +7,7 @@ import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { UnifiedPost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import BackToTopButton from '@/components/BackToTopButton'
+import FilterDropdown from '@/components/FilterDropdown'
 
 const MODULE_FILTERS = [
   { key: 'all', label: '全部模块' },
@@ -26,6 +27,7 @@ const LOCATION_FILTER_OPTIONS = ['全部地区', ...LOCATION_OPTIONS] as const
 
 type ModuleFilter = 'all' | 'jobs' | 'housing' | 'secondhand'
 type StatusFilter = 'all' | 'published' | 'hidden' | 'deleted'
+type OpenFilterKey = 'module' | 'location' | 'status' | null
 type PinFormState = {
   is_pinned: boolean
   pinned_order: number
@@ -180,6 +182,7 @@ function AdminPostsContent() {
   const [moduleFilter, setModuleFilter] = useState<ModuleFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [locationFilter, setLocationFilter] = useState('全部地区')
+  const [openFilterKey, setOpenFilterKey] = useState<OpenFilterKey>(null)
   const [pinEditingPost, setPinEditingPost] = useState<UnifiedPost | null>(null)
   const [pinForm, setPinForm] = useState<PinFormState>({
     is_pinned: false,
@@ -499,62 +502,45 @@ function AdminPostsContent() {
             placeholder="搜索标题 / 地区 / 联系人 / 电话 / 微信..."
             className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          {/* Module filter */}
-          <div className="flex flex-wrap gap-2">
-            {MODULE_FILTERS.map((f) => (
-              <button
-                key={f.key}
-                type="button"
-                onClick={() => setModuleFilter(f.key)}
-                className={
-                  'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                  (moduleFilter === f.key
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-                }
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Status filter */}
-          <div className="flex flex-wrap gap-2">
-            {STATUS_FILTERS.map((f) => (
-              <button
-                key={f.key}
-                type="button"
-                onClick={() => setStatusFilter(f.key)}
-                className={
-                  'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                  (statusFilter === f.key
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-                }
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Location filter */}
-          <div className="flex flex-wrap gap-2">
-            {LOCATION_FILTER_OPTIONS.map((loc) => (
-              <button
-                key={loc}
-                type="button"
-                onClick={() => setLocationFilter(loc)}
-                className={
-                  'px-3 py-1 rounded-full text-xs font-medium border transition ' +
-                  (locationFilter === loc
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50')
-                }
-              >
-                {loc}
-              </button>
-            ))}
+          <div className="sticky top-14 z-20 -mx-4 border-y border-zinc-100 bg-zinc-50/95 px-4 py-2 shadow-[0_6px_16px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+            <div className="flex flex-wrap gap-2">
+              <FilterDropdown
+                value={moduleFilter}
+                options={MODULE_FILTERS.map((f) => ({
+                  value: f.key,
+                  label: f.label,
+                }))}
+                onChange={(next) => setModuleFilter(next as ModuleFilter)}
+                placeholder="全部模块"
+                className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+                isOpen={openFilterKey === 'module'}
+                onOpenChange={(open) => setOpenFilterKey(open ? 'module' : null)}
+              />
+              <FilterDropdown
+                value={locationFilter}
+                options={LOCATION_FILTER_OPTIONS.map((loc) => ({
+                  value: loc,
+                  label: loc,
+                }))}
+                onChange={(next) => setLocationFilter(String(next))}
+                placeholder="全部地区"
+                className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+                isOpen={openFilterKey === 'location'}
+                onOpenChange={(open) => setOpenFilterKey(open ? 'location' : null)}
+              />
+              <FilterDropdown
+                value={statusFilter}
+                options={STATUS_FILTERS.map((f) => ({
+                  value: f.key,
+                  label: f.label,
+                }))}
+                onChange={(next) => setStatusFilter(next as StatusFilter)}
+                placeholder="全部状态"
+                className="w-[calc(50%-0.25rem)] min-w-0 sm:w-[190px]"
+                isOpen={openFilterKey === 'status'}
+                onOpenChange={(open) => setOpenFilterKey(open ? 'status' : null)}
+              />
+            </div>
           </div>
         </div>
       ) : null}
