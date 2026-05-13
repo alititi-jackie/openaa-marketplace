@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
@@ -157,6 +158,16 @@ function HousingPublishClient() {
           return
         }
 
+        const permission = await assertUserCanPostOrEdit(supabase, user.id)
+        if (!permission.allowed) {
+          if (!cancelled) {
+            setAuthStatus('ok')
+            setError(BANNED_ACCOUNT_MESSAGE)
+            setChecking(false)
+          }
+          return
+        }
+
         authedUserId = user.id
         if (!cancelled) setAuthStatus('ok')
       } catch {
@@ -251,6 +262,13 @@ function HousingPublishClient() {
 
     if (!user) {
       router.push('/auth/login')
+      return
+    }
+
+    const permission = await assertUserCanPostOrEdit(supabase, user.id)
+    if (!permission.allowed) {
+      setError(BANNED_ACCOUNT_MESSAGE)
+      setLoading(false)
       return
     }
 
@@ -433,7 +451,7 @@ function HousingPublishClient() {
 
       {loadingEdit ? (
         <div className="flex justify-center py-20 text-gray-500">加载中...</div>
-      ) : (
+      ) : error ? null : (
         <>
           {/* Mode switch */}
           <div className="mb-4">
