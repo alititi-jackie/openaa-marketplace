@@ -13,13 +13,14 @@ interface TickerItem {
   created_at: string
 }
 
-const INTERVAL_MS = 3500
+const DEFAULT_INTERVAL_MS = 4000
 const SWIPE_THRESHOLD = 40
 
 export default function LatestTickerBar() {
   const [items, setItems] = useState<TickerItem[]>([])
   const [status, setStatus] = useState<'loading' | 'ok' | 'empty' | 'error'>('loading')
   const [index, setIndex] = useState(0)
+  const [intervalMs, setIntervalMs] = useState(DEFAULT_INTERVAL_MS)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const touchStartXRef = useRef<number | null>(null)
   const didSwipeRef = useRef(false)
@@ -30,6 +31,12 @@ export default function LatestTickerBar() {
       .then((res) => res.json())
       .then((json) => {
         if (cancelled) return
+        const intervalSeconds = Number(json?.interval_seconds)
+        if (Number.isInteger(intervalSeconds) && intervalSeconds >= 3 && intervalSeconds <= 10) {
+          setIntervalMs(intervalSeconds * 1000)
+        } else {
+          setIntervalMs(DEFAULT_INTERVAL_MS)
+        }
         const data: TickerItem[] = Array.isArray(json?.data) ? json.data : []
         if (data.length === 0) {
           setStatus('empty')
@@ -39,29 +46,32 @@ export default function LatestTickerBar() {
         }
       })
       .catch(() => {
-        if (!cancelled) setStatus('error')
+        if (!cancelled) {
+          setIntervalMs(DEFAULT_INTERVAL_MS)
+          setStatus('error')
+        }
       })
     return () => {
       cancelled = true
     }
   }, [])
 
-  const restartTimer = useCallback((count: number) => {
+  const restartTimer = useCallback((count: number, nextIntervalMs: number) => {
     if (timerRef.current) clearInterval(timerRef.current)
     if (count <= 1) return
     timerRef.current = setInterval(() => {
       setIndex((prev) => (prev + 1) % count)
-    }, INTERVAL_MS)
+    }, nextIntervalMs)
   }, [])
 
   // Auto-rotate
   useEffect(() => {
     if (status !== 'ok' || items.length <= 1) return
-    restartTimer(items.length)
+    restartTimer(items.length, intervalMs)
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [status, items.length, restartTimer])
+  }, [status, items.length, intervalMs, restartTimer])
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0]?.clientX ?? null
@@ -81,7 +91,7 @@ export default function LatestTickerBar() {
     } else {
       setIndex((prev) => (prev - 1 + items.length) % items.length)
     }
-    restartTimer(items.length)
+    restartTimer(items.length, intervalMs)
   }
 
   const handleClick = (e: React.MouseEvent) => {

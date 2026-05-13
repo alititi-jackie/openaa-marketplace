@@ -6,11 +6,26 @@ import BackToTopButton from '@/components/BackToTopButton'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import { DEFAULT_HOME_LATEST_SECTIONS, type HomeLatestSection } from '@/lib/homeSections'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
+import {
+  clampTickerDisplayCount,
+  clampTickerIntervalSeconds,
+  DEFAULT_LATEST_TICKER_GLOBAL_SETTINGS,
+  DEFAULT_LATEST_TICKER_SECTION_SETTINGS,
+  normalizeLatestTickerGlobalSettings,
+  normalizeLatestTickerSections,
+  type LatestTickerGlobalSettings,
+  type LatestTickerSectionSettings,
+} from '@/lib/latestTickerSettings'
 
 type EditableSection = Pick<
   HomeLatestSection,
   'section_key' | 'section_name' | 'section_type' | 'parent_key' | 'is_visible' | 'display_order' | 'limit_count'
 >
+
+type LatestTickerPayload = {
+  global: LatestTickerGlobalSettings
+  sections: LatestTickerSectionSettings[]
+}
 
 function sortSections(a: EditableSection, b: EditableSection) {
   return a.display_order - b.display_order
@@ -25,8 +40,16 @@ export default function AdminHomeSectionsPage() {
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useAutoMessage()
   const [successMessage, setSuccessMessage] = useAutoMessage()
+  const [latestTickerMessage, setLatestTickerMessage] = useAutoMessage()
   const [localSaveMessage, setLocalSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [sections, setSections] = useState<EditableSection[]>(DEFAULT_HOME_LATEST_SECTIONS)
+  const [latestTickerGlobal, setLatestTickerGlobal] = useState<LatestTickerGlobalSettings>(
+    DEFAULT_LATEST_TICKER_GLOBAL_SETTINGS,
+  )
+  const [latestTickerSections, setLatestTickerSections] = useState<LatestTickerSectionSettings[]>(
+    DEFAULT_LATEST_TICKER_SECTION_SETTINGS,
+  )
+  const [savingLatestTicker, setSavingLatestTicker] = useState(false)
   const saveAreaRef = useRef<HTMLDivElement>(null)
   const localSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -38,7 +61,11 @@ export default function AdminHomeSectionsPage() {
       const res = await fetch('/api/admin/home-sections', {
         headers: { 'x-admin-token': adminToken },
       })
-      const json = (await res.json()) as { error?: string; data?: EditableSection[] }
+      const json = (await res.json()) as {
+        error?: string
+        data?: EditableSection[]
+        latest_ticker?: Partial<LatestTickerPayload>
+      }
       if (!res.ok) {
         setErrorMessage(json.error || '加载失败')
         return
@@ -48,6 +75,10 @@ export default function AdminHomeSectionsPage() {
       } else {
         setSections(DEFAULT_HOME_LATEST_SECTIONS)
       }
+      const latestTickerGlobal = normalizeLatestTickerGlobalSettings(json.latest_ticker?.global)
+      const latestTickerSections = normalizeLatestTickerSections(json.latest_ticker?.sections)
+      setLatestTickerGlobal(latestTickerGlobal)
+      setLatestTickerSections(latestTickerSections)
     } catch {
       setErrorMessage('网络错误，请稍后重试')
     } finally {
@@ -83,6 +114,7 @@ export default function AdminHomeSectionsPage() {
     setShowTokenEditor(false)
     setErrorMessage('')
     setSuccessMessage('')
+    setLatestTickerMessage('')
     void fetchSections(nextToken)
   }
 
@@ -94,11 +126,72 @@ export default function AdminHomeSectionsPage() {
     setShowTokenEditor(false)
     setErrorMessage('')
     setSuccessMessage('')
+    setLatestTickerMessage('')
     setSections(DEFAULT_HOME_LATEST_SECTIONS)
+    setLatestTickerGlobal(DEFAULT_LATEST_TICKER_GLOBAL_SETTINGS)
+    setLatestTickerSections(DEFAULT_LATEST_TICKER_SECTION_SETTINGS)
   }
 
   function updateSection(sectionKey: string, patch: Partial<EditableSection>) {
     setSections((prev) => prev.map((item) => (item.section_key === sectionKey ? { ...item, ...patch } : item)))
+  }
+
+  function updateLatestTickerSection(sectionKey: string, patch: Partial<LatestTickerSectionSettings>) {
+    setLatestTickerSections((prev) =>
+      prev
+        .map((item) => (item.section_key === sectionKey ? { ...item, ...patch } : item))
+        .sort((a, b) => a.sort_order - b.sort_order),
+    )
+  }
+
+  async function saveLatestTicker() {
+    if (!token) {
+      setLatestTickerMessage('请先输入 Admin Token')
+      return
+    }
+    setSavingLatestTicker(true)
+    setLatestTickerMessage('')
+    try {
+      const payload = {
+        latest_ticker: {
+          global: {
+            is_enabled: latestTickerGlobal.is_enabled,
+            interval_seconds: clampTickerIntervalSeconds(latestTickerGlobal.interval_seconds),
+          },
+          sections: latestTickerSections.map((section) => ({
+            section_key: section.section_key,
+            is_enabled: section.is_enabled,
+            sort_order: section.sort_order,
+            display_count: clampTickerDisplayCount(section.display_count),
+          })),
+        },
+      }
+      const res = await fetch('/api/admin/home-sections', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token,
+        },
+        body: JSON.stringify(payload),
+      })
+      const json = (await res.json()) as {
+        error?: string
+        latest_ticker?: Partial<LatestTickerPayload>
+      }
+      if (!res.ok) {
+        setLatestTickerMessage(json.error || '保存失败')
+        return
+      }
+      const latestTickerGlobalFromApi = normalizeLatestTickerGlobalSettings(json.latest_ticker?.global)
+      const latestTickerSectionsFromApi = normalizeLatestTickerSections(json.latest_ticker?.sections)
+      setLatestTickerGlobal(latestTickerGlobalFromApi)
+      setLatestTickerSections(latestTickerSectionsFromApi)
+      setLatestTickerMessage('保存成功')
+    } catch {
+      setLatestTickerMessage('网络错误，请稍后重试')
+    } finally {
+      setSavingLatestTicker(false)
+    }
   }
 
   async function saveAll() {
@@ -298,6 +391,114 @@ export default function AdminHomeSectionsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <h2 className="text-base font-semibold text-zinc-900">最新动态滚动条设置</h2>
+            <div className="mt-4 space-y-4">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
+                    <input
+                      type="checkbox"
+                      checked={latestTickerGlobal.is_enabled}
+                      onChange={(e) =>
+                        setLatestTickerGlobal((prev) => ({
+                          ...prev,
+                          is_enabled: e.target.checked,
+                        }))
+                      }
+                    />
+                    启用最新动态滚动条
+                  </label>
+                  <label className="text-sm text-zinc-700">
+                    每条显示时长（秒）
+                    <input
+                      type="number"
+                      min={3}
+                      max={10}
+                      value={latestTickerGlobal.interval_seconds}
+                      onChange={(e) =>
+                        setLatestTickerGlobal((prev) => ({
+                          ...prev,
+                          interval_seconds: clampTickerIntervalSeconds(Number(e.target.value)),
+                        }))
+                      }
+                      className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {latestTickerSections.map((section) => (
+                  <div key={section.section_key} className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                      <p className="text-sm font-semibold text-zinc-800">{section.section_name}</p>
+                      <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
+                        <input
+                          type="checkbox"
+                          checked={section.is_enabled}
+                          onChange={(e) =>
+                            updateLatestTickerSection(section.section_key, { is_enabled: e.target.checked })
+                          }
+                        />
+                        显示
+                      </label>
+                      <label className="text-sm text-zinc-700">
+                        排序
+                        <input
+                          type="number"
+                          min={0}
+                          value={section.sort_order}
+                          onChange={(e) =>
+                            updateLatestTickerSection(section.section_key, {
+                              sort_order: Math.max(0, Number(e.target.value)),
+                            })
+                          }
+                          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                        />
+                      </label>
+                      <label className="text-sm text-zinc-700">
+                        显示数量
+                        <input
+                          type="number"
+                          min={1}
+                          max={20}
+                          value={section.display_count}
+                          onChange={(e) =>
+                            updateLatestTickerSection(section.section_key, {
+                              display_count: clampTickerDisplayCount(Number(e.target.value)),
+                            })
+                          }
+                          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                {latestTickerMessage ? (
+                  <p
+                    className={`text-sm font-medium ${
+                      latestTickerMessage.includes('成功') ? 'text-green-600' : 'text-red-500'
+                    }`}
+                  >
+                    {latestTickerMessage}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={saveLatestTicker}
+                  disabled={savingLatestTicker}
+                  className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {savingLatestTicker ? '保存中...' : '保存最新动态设置'}
+                </button>
+              </div>
             </div>
           </section>
 
