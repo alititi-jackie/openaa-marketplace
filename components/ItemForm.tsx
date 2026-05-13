@@ -222,6 +222,11 @@ export default function ItemForm({ initialType, editItem }: Props) {
       return
     }
 
+    if (!phone.trim() && !wechat.trim()) {
+      setError('请至少填写联系电话或微信，方便用户联系你。')
+      return
+    }
+
     setLoading(true)
 
     const {
