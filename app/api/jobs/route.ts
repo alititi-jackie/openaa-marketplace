@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { validateContactFields } from '@/lib/contactValidation'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,11 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
   const normalizedType = body?.type === 'seeking' ? 'seeking' : 'hiring'
+
+  const contactCheck = validateContactFields(body?.phone ?? '', body?.wechat ?? '')
+  if (!contactCheck.ok) {
+    return NextResponse.json({ error: contactCheck.message }, { status: 422 })
+  }
 
   const { data, error } = await supabase
     .from('job_postings')

@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
+import { validateContactFields } from '@/lib/contactValidation'
 import type { HousingPost, HousingPostType } from '@/types'
 
 type PreviewImage =
@@ -236,8 +237,9 @@ function HousingPublishClient() {
       return
     }
 
-    if (!phone.trim() && !wechat.trim()) {
-      setError('请至少填写联系电话或微信，方便用户联系你。')
+    const contactCheck = validateContactFields(phone, wechat)
+    if (!contactCheck.ok) {
+      setError(contactCheck.message ?? '')
       return
     }
 

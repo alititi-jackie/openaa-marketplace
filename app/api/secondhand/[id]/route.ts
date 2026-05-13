@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { validateContactFields } from '@/lib/contactValidation'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,12 @@ export async function PUT(
   if (!user) return NextResponse.json({ error: '未授权' }, { status: 401 })
 
   const body = await request.json()
+  if ('phone' in body || 'wechat' in body) {
+    const contactCheck = validateContactFields(body?.phone ?? '', body?.wechat ?? '')
+    if (!contactCheck.ok) {
+      return NextResponse.json({ error: contactCheck.message }, { status: 422 })
+    }
+  }
   const { data, error } = await supabase
     .from('secondhand_items')
     .update({ ...body, updated_at: new Date().toISOString() })
