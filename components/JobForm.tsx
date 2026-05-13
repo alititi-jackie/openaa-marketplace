@@ -8,6 +8,7 @@ import { JOB_CATEGORIES, JOB_TYPES, DEFAULT_JOB_CATEGORY } from '@/lib/constants
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { validateContactFields } from '@/lib/contactValidation'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
@@ -173,6 +174,13 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     } = await supabase.auth.getUser()
     if (!user) {
       router.push('/auth/login')
+      return
+    }
+
+    const permission = await assertUserCanPostOrEdit(supabase, user.id)
+    if (!permission.allowed) {
+      setError(BANNED_ACCOUNT_MESSAGE)
+      setLoading(false)
       return
     }
 
