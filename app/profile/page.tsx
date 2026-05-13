@@ -311,10 +311,9 @@ export default function ProfilePage() {
           {profile ? (
             <button
               onClick={handleLogout}
-              className="w-full text-left flex items-center justify-between p-4 hover:bg-red-50 transition"
+              className="w-full p-4 hover:bg-red-50 transition"
             >
-              <span className="text-red-600 font-medium">退出登录</span>
-              <span className="text-red-300">›</span>
+              <span className="block w-full text-center text-red-600 font-medium">退出登录</span>
             </button>
           ) : (
             <div className="p-4 text-[12px] text-zinc-400">登录后可使用更多功能</div>
@@ -325,7 +324,7 @@ export default function ProfilePage() {
       {/* 平台公告 */}
       <div className="mx-auto max-w-[560px] px-4 pb-24">
         <Link
-          href="/news"
+          href="/news?category=平台公告"
           aria-label="查看平台公告和最新规则更新"
           className="block bg-blue-50 border border-blue-100 rounded-2xl px-4 py-4 text-center hover:bg-blue-100 transition"
         >
