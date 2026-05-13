@@ -29,6 +29,7 @@ export default function FilterDropdown({
   onOpenChange,
 }: FilterDropdownProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const listboxId = useId()
 
@@ -60,6 +61,7 @@ export default function FilterDropdown({
   return (
     <div ref={rootRef} className={`relative ${className ?? ''}`}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => onOpenChange?.(!isOpen)}
         aria-haspopup="listbox"
@@ -107,6 +109,15 @@ export default function FilterDropdown({
                   if (event.key === 'Escape') {
                     event.preventDefault()
                     onOpenChange?.(false)
+                    triggerRef.current?.focus()
+                    return
+                  }
+
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onChange(option.value)
+                    onOpenChange?.(false)
+                    triggerRef.current?.focus()
                     return
                   }
 
