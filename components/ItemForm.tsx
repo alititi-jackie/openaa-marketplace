@@ -9,6 +9,7 @@ import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
 import { validateContactFields } from '@/lib/contactValidation'
+import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import type { SecondhandItemType, SecondhandItem } from '@/types'
 
 const SECONDHAND_LOCATIONS = LOCATION_OPTIONS
@@ -238,6 +239,13 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
     if (!user) {
       router.push('/auth/login')
+      return
+    }
+
+    const permission = await assertUserCanPostOrEdit(supabase, user.id)
+    if (!permission.allowed) {
+      setError(BANNED_ACCOUNT_MESSAGE)
+      setLoading(false)
       return
     }
 
