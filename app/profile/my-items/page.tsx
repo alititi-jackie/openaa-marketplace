@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import BackToTopButton from '@/components/BackToTopButton'
-import PageBackButton from '@/components/PageBackButton'
+import DetailBackButton from '@/components/DetailBackButton'
 import type { SecondhandItem } from '@/types'
 
 type ItemWithOptionalLocation = SecondhandItem & {
@@ -102,7 +102,7 @@ export default function MyItemsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="mb-4">
-        <PageBackButton />
+        <DetailBackButton fallbackHref="/profile" />
       </div>
       <div className="mb-5 flex items-center justify-between">
         <div>
