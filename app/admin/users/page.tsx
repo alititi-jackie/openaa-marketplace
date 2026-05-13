@@ -241,7 +241,13 @@ export default function AdminUsersPage() {
       })
       const json = (await res.json()) as { data?: Partial<AdminUser>; error?: string }
 
-      if (!res.ok || !json.data) {
+      if (!res.ok) {
+        setCardMessage(user.id, 'error', json.error || '操作失败')
+        return
+      }
+
+      const updatedUser = json.data
+      if (!updatedUser) {
         setCardMessage(user.id, 'error', json.error || '操作失败')
         return
       }
@@ -251,8 +257,8 @@ export default function AdminUsersPage() {
           item.id === user.id
             ? {
                 ...item,
-                ...json.data,
-                status: (json.data.status as UserStatus | undefined) ?? item.status,
+                ...updatedUser,
+                status: updatedUser.status ?? item.status,
                 postCounts: item.postCounts,
               }
             : item
