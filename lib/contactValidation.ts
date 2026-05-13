@@ -49,7 +49,7 @@ export function validateContactFields(
 
     const digits = normalizePhoneDigits(p)
     if (digits.length < 8 || digits.length > 15) {
-      return { ok: false, message: '请输入正确的联系电话，数字长度建议为 8–15 位。' }
+      return { ok: false, message: '输入电话号码有误，请输入正确的联系电话。' }
     }
   }
 
