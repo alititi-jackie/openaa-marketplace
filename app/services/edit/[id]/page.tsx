@@ -7,6 +7,7 @@ import { use } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
+import { validateContactFields } from '@/lib/contactValidation'
 import type { ServicePost } from '@/types'
 
 type PreviewImage =
@@ -172,8 +173,9 @@ export default function ServiceEditPage({
     if (!category) { setError('请选择服务分类'); return }
     if (!location) { setError('请选择服务地区'); return }
     if (!description.trim()) { setError('请填写服务介绍'); return }
-    if (!phone.trim() && !wechat.trim()) {
-      setError('请至少填写联系电话或微信，方便用户联系你。')
+    const contactCheck = validateContactFields(phone, wechat)
+    if (!contactCheck.ok) {
+      setError(contactCheck.message ?? '')
       return
     }
 

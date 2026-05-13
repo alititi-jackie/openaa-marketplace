@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { JOB_CATEGORIES, JOB_TYPES, DEFAULT_JOB_CATEGORY } from '@/lib/constants'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
+import { validateContactFields } from '@/lib/contactValidation'
 import type { JobPosting, JobPostingType } from '@/types'
 
 type PublishMode = JobPostingType
@@ -224,8 +225,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       return
     }
 
-    if (!phone.trim() && !wechat.trim()) {
-      setError('请至少填写联系电话或微信，方便用户联系你。')
+    const contactCheck = validateContactFields(phone, wechat)
+    if (!contactCheck.ok) {
+      setError(contactCheck.message ?? '')
       setLoading(false)
       return
     }
