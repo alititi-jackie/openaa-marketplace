@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import type { UnifiedPost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
@@ -168,6 +169,8 @@ function toDatetimeLocalValue(value: string | null | undefined): string {
 }
 
 function AdminPostsContent() {
+  const searchParams = useSearchParams()
+  const userIdFilter = searchParams.get('user_id')?.trim() || ''
   const formRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState('')
@@ -194,7 +197,10 @@ function AdminPostsContent() {
     setLoading(true)
     setMessage('')
     try {
-      const res = await fetch('/api/admin/posts', {
+      const params = new URLSearchParams()
+      if (userIdFilter) params.set('user_id', userIdFilter)
+      const url = params.toString() ? `/api/admin/posts?${params.toString()}` : '/api/admin/posts'
+      const res = await fetch(url, {
         headers: { 'x-admin-token': t },
       })
       const json: unknown = await res.json()
@@ -216,7 +222,7 @@ function AdminPostsContent() {
       setMessage('网络错误')
     }
     setLoading(false)
-  }, [])
+  }, [userIdFilter])
 
   useEffect(() => {
     const stored = getAdminToken()
@@ -417,6 +423,27 @@ function AdminPostsContent() {
         ← 返回总后台
       </Link>
       <h1 className="text-2xl font-bold mb-6 mt-3">帖子管理</h1>
+
+      {userIdFilter ? (
+        <div className="mb-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+          <p className="text-sm font-medium text-blue-700">当前正在查看指定用户发布的内容</p>
+          <p className="mt-1 break-words text-xs text-blue-600">用户 ID：{userIdFilter}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/admin/users"
+              className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50"
+            >
+              返回用户管理
+            </Link>
+            <Link
+              href="/admin/posts"
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            >
+              清除用户筛选
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       {/* Token input */}
       {!token ? (
