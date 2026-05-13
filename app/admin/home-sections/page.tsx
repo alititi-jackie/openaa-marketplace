@@ -278,7 +278,7 @@ export default function AdminHomeSectionsPage() {
   )
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 pb-24 md:py-8 md:pb-24">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-24 md:pt-8">
       <AdminPageHeader
         title="首页最新发布管理"
         description="管理首页最新招聘、房屋、二手、本地服务、新闻板块显示和排序。"
