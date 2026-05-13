@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import {
+  clampTickerIntervalSeconds,
+  DEFAULT_LATEST_TICKER_GLOBAL_SETTINGS,
+  DEFAULT_LATEST_TICKER_SECTION_SETTINGS,
+  normalizeLatestTickerGlobalSettings,
+  normalizeLatestTickerSections,
+} from '@/lib/latestTickerSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,121 +19,150 @@ export interface TickerItem {
   created_at: string
 }
 
-export async function GET() {
-  const supabase = createClient(
+function getServiceClient() {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
+}
 
-  const [newsResult, jobsResult, housingResult, secondhandResult, servicesResult] =
-    await Promise.all([
-      // News: is_published = true
-      supabase
+export async function GET() {
+  const supabase = getServiceClient()
+
+  const [globalResult, sectionResult] = await Promise.all([
+    supabase.from('latest_ticker_global_settings').select('is_enabled, interval_seconds').eq('id', 1).maybeSingle(),
+    supabase
+      .from('latest_ticker_sections')
+      .select('section_key, section_name, is_enabled, sort_order, display_count')
+      .order('sort_order', { ascending: true })
+      .order('section_key', { ascending: true }),
+  ])
+
+  const globalConfig = globalResult.error
+    ? { ...DEFAULT_LATEST_TICKER_GLOBAL_SETTINGS }
+    : normalizeLatestTickerGlobalSettings(globalResult.data)
+  const sectionsConfig = sectionResult.error
+    ? [...DEFAULT_LATEST_TICKER_SECTION_SETTINGS]
+    : normalizeLatestTickerSections(sectionResult.data)
+
+  if (!globalConfig.is_enabled) {
+    return NextResponse.json({
+      data: [],
+      is_enabled: false,
+      interval_seconds: clampTickerIntervalSeconds(globalConfig.interval_seconds),
+    })
+  }
+
+  const enabledSections = sectionsConfig.filter((section) => section.is_enabled).sort((a, b) => a.sort_order - b.sort_order)
+  const items: TickerItem[] = []
+
+  for (const section of enabledSections) {
+    if (section.section_key === 'news') {
+      const result = await supabase
         .from('news_posts')
         .select('id, slug, title, summary, category, created_at, published_at')
         .eq('is_published', true)
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(section.display_count)
+      for (const item of result.data ?? []) {
+        items.push({
+          type: 'news',
+          label: '新闻',
+          title: String(item.title ?? ''),
+          subtitle: String(item.category ?? ''),
+          href: `/news/${item.slug}`,
+          created_at: String(item.published_at ?? item.created_at ?? ''),
+        })
+      }
+      continue
+    }
 
-      // Jobs: status = 'published'
-      supabase
+    if (section.section_key === 'jobs') {
+      const result = await supabase
         .from('job_postings')
         .select('id, title, company, location, created_at')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(section.display_count)
+      for (const item of result.data ?? []) {
+        const loc = item.location ? ` ${item.location}` : ''
+        items.push({
+          type: 'job',
+          label: '招聘',
+          title: String(item.title ?? ''),
+          subtitle: `${item.company ?? ''}${loc}`.trim(),
+          href: `/jobs/${item.id}`,
+          created_at: String(item.created_at ?? ''),
+        })
+      }
+      continue
+    }
 
-      // Housing: status = 'published'
-      supabase
+    if (section.section_key === 'housing') {
+      const result = await supabase
         .from('housing_posts')
         .select('id, title, location, created_at')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(section.display_count)
+      for (const item of result.data ?? []) {
+        items.push({
+          type: 'housing',
+          label: '房屋',
+          title: String(item.title ?? ''),
+          subtitle: String(item.location ?? ''),
+          href: `/housing/${item.id}`,
+          created_at: String(item.created_at ?? ''),
+        })
+      }
+      continue
+    }
 
-      // Secondhand: status = 'published'
-      supabase
+    if (section.section_key === 'secondhand') {
+      const result = await supabase
         .from('secondhand_items')
         .select('id, title, category, created_at')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(section.display_count)
+      for (const item of result.data ?? []) {
+        items.push({
+          type: 'secondhand',
+          label: '二手',
+          title: String(item.title ?? ''),
+          subtitle: String(item.category ?? ''),
+          href: `/secondhand/${item.id}`,
+          created_at: String(item.created_at ?? ''),
+        })
+      }
+      continue
+    }
 
-      // Services: status = 'active' AND is_active = true
-      supabase
+    if (section.section_key === 'services') {
+      const result = await supabase
         .from('service_posts')
         .select('id, title, category, location, created_at')
         .eq('status', 'active')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(3),
-    ])
-
-  const items: TickerItem[] = []
-
-  for (const item of newsResult.data ?? []) {
-    items.push({
-      type: 'news',
-      label: '新闻',
-      title: String(item.title ?? ''),
-      subtitle: String(item.category ?? ''),
-      href: `/news/${item.slug}`,
-      created_at: String(item.published_at ?? item.created_at ?? ''),
-    })
+        .limit(section.display_count)
+      for (const item of result.data ?? []) {
+        const loc = item.location ? ` ${item.location}` : ''
+        items.push({
+          type: 'service',
+          label: '本地服务',
+          title: String(item.title ?? ''),
+          subtitle: `${item.category ?? ''}${loc}`.trim(),
+          href: `/services/${item.id}`,
+          created_at: String(item.created_at ?? ''),
+        })
+      }
+    }
   }
 
-  for (const item of jobsResult.data ?? []) {
-    const loc = item.location ? ` ${item.location}` : ''
-    items.push({
-      type: 'job',
-      label: '招聘',
-      title: String(item.title ?? ''),
-      subtitle: `${item.company ?? ''}${loc}`.trim(),
-      href: `/jobs/${item.id}`,
-      created_at: String(item.created_at ?? ''),
-    })
-  }
-
-  for (const item of housingResult.data ?? []) {
-    items.push({
-      type: 'housing',
-      label: '房屋',
-      title: String(item.title ?? ''),
-      subtitle: String(item.location ?? ''),
-      href: `/housing/${item.id}`,
-      created_at: String(item.created_at ?? ''),
-    })
-  }
-
-  for (const item of secondhandResult.data ?? []) {
-    items.push({
-      type: 'secondhand',
-      label: '二手',
-      title: String(item.title ?? ''),
-      subtitle: String(item.category ?? ''),
-      href: `/secondhand/${item.id}`,
-      created_at: String(item.created_at ?? ''),
-    })
-  }
-
-  for (const item of servicesResult.data ?? []) {
-    const loc = item.location ? ` ${item.location}` : ''
-    items.push({
-      type: 'service',
-      label: '服务',
-      title: String(item.title ?? ''),
-      subtitle: `${item.category ?? ''}${loc}`.trim(),
-      href: `/services/${item.id}`,
-      created_at: String(item.created_at ?? ''),
-    })
-  }
-
-  // Sort by created_at descending, keep top 10
-  items.sort((a, b) => {
-    const ta = a.created_at ? new Date(a.created_at).getTime() : 0
-    const tb = b.created_at ? new Date(b.created_at).getTime() : 0
-    return tb - ta
+  return NextResponse.json({
+    data: items,
+    is_enabled: true,
+    interval_seconds: clampTickerIntervalSeconds(globalConfig.interval_seconds),
   })
-
-  return NextResponse.json({ data: items.slice(0, 10) })
 }
