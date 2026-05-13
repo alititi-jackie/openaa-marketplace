@@ -8,7 +8,7 @@ export type AccountPermissionResult = {
   message?: string
 }
 
-export const BANNED_ACCOUNT_MESSAGE = '账号已被限制使用，如有疑问请联系 OpenAA。'
+export const BANNED_ACCOUNT_MESSAGE = '此账号因用户投诉举报，现已限制使用。如有疑问，请到“我的”页面提交反馈与举报联系 OpenAA。'
 export const RESTRICTED_ACCOUNT_MESSAGE = '账号当前受限，暂不能发布或编辑内容。'
 export const ACCOUNT_STATUS_CHECK_FAILED_MESSAGE = '账号状态暂时无法验证，请稍后重试。'
 
