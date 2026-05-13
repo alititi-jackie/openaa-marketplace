@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import BackToTopButton from '@/components/BackToTopButton'
 import type { HousingPost } from '@/types'
 
 function formatDate(s: string) {
@@ -93,6 +94,14 @@ export default function MyHousingPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <Link
+          href="/profile"
+          className="inline-flex items-center h-9 px-4 text-sm text-zinc-700 bg-white border border-zinc-100 rounded-xl hover:bg-zinc-50 transition"
+        >
+          ← 返回我的页面
+        </Link>
+      </div>
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">我的房屋</h1>
@@ -166,6 +175,7 @@ export default function MyHousingPage() {
           })}
         </div>
       )}
+      <BackToTopButton />
     </div>
   )
 }

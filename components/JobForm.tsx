@@ -224,6 +224,12 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       return
     }
 
+    if (!phone.trim() && !wechat.trim()) {
+      setError('请至少填写联系电话或微信，方便用户联系你。')
+      setLoading(false)
+      return
+    }
+
     if (isEditing && editJob) {
       const { data: updated, error: updateError } = await supabase
         .from('job_postings')
