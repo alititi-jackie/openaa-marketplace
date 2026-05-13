@@ -133,7 +133,7 @@ function ServicesPublishClient() {
     if (!location) { setError('请选择服务地区'); return }
     if (!description.trim()) { setError('请填写服务介绍'); return }
     if (!phone.trim() && !wechat.trim()) {
-      setError('联系电话和微信号至少填写一项')
+      setError('请至少填写联系电话或微信，方便用户联系你。')
       return
     }
 
