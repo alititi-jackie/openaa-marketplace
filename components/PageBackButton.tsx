@@ -12,7 +12,7 @@ export default function PageBackButton({
   return (
     <Link
       href={href}
-      className="inline-flex items-center rounded-xl border border-zinc-100 bg-white px-3 py-2 text-sm text-zinc-700 shadow-sm hover:bg-zinc-50"
+      className="inline-flex items-center rounded-xl border border-zinc-100 bg-white px-3 py-2 text-sm text-zinc-700 shadow-sm transition hover:bg-zinc-50"
     >
       {label}
     </Link>
