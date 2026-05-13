@@ -41,7 +41,7 @@ interface BuyingFormData {
 }
 
 function pickDefaultCategory() {
-  return SECONDHAND_CATEGORIES.includes('其他') ? '其他' : SECONDHAND_CATEGORIES[0]
+  return SECONDHAND_CATEGORIES[0]
 }
 
 function safeNumber(s: string) {
@@ -398,6 +398,16 @@ export default function ItemForm({ initialType, editItem }: Props) {
   const locationValue = mode === 'buying' ? buying.location : selling.location
   const isDailyLimitError = error.includes('今天发布的信息已达到平台限制')
 
+  const legacySellingCategory =
+    isEdit && mode === 'selling' && selling.category && !SECONDHAND_CATEGORIES.includes(selling.category)
+      ? selling.category
+      : null
+
+  const standardCategoryOptions = SECONDHAND_CATEGORIES.map((c) => ({ value: c, label: c }))
+  const sellingCategoryOptions = legacySellingCategory
+    ? [{ value: legacySellingCategory, label: `${legacySellingCategory}（历史分类）` }, ...standardCategoryOptions]
+    : standardCategoryOptions
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
       {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm">{error}</div>}
@@ -551,9 +561,9 @@ export default function ItemForm({ initialType, editItem }: Props) {
               onChange={(e) => setSelling((p) => ({ ...p, category: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
             >
-              {SECONDHAND_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              {sellingCategoryOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>
