@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useId, useMemo, useRef } from 'react'
 
 type FilterValue = string | number
 
@@ -29,6 +29,7 @@ export default function FilterDropdown({
   onOpenChange,
 }: FilterDropdownProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const listboxId = useId()
 
   const selectedLabel = useMemo(() => {
     const selected = options.find((option) => option.value === value)
@@ -53,6 +54,9 @@ export default function FilterDropdown({
       <button
         type="button"
         onClick={() => onOpenChange?.(!isOpen)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? listboxId : undefined}
         className="flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700 shadow-sm transition hover:bg-white"
       >
         <span className="truncate">{selectedLabel}</span>
@@ -60,13 +64,19 @@ export default function FilterDropdown({
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-[calc(100%+6px)] z-30 w-full rounded-xl border border-zinc-100 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.14)]">
+        <div
+          id={listboxId}
+          role="listbox"
+          className="absolute left-0 top-[calc(100%+6px)] z-30 w-full rounded-xl border border-zinc-100 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.14)]"
+        >
           {options.map((option) => {
             const isSelected = option.value === value
             return (
               <button
                 key={String(option.value)}
                 type="button"
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => {
                   onChange(option.value)
                   onOpenChange?.(false)
