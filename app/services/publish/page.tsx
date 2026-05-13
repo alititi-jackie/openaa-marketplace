@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
+import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
 
 type PreviewImage =
   | { kind: 'remote'; url: string }
@@ -189,6 +190,7 @@ function ServicesPublishClient() {
 
     if (localFiles.length > 0) {
       let uploadedUrls: string[] = []
+      setImageTip('正在上传图片...')
       try {
         uploadedUrls = await uploadLocalFilesForPost(user.id, postId, localFiles)
       } catch (err: unknown) {
@@ -196,6 +198,8 @@ function ServicesPublishClient() {
         setError(`图片上传失败：${message}`)
         setLoading(false)
         return
+      } finally {
+        setImageTip('')
       }
 
       // 3. Update images
@@ -382,27 +386,42 @@ function ServicesPublishClient() {
             type="file"
             accept="image/*"
             multiple
-            onChange={(e) => {
+            onChange={async (e) => {
               setImageTip('')
               const files = Array.from(e.target.files || [])
               if (files.length === 0) return
-              setPreviewImages((prev) => {
-                const remaining = Math.max(0, 3 - prev.length)
-                const allowed = files.slice(0, remaining)
-                if (files.length > remaining) {
-                  setImageTip('最多只能上传 3 张图片（包含已有图片）。已自动截断超出部分。')
-                }
-                const next: PreviewImage[] = [
-                  ...prev,
-                  ...allowed.map((file) => ({
-                    kind: 'local' as const,
-                    url: URL.createObjectURL(file),
-                    file,
-                  })),
-                ]
-                return next.slice(0, 3)
-              })
-              e.currentTarget.value = ''
+
+              const remaining = Math.max(0, 3 - previewImages.length)
+              const allowed = files.slice(0, remaining)
+              if (files.length > remaining) {
+                setImageTip('最多只能上传 3 张图片（包含已有图片）。已自动截断超出部分。')
+              }
+              if (allowed.length === 0) {
+                e.currentTarget.value = ''
+                return
+              }
+
+              setImageTip('正在处理图片...')
+              try {
+                const compressedFiles = await Promise.all(allowed.map((file) => compressImageFile(file)))
+                setPreviewImages((prev) => {
+                  const next: PreviewImage[] = [
+                    ...prev,
+                    ...compressedFiles.map((file) => ({
+                      kind: 'local' as const,
+                      url: URL.createObjectURL(file),
+                      file,
+                    })),
+                  ]
+                  return next.slice(0, 3)
+                })
+                setImageTip('')
+              } catch (err) {
+                setImageTip('')
+                setError(getCompressImageErrorMessage(err))
+              } finally {
+                e.currentTarget.value = ''
+              }
             }}
             className="w-full text-sm text-gray-600"
           />
