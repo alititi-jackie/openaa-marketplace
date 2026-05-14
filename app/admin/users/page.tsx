@@ -448,6 +448,21 @@ export default function AdminUsersPage() {
             const draft = drafts[user.id] ?? { admin_note: user.admin_note ?? '', banned_reason: user.banned_reason ?? '' }
             const cardMessage = cardMessages[user.id]
             const saving = savingId === user.id
+            const isUserBanned = user.status === 'banned'
+            const userStatusActionLabel = isUserBanned ? '恢复' : '禁用'
+            const onUserStatusAction = () => (isUserBanned ? restoreUser(user) : banUser(user))
+            const userStatusActionClassName = isUserBanned
+              ? 'rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50'
+              : 'rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50'
+            const userStatusActionEditorClassName = isUserBanned
+              ? 'rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50'
+              : 'rounded-lg border border-red-100 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50'
+            const postingExemptActionLabel = user.is_posting_exempt ? '关闭免发布限制' : '开启免发布限制'
+            const onPostingExemptAction = () =>
+              user.is_posting_exempt ? disablePostingExempt(user) : enablePostingExempt(user)
+            const postingExemptActionClassName = user.is_posting_exempt
+              ? 'rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50'
+              : 'rounded-lg border border-sky-100 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 disabled:opacity-50'
 
             return (
               <div key={user.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -505,19 +520,11 @@ export default function AdminUsersPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => void banUser(user)}
-                    disabled={saving || user.status === 'banned'}
-                    className="rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                    onClick={() => void onUserStatusAction()}
+                    disabled={saving}
+                    className={userStatusActionClassName}
                   >
-                    禁用
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void restoreUser(user)}
-                    disabled={saving || user.status === 'active'}
-                    className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
-                  >
-                    恢复
+                    {userStatusActionLabel}
                   </button>
                   <button
                     type="button"
@@ -528,19 +535,11 @@ export default function AdminUsersPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => void enablePostingExempt(user)}
-                    disabled={saving || user.is_posting_exempt}
-                    className="rounded-lg border border-sky-100 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 disabled:opacity-50"
+                    onClick={() => void onPostingExemptAction()}
+                    disabled={saving}
+                    className={postingExemptActionClassName}
                   >
-                    开启免发布限制
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void disablePostingExempt(user)}
-                    disabled={saving || !user.is_posting_exempt}
-                    className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
-                  >
-                    关闭免发布限制
+                    {postingExemptActionLabel}
                   </button>
                 </div>
 
@@ -583,19 +582,11 @@ export default function AdminUsersPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void banUser(user)}
+                        onClick={() => void onUserStatusAction()}
                         disabled={saving}
-                        className="rounded-lg border border-red-100 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                        className={userStatusActionEditorClassName}
                       >
-                        禁用用户
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void restoreUser(user)}
-                        disabled={saving}
-                        className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
-                      >
-                        恢复用户
+                        {isUserBanned ? '恢复用户' : '禁用用户'}
                       </button>
                     </div>
                   </div>
