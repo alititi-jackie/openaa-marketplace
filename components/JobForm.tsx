@@ -177,11 +177,13 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       return
     }
 
-    const permission = await assertUserCanPostOrEdit(supabase, user.id)
-    if (!permission.allowed) {
-      setError(BANNED_ACCOUNT_MESSAGE)
-      setLoading(false)
-      return
+    if (!isEditing) {
+      const permission = await assertUserCanPostOrEdit(supabase, user.id)
+      if (!permission.allowed) {
+        setError(BANNED_ACCOUNT_MESSAGE)
+        setLoading(false)
+        return
+      }
     }
 
     // DB NOT NULL safe defaults (per requirements)

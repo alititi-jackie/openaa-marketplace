@@ -242,11 +242,13 @@ export default function ItemForm({ initialType, editItem }: Props) {
       return
     }
 
-    const permission = await assertUserCanPostOrEdit(supabase, user.id)
-    if (!permission.allowed) {
-      setError(BANNED_ACCOUNT_MESSAGE)
-      setLoading(false)
-      return
+    if (!isEdit) {
+      const permission = await assertUserCanPostOrEdit(supabase, user.id)
+      if (!permission.allowed) {
+        setError(BANNED_ACCOUNT_MESSAGE)
+        setLoading(false)
+        return
+      }
     }
 
     const title = mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'

@@ -7,6 +7,7 @@ import {
   normalizeLatestTickerGlobalSettings,
   normalizeLatestTickerSections,
 } from '@/lib/latestTickerSettings'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,11 +81,11 @@ export async function GET() {
     if (section.section_key === 'jobs') {
       const result = await supabase
         .from('job_postings')
-        .select('id, title, company, location, created_at')
+        .select('id, title, company, location, created_at, user:users(status)')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(section.display_count)
-      for (const item of result.data ?? []) {
+      for (const item of (result.data ?? []).filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
         const loc = item.location ? ` ${item.location}` : ''
         items.push({
           type: 'job',
@@ -101,11 +102,11 @@ export async function GET() {
     if (section.section_key === 'housing') {
       const result = await supabase
         .from('housing_posts')
-        .select('id, title, location, created_at')
+        .select('id, title, location, created_at, user:users(status)')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(section.display_count)
-      for (const item of result.data ?? []) {
+      for (const item of (result.data ?? []).filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
         items.push({
           type: 'housing',
           label: '房屋',
@@ -121,11 +122,11 @@ export async function GET() {
     if (section.section_key === 'secondhand') {
       const result = await supabase
         .from('secondhand_items')
-        .select('id, title, category, created_at')
+        .select('id, title, category, created_at, user:users(status)')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(section.display_count)
-      for (const item of result.data ?? []) {
+      for (const item of (result.data ?? []).filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
         items.push({
           type: 'secondhand',
           label: '二手',
@@ -141,12 +142,12 @@ export async function GET() {
     if (section.section_key === 'services') {
       const result = await supabase
         .from('service_posts')
-        .select('id, title, category, location, created_at')
+        .select('id, title, category, location, created_at, user:users(status)')
         .eq('status', 'active')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(section.display_count)
-      for (const item of result.data ?? []) {
+      for (const item of (result.data ?? []).filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
         const loc = item.location ? ` ${item.location}` : ''
         items.push({
           type: 'service',

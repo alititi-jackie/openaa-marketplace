@@ -7,6 +7,7 @@ import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import BackToTopButton from '@/components/BackToTopButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -101,11 +102,19 @@ export default function ServicesListClient() {
     setLoading(true)
     const { data } = await supabase
       .from('service_posts')
-      .select('*')
+      .select('*, user:users(status)')
       .eq('status', 'active')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-    setPosts(data || [])
+    setPosts(
+      ((data || []) as (ServicePost & { user?: { status?: unknown } | null })[])
+        .filter((post) => isPublicOwnerVisible(post.user))
+        .map((post) => {
+          const next = { ...post } as ServicePost & { user?: { status?: unknown } | null }
+          delete next.user
+          return next
+        })
+    )
     setLoading(false)
   }, [])
 

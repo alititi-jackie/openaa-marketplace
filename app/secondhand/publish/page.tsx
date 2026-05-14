@@ -63,18 +63,21 @@ function PublishItemPageInner() {
           return
         }
 
-        const permission = await assertUserCanPostOrEdit(supabase, user.id)
-        if (!permission.allowed) {
-          if (!cancelled) {
-            setAuthStatus('ok')
-            setError(BANNED_ACCOUNT_MESSAGE)
-            setChecking(false)
+        if (!editId) {
+          const permission = await assertUserCanPostOrEdit(supabase, user.id)
+          if (!permission.allowed) {
+            if (!cancelled) {
+              setAuthStatus('ok')
+              setError(BANNED_ACCOUNT_MESSAGE)
+              setChecking(false)
+            }
+            return
           }
-          return
         }
 
+        if (cancelled) return
         authedUserId = user.id
-        if (!cancelled) setAuthStatus('ok')
+        setAuthStatus('ok')
       } catch {
         if (!cancelled) {
           setAuthStatus('not-logged-in')

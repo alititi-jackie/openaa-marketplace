@@ -13,6 +13,7 @@ export interface UserProfile {
 export interface JoinedUser {
   username: string
   avatar_url?: string
+  status?: 'active' | 'restricted' | 'banned' | null
 }
 
 export type SecondhandItemType = 'selling' | 'buying'

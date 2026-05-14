@@ -10,6 +10,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import { isPublicUserStatusVisible } from '@/lib/publicVisibility'
 import type { HousingPost } from '@/types'
 
 const AUTO_INTERVAL_MS = 3500
@@ -66,18 +67,27 @@ export default function HousingDetailPage() {
         return
       }
 
-      setPost(postData)
-      setLoading(false)
-
-      // Publisher info should never block the page.
       const userId = (postData as HousingPost & { user_id?: string | null }).user_id
-      if (!userId) return
+      if (!userId) {
+        setPost(postData)
+        setLoading(false)
+        return
+      }
 
       const { data: userData } = await supabase
         .from('users')
-        .select('username, avatar_url')
+        .select('username, avatar_url, status')
         .eq('id', userId)
         .maybeSingle()
+
+      if (!isPublicUserStatusVisible(userData?.status)) {
+        setLoading(false)
+        setPost(null)
+        return
+      }
+
+      setPost(postData)
+      setLoading(false)
 
       if (userData?.username) {
         setPublisher({

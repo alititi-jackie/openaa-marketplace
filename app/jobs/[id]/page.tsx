@@ -9,6 +9,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting } from '@/types'
 
 export default function JobDetailPage() {
@@ -24,7 +25,7 @@ export default function JobDetailPage() {
         .eq('id', id)
         .single()
 
-      if (data) {
+      if (data && isPublicOwnerVisible((data as JobPosting).user)) {
         setJob(data)
         await supabase
           .from('job_postings')

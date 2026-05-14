@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import { validateContactFields } from '@/lib/contactValidation'
 
 export const dynamic = 'force-dynamic'
@@ -16,11 +17,13 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('job_postings')
-    .select('*, user:users(username, avatar_url)')
+    .select('*, user:users(username, avatar_url, status)')
     .eq('id', id)
     .single()
 
-  if (error || !data) return NextResponse.json({ error: '职位不存在' }, { status: 404 })
+  if (error || !data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
+    return NextResponse.json({ error: '职位不存在' }, { status: 404 })
+  }
   return NextResponse.json({ data })
 }
 

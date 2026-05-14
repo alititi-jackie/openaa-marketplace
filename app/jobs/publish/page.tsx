@@ -61,14 +61,16 @@ function PublishJobPageInner() {
           return
         }
 
-        const permission = await assertUserCanPostOrEdit(supabase, user.id)
-        if (!permission.allowed) {
-          if (!cancelled) {
-            setAuthStatus('ok')
-            setError(BANNED_ACCOUNT_MESSAGE)
-            setChecking(false)
+        if (!editId) {
+          const permission = await assertUserCanPostOrEdit(supabase, user.id)
+          if (!permission.allowed) {
+            if (!cancelled) {
+              setAuthStatus('ok')
+              setError(BANNED_ACCOUNT_MESSAGE)
+              setChecking(false)
+            }
+            return
           }
-          return
         }
 
         authedUserId = user.id

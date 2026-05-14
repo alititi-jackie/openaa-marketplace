@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, ChevronRight, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import { formatJobLocation } from '@/lib/utils'
 import {
   DEFAULT_HOME_LATEST_SECTIONS,
@@ -19,6 +20,7 @@ type LatestJob = {
   created_at?: string | null
   is_pinned?: boolean
   pinned_until?: string | null
+  user?: { status?: unknown } | null
 }
 
 type LatestSecondhand = {
@@ -28,6 +30,7 @@ type LatestSecondhand = {
   created_at?: string | null
   is_pinned?: boolean
   pinned_until?: string | null
+  user?: { status?: unknown } | null
 }
 
 type LatestHousing = {
@@ -37,6 +40,7 @@ type LatestHousing = {
   created_at?: string | null
   is_pinned?: boolean
   pinned_until?: string | null
+  user?: { status?: unknown } | null
 }
 
 type LatestService = {
@@ -49,6 +53,7 @@ type LatestService = {
   created_at?: string | null
   is_pinned?: boolean
   pinned_until?: string | null
+  user?: { status?: unknown } | null
 }
 
 type LatestNews = {
@@ -178,7 +183,7 @@ export default function LatestPostsSection() {
           ? fetchPinnedFirst(
               supabase
                 .from('job_postings')
-                .select('id, title, location, created_at, is_pinned, pinned_until')
+                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .eq('is_pinned', true)
                 .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
@@ -187,7 +192,7 @@ export default function LatestPostsSection() {
                 .limit(30),
               supabase
                 .from('job_postings')
-                .select('id, title, location, created_at, is_pinned, pinned_until')
+                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .order('created_at', { ascending: false })
                 .limit(30),
@@ -198,7 +203,7 @@ export default function LatestPostsSection() {
           ? fetchPinnedFirst(
               supabase
                 .from('housing_posts')
-                .select('id, title, location, created_at, is_pinned, pinned_until')
+                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .eq('is_pinned', true)
                 .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
@@ -207,7 +212,7 @@ export default function LatestPostsSection() {
                 .limit(30),
               supabase
                 .from('housing_posts')
-                .select('id, title, location, created_at, is_pinned, pinned_until')
+                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .order('created_at', { ascending: false })
                 .limit(30),
@@ -218,7 +223,7 @@ export default function LatestPostsSection() {
           ? fetchPinnedFirst(
               supabase
                 .from('secondhand_items')
-                .select('id, title, category, created_at, is_pinned, pinned_until')
+                .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .eq('is_pinned', true)
                 .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
@@ -227,7 +232,7 @@ export default function LatestPostsSection() {
                 .limit(30),
               supabase
                 .from('secondhand_items')
-                .select('id, title, category, created_at, is_pinned, pinned_until')
+                .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'published')
                 .order('created_at', { ascending: false })
                 .limit(30),
@@ -238,7 +243,7 @@ export default function LatestPostsSection() {
           ? fetchPinnedFirst(
               supabase
                 .from('service_posts')
-                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until')
+                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'active')
                 .eq('is_active', true)
                 .eq('is_pinned', true)
@@ -248,7 +253,7 @@ export default function LatestPostsSection() {
                 .limit(30),
               supabase
                 .from('service_posts')
-                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until')
+                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)')
                 .eq('status', 'active')
                 .eq('is_active', true)
                 .order('created_at', { ascending: false })
@@ -322,10 +327,10 @@ export default function LatestPostsSection() {
       }
       const mergedNews = [...pinnedNews, ...normalNews]
 
-      setJobs((jobsData as LatestJob[]) ?? [])
-      setItems((secondhandData as LatestSecondhand[]) ?? [])
-      setHousings((housingsData as LatestHousing[]) ?? [])
-      setServices((servicesData as LatestService[]) ?? [])
+      setJobs(((jobsData as LatestJob[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
+      setItems(((secondhandData as LatestSecondhand[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
+      setHousings(((housingsData as LatestHousing[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
+      setServices(((servicesData as LatestService[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
       setNews(mergedNews.slice(0, latestNewsLimit))
     }
 
