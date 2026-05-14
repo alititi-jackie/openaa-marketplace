@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUserRequest } from '@/lib/request-auth'
-import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import {
   getFriendlySiteName,
   isValidNavigationUrl,
@@ -26,11 +25,6 @@ export async function PATCH(
 ) {
   const auth = await authenticateUserRequest(request)
   if ('errorResponse' in auth) return auth.errorResponse
-
-  const permission = await assertUserCanPostOrEdit(auth.supabase, auth.user.id)
-  if (!permission.allowed) {
-    return NextResponse.json({ error: BANNED_ACCOUNT_MESSAGE }, { status: 403 })
-  }
 
   const body: unknown = await request.json()
   if (body === null || typeof body !== 'object') {
@@ -92,11 +86,6 @@ export async function DELETE(
 ) {
   const auth = await authenticateUserRequest(request)
   if ('errorResponse' in auth) return auth.errorResponse
-
-  const permission = await assertUserCanPostOrEdit(auth.supabase, auth.user.id)
-  if (!permission.allowed) {
-    return NextResponse.json({ error: BANNED_ACCOUNT_MESSAGE }, { status: 403 })
-  }
 
   const { id } = await params
   const { error } = await auth.supabase

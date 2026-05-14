@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { validateContactFields } from '@/lib/contactValidation'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,11 +17,13 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('secondhand_items')
-    .select('*, user:users(username, avatar_url)')
+    .select('*, user:users(username, avatar_url, status)')
     .eq('id', id)
     .single()
 
-  if (error || !data) return NextResponse.json({ error: '商品不存在' }, { status: 404 })
+  if (error || !data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
+    return NextResponse.json({ error: '商品不存在' }, { status: 404 })
+  }
   return NextResponse.json({ data })
 }
 

@@ -9,6 +9,7 @@ import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
 import { supabase } from '@/lib/supabase'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import { formatPrice, formatDate } from '@/lib/utils'
 import type { SecondhandItem } from '@/types'
 
@@ -44,7 +45,7 @@ export default function SecondhandDetailPage() {
         .eq('id', id)
         .single()
 
-      if (data) {
+      if (data && isPublicOwnerVisible((data as SecondhandItem).user)) {
         setItem(data)
         await supabase
           .from('secondhand_items')

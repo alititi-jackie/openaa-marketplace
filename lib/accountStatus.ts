@@ -8,8 +8,8 @@ export type AccountPermissionResult = {
   message?: string
 }
 
-export const BANNED_ACCOUNT_MESSAGE = '此账号因收到用户投诉举报，现已被限制使用。如有疑问，请前往“我的”页面中的“反馈与举报”联系 OpenAA。'
-export const RESTRICTED_ACCOUNT_MESSAGE = '账号当前受限，暂不能发布或编辑内容。'
+export const BANNED_ACCOUNT_MESSAGE = '此账号因收到用户投诉或内容异常，已被限制发布新内容。请先修改或删除相关内容。如有疑问，请到“我的”页面提交反馈与举报联系 OpenAA。'
+export const RESTRICTED_ACCOUNT_MESSAGE = BANNED_ACCOUNT_MESSAGE
 export const ACCOUNT_STATUS_CHECK_FAILED_MESSAGE = '账号状态暂时无法验证，请稍后重试。'
 
 function normalizeAccountStatus(value: unknown): AccountStatus | null {

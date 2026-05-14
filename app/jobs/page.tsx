@@ -8,6 +8,7 @@ import JobCard from '@/components/JobCard'
 import BackToTopButton from '@/components/BackToTopButton'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting, JobPostingType } from '@/types'
 
 const TABS: Array<{ key: JobPostingType; label: string }> = [
@@ -44,7 +45,7 @@ export default function JobsPage() {
     // We try applying the filter, and if it errors we fall back to the old query.
     const baseQuery = supabase
       .from('job_postings')
-      .select('*')
+      .select('*, user:users(status)')
       .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(50)
@@ -57,7 +58,7 @@ export default function JobsPage() {
 
     const { data, error } = await query
     if (!error) {
-      setJobs(data || [])
+      setJobs((data || []).filter((job) => isPublicOwnerVisible((job as JobPosting).user)) as JobPosting[])
       setLoading(false)
       return
     }
@@ -68,7 +69,9 @@ export default function JobsPage() {
     if (category) fallback = fallback.eq('category', category)
 
     const { data: fallbackData } = await fallback
-    setJobs(fallbackData || [])
+    setJobs(
+      ((fallbackData || []) as JobPosting[]).filter((job) => isPublicOwnerVisible(job.user))
+    )
     setLoading(false)
   }, [activeTab, jobType, category])
 

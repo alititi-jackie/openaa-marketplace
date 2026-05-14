@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import ServiceDetailClient from './ServiceDetailClient'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { ServicePost } from '@/types'
 
 function getSupabaseClient() {
@@ -19,11 +20,11 @@ export async function generateMetadata({
   const supabase = getSupabaseClient()
   const { data } = await supabase
     .from('service_posts')
-    .select('title, location, category')
+    .select('title, location, category, user:users(status)')
     .eq('id', id)
     .single()
 
-  if (!data) {
+  if (!data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
     return {
       title: '本地服务详情 | OpenAA',
       description: 'OpenAA 华人本地服务信息',
@@ -45,9 +46,15 @@ export default async function ServiceDetailPage({
   const supabase = getSupabaseClient()
   const { data } = await supabase
     .from('service_posts')
-    .select('*')
+    .select('*, user:users(status)')
     .eq('id', id)
     .single()
 
-  return <ServiceDetailClient post={data as ServicePost | null} />
+  if (!data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
+    return <ServiceDetailClient post={null} />
+  }
+
+  const post = { ...(data as ServicePost & { user?: unknown }) }
+  delete post.user
+  return <ServiceDetailClient post={post} />
 }

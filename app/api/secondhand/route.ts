@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { validateContactFields } from '@/lib/contactValidation'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from('secondhand_items')
-    .select('*, user:users(username)', { count: 'exact' })
+    .select('*, user:users(username, status)', { count: 'exact' })
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1)
@@ -27,7 +28,8 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json({ data, total: count, page, pageSize })
+  const visibleData = (data ?? []).filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))
+  return NextResponse.json({ data: visibleData, total: count, page, pageSize })
 }
 
 export async function POST(request: NextRequest) {

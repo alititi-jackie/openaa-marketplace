@@ -9,6 +9,7 @@ import BackToTopButton from '@/components/BackToTopButton'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { SecondhandItem, SecondhandItemType } from '@/types'
 
 /** Extract the region from a secondhand item.
@@ -61,7 +62,7 @@ export default function SecondhandPage() {
     // We try applying the filter, and if it errors we fall back to the old query.
     const baseQuery = supabase
       .from('secondhand_items')
-      .select('*')
+      .select('*, user:users(status)')
       .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(50)
@@ -73,7 +74,7 @@ export default function SecondhandPage() {
 
     const { data, error } = await query
     if (!error) {
-      setItems(data || [])
+      setItems((data || []).filter((item) => isPublicOwnerVisible((item as SecondhandItem).user)) as SecondhandItem[])
       setLoading(false)
       return
     }
@@ -83,7 +84,9 @@ export default function SecondhandPage() {
     if (category) fallback = fallback.eq('category', category)
 
     const { data: fallbackData } = await fallback
-    setItems(fallbackData || [])
+    setItems(
+      ((fallbackData || []) as SecondhandItem[]).filter((item) => isPublicOwnerVisible(item.user))
+    )
     setLoading(false)
   }, [activeTab, category])
 

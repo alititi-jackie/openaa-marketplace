@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
@@ -66,7 +67,7 @@ export default function HousingPage() {
 
     const baseQuery = supabase
       .from('housing_posts')
-      .select('*')
+      .select('*, user:users(status)')
       .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(50)
@@ -76,14 +77,16 @@ export default function HousingPage() {
 
     const { data, error } = await query
     if (!error) {
-      setPosts(data || [])
+      setPosts((data || []).filter((post) => isPublicOwnerVisible((post as HousingPost).user)) as HousingPost[])
       setLoading(false)
       return
     }
 
     // Fallback: ignore type filter (for older DB / env without the column)
     const { data: fallbackData } = await baseQuery
-    setPosts(fallbackData || [])
+    setPosts(
+      ((fallbackData || []) as HousingPost[]).filter((post) => isPublicOwnerVisible(post.user))
+    )
     setLoading(false)
   }, [activeTab])
 

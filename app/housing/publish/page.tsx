@@ -158,14 +158,16 @@ function HousingPublishClient() {
           return
         }
 
-        const permission = await assertUserCanPostOrEdit(supabase, user.id)
-        if (!permission.allowed) {
-          if (!cancelled) {
-            setAuthStatus('ok')
-            setError(BANNED_ACCOUNT_MESSAGE)
-            setChecking(false)
+        if (!editId) {
+          const permission = await assertUserCanPostOrEdit(supabase, user.id)
+          if (!permission.allowed) {
+            if (!cancelled) {
+              setAuthStatus('ok')
+              setError(BANNED_ACCOUNT_MESSAGE)
+              setChecking(false)
+            }
+            return
           }
-          return
         }
 
         authedUserId = user.id
@@ -265,11 +267,13 @@ function HousingPublishClient() {
       return
     }
 
-    const permission = await assertUserCanPostOrEdit(supabase, user.id)
-    if (!permission.allowed) {
-      setError(BANNED_ACCOUNT_MESSAGE)
-      setLoading(false)
-      return
+    if (!isEditing) {
+      const permission = await assertUserCanPostOrEdit(supabase, user.id)
+      if (!permission.allowed) {
+        setError(BANNED_ACCOUNT_MESSAGE)
+        setLoading(false)
+        return
+      }
     }
 
     const remoteUrls = previewImages.filter((img) => img.kind === 'remote').map((img) => img.url)

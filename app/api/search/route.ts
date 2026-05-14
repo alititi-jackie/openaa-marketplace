@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
       'job_postings',
       supabase
         .from('job_postings')
-        .select('id, title, company, description, location, created_at')
+        .select('id, title, company, description, location, created_at, user:users(status)')
         .eq('status', 'published')
         .or(`${like('title')},${like('company')},${like('description')},${like('location')}`)
         .order('created_at', { ascending: false })
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
       'housing_posts',
       supabase
         .from('housing_posts')
-        .select('id, title, description, location, created_at')
+        .select('id, title, description, location, created_at, user:users(status)')
         .eq('status', 'published')
         .or(`${like('title')},${like('description')},${like('location')}`)
         .order('created_at', { ascending: false })
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
       'secondhand_items',
       supabase
         .from('secondhand_items')
-        .select('id, title, description, category, created_at')
+        .select('id, title, description, category, created_at, user:users(status)')
         .eq('status', 'published')
         .or(`${like('title')},${like('description')},${like('category')}`)
         .order('created_at', { ascending: false })
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
       'service_posts',
       supabase
         .from('service_posts')
-        .select('id, title, description, category, location, created_at')
+        .select('id, title, description, category, location, created_at, user:users(status)')
         .eq('status', 'active')
         .eq('is_active', true)
         .or(`${like('title')},${like('description')},${like('category')},${like('location')}`)
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of jobsResult.data) {
+  for (const item of jobsResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
     const loc = item.location ? ` · ${item.location}` : ''
     results.push({
       type: 'job',
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of housingResult.data) {
+  for (const item of housingResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
     results.push({
       type: 'housing',
       label: '房屋',
@@ -159,7 +160,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of secondhandResult.data) {
+  for (const item of secondhandResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
     results.push({
       type: 'secondhand',
       label: '二手',
@@ -171,7 +172,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of servicesResult.data) {
+  for (const item of servicesResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
     const loc = item.location ? ` · ${item.location}` : ''
     results.push({
       type: 'service',
