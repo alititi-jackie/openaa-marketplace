@@ -6,6 +6,7 @@ export interface DailyPostLimitResult {
   allowed: boolean
   limit: number
   used: number
+  unlimited?: boolean
   message?: string
 }
 
@@ -66,7 +67,7 @@ export async function checkDailyPostLimit(
   const tomorrowStartISO = tomorrowStart.toISOString()
 
   if (await isPostingExempt(supabase, userId)) {
-    return { allowed: true, limit: 0, used: 0 }
+    return { allowed: true, limit: 0, used: 0, unlimited: true }
   }
 
   const limit = await getDailyLimit()
