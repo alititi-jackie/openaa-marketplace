@@ -39,6 +39,21 @@ async function getDailyLimit(): Promise<number> {
   }
 }
 
+async function isPostingExempt(supabase: SupabaseClient, userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('is_posting_exempt')
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (error) return false
+    return Boolean((data as { is_posting_exempt?: boolean } | null)?.is_posting_exempt)
+  } catch {
+    return false
+  }
+}
+
 export async function checkDailyPostLimit(
   supabase: SupabaseClient,
   userId: string
@@ -49,6 +64,10 @@ export async function checkDailyPostLimit(
 
   const todayStartISO = todayStart.toISOString()
   const tomorrowStartISO = tomorrowStart.toISOString()
+
+  if (await isPostingExempt(supabase, userId)) {
+    return { allowed: true, limit: 0, used: 0 }
+  }
 
   const limit = await getDailyLimit()
 
