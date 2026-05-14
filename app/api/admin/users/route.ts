@@ -19,6 +19,7 @@ type UserRow = {
   phone: string | null
   bio: string | null
   status: UserStatus | null
+  is_posting_exempt: boolean | null
   admin_note: string | null
   banned_reason: string | null
   banned_at: string | null
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('users')
     .select(
-      'id, email, username, phone, bio, status, admin_note, banned_reason, banned_at, banned_by, created_at, updated_at',
+      'id, email, username, phone, bio, status, is_posting_exempt, admin_note, banned_reason, banned_at, banned_by, created_at, updated_at',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -171,6 +172,7 @@ export async function GET(request: NextRequest) {
       phone: user.phone,
       bio: user.bio,
       status: user.status || 'active',
+      is_posting_exempt: Boolean(user.is_posting_exempt),
       admin_note: user.admin_note,
       banned_reason: user.banned_reason,
       banned_at: user.banned_at,

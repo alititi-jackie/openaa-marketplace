@@ -80,6 +80,14 @@ export async function PATCH(
     updates.last_admin_action_at = now
   }
 
+  if ('is_posting_exempt' in payload) {
+    if (typeof payload.is_posting_exempt !== 'boolean') {
+      return NextResponse.json({ error: 'is_posting_exempt 必须为布尔值' }, { status: 400 })
+    }
+    updates.is_posting_exempt = payload.is_posting_exempt
+    updates.last_admin_action_at = now
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
   }
@@ -89,7 +97,9 @@ export async function PATCH(
     .from('users')
     .update(updates)
     .eq('id', id)
-    .select('id, email, username, phone, bio, status, admin_note, banned_reason, banned_at, banned_by, created_at, updated_at')
+    .select(
+      'id, email, username, phone, bio, status, is_posting_exempt, admin_note, banned_reason, banned_at, banned_by, created_at, updated_at'
+    )
     .single()
 
   if (error || !data) {

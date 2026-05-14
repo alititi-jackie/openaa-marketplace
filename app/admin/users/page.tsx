@@ -16,6 +16,7 @@ type AdminUser = {
   phone: string | null
   bio: string | null
   status: UserStatus
+  is_posting_exempt: boolean
   admin_note: string | null
   banned_reason: string | null
   banned_at: string | null
@@ -313,6 +314,14 @@ export default function AdminUsersPage() {
     await patchUser(user, { status: 'active' }, '用户已恢复')
   }
 
+  async function enablePostingExempt(user: AdminUser) {
+    await patchUser(user, { is_posting_exempt: true }, '已开启免发布限制')
+  }
+
+  async function disablePostingExempt(user: AdminUser) {
+    await patchUser(user, { is_posting_exempt: false }, '已关闭免发布限制')
+  }
+
   if (!token) {
     return (
       <>
@@ -483,6 +492,9 @@ export default function AdminUsersPage() {
                     </span>
                   </div>
                 </div>
+                <p className="mt-2 text-sm text-zinc-600">
+                  免发布限制：{user.is_posting_exempt ? '已开启' : '未开启'}
+                </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
@@ -513,6 +525,22 @@ export default function AdminUsersPage() {
                     className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100"
                   >
                     编辑备注
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void enablePostingExempt(user)}
+                    disabled={saving || user.is_posting_exempt}
+                    className="rounded-lg border border-sky-100 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 disabled:opacity-50"
+                  >
+                    开启免发布限制
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void disablePostingExempt(user)}
+                    disabled={saving || !user.is_posting_exempt}
+                    className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+                  >
+                    关闭免发布限制
                   </button>
                 </div>
 
