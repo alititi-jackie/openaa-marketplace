@@ -63,6 +63,13 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'banned', label: '禁用' },
 ]
 
+const compactLineClampStyle = {
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical' as const,
+  WebkitLineClamp: 2,
+  overflow: 'hidden',
+}
+
 function formatDate(value: string | null): string {
   if (!value) return '—'
   const date = new Date(value)
@@ -86,6 +93,11 @@ function statusClassName(status: UserStatus): string {
   if (status === 'banned') return 'bg-red-50 text-red-600 ring-red-100'
   if (status === 'restricted') return 'bg-amber-50 text-amber-700 ring-amber-100'
   return 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+}
+
+function compactText(value: string | null): string {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : '—'
 }
 
 function StatCard({ label, value }: { label: string; value: number | string }) {
@@ -457,14 +469,18 @@ export default function AdminUsersPage() {
                   <span className="rounded-full bg-zinc-50 px-2.5 py-1 text-zinc-700 ring-1 ring-zinc-100">总计 {user.postCounts.total}</span>
                 </div>
 
-                <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-                  <div className="rounded-xl bg-zinc-50 p-3">
-                    <div className="text-xs font-medium text-zinc-500">后台备注</div>
-                    <div className="mt-1 whitespace-pre-wrap break-words text-zinc-700">{user.admin_note || '—'}</div>
+                <div className="mt-3 grid gap-1.5 text-sm md:grid-cols-2">
+                  <div className="flex min-w-0 gap-1 text-zinc-600">
+                    <span className="shrink-0 font-medium text-zinc-500">备注：</span>
+                    <span className="min-w-0 flex-1 break-words text-zinc-700" style={compactLineClampStyle}>
+                      {compactText(user.admin_note)}
+                    </span>
                   </div>
-                  <div className="rounded-xl bg-red-50 p-3">
-                    <div className="text-xs font-medium text-red-500">禁用原因</div>
-                    <div className="mt-1 whitespace-pre-wrap break-words text-red-700">{user.banned_reason || '—'}</div>
+                  <div className="flex min-w-0 gap-1 text-zinc-600">
+                    <span className="shrink-0 font-medium text-zinc-500">原因：</span>
+                    <span className="min-w-0 flex-1 break-words text-red-700" style={compactLineClampStyle}>
+                      {compactText(user.banned_reason)}
+                    </span>
                   </div>
                 </div>
 
