@@ -278,8 +278,8 @@ const stateDataMap: Record<string, StateData> = {
       },
       {
         label: 'CT E-ZPass — 过路费',
-        url: 'https://www.ctfastrak.com/',
-        description: '康涅狄格州 CTfastrak 过路费查询和账户管理入口。',
+        url: 'https://www.ezpassct.com/',
+        description: '康涅狄格州 E-ZPass 过路费账户管理和查询入口。',
         types: ['toll'],
         isOfficial: true,
       },
