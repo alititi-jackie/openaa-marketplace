@@ -60,11 +60,11 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-const signQuestions = allQuestions.filter((q) => q.category === '交通标志')
-const signQuestionPool = signQuestions.length > 0 ? signQuestions : allQuestions
+const SIGN_CATEGORIES = new Set(['交通标志', 'traffic-signs', 'road-signs-general'])
+const signQuestions = allQuestions.filter((q) => SIGN_CATEGORIES.has(q.category))
 
 export default function SignTestPage() {
-  const [questions, setQuestions] = useState<Question[]>(() => shuffle(signQuestionPool))
+  const [questions, setQuestions] = useState<Question[]>(() => shuffle(signQuestions))
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [answered, setAnswered] = useState(false)
@@ -98,7 +98,7 @@ export default function SignTestPage() {
   }, [current, questions.length])
 
   const handleRestart = useCallback(() => {
-    setQuestions(shuffle(signQuestionPool))
+    setQuestions(shuffle(signQuestions))
     setCurrent(0)
     setSelected(null)
     setAnswered(false)
