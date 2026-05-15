@@ -83,6 +83,8 @@ export default function SignTestPage() {
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState({ correct: 0, wrong: 0 })
 
+  // NOTE: Hooks must be called unconditionally. Do NOT early-return before this point.
+
   // If questions become empty or current index is out of range, reset to a safe state.
   useEffect(() => {
     if (questions.length === 0) return
@@ -93,57 +95,11 @@ export default function SignTestPage() {
     }
   }, [questions.length, current])
 
-  // Guard: empty sign question set -> show empty state (avoid reading q.question)
-  if (signQuestions.length === 0 || questions.length === 0) {
-    return (
-      <div className="min-h-screen bg-zinc-50 pb-28">
-        <div className="px-4 pt-4">
-          <DetailBackButton fallbackHref="/dmv/ny/practice" />
-        </div>
-
-        <div className="px-4 pt-4">
-          <div className="mb-3 text-center">
-            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
-            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <p className="text-sm font-semibold text-zinc-900">暂无交通标志题，请检查题库图片字段。</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   const q = questions[current]
-
-  // Guard: current question missing -> show safe state (avoid reading q.*)
-  if (!q) {
-    return (
-      <div className="min-h-screen bg-zinc-50 pb-28">
-        <div className="px-4 pt-4">
-          <DetailBackButton fallbackHref="/dmv/ny/practice" />
-        </div>
-
-        <div className="px-4 pt-4">
-          <div className="mb-3 text-center">
-            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
-            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <p className="text-sm font-semibold text-zinc-900">题目加载异常，正在回到第一题…</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const progress = ((current + 1) / questions.length) * 100
 
   const handleSelect = useCallback(
     (i: number) => {
-      if (answered) return
+      if (answered || !q) return
       setSelected(i)
       setAnswered(true)
       if (i === q.answerIndex) {
@@ -173,6 +129,50 @@ export default function SignTestPage() {
     setScore({ correct: 0, wrong: 0 })
   }, [signQuestions])
 
+  // Guards moved AFTER all hooks to keep hook order stable.
+  if (signQuestions.length === 0 || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-zinc-50 pb-28">
+        <div className="px-4 pt-4">
+          <DetailBackButton fallbackHref="/dmv/ny/practice" />
+        </div>
+
+        <div className="px-4 pt-4">
+          <div className="mb-3 text-center">
+            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <p className="text-sm font-semibold text-zinc-900">暂无交通标志题，请检查题库图片字段。</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!q) {
+    return (
+      <div className="min-h-screen bg-zinc-50 pb-28">
+        <div className="px-4 pt-4">
+          <DetailBackButton fallbackHref="/dmv/ny/practice" />
+        </div>
+
+        <div className="px-4 pt-4">
+          <div className="mb-3 text-center">
+            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <p className="text-sm font-semibold text-zinc-900">题目加载异常，正在回到第一题…</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const progress = ((current + 1) / questions.length) * 100
   const isCorrect = answered && selected === q.answerIndex
 
   return (
