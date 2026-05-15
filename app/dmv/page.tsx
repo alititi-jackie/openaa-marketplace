@@ -1,6 +1,7 @@
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import Link from 'next/link'
+import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 import {
   AlertTriangle,
   ArrowRight,
@@ -17,12 +18,13 @@ import {
 } from 'lucide-react'
 
 const ticketsLink = 'https://openaa.com/dmv/tickets/index.html'
+const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
 
 const dmvExamCards = [
   {
     title: '查看题库',
-    desc: '60 道中文题目，可搜索筛选，点击选项即可做题',
-    href: '/dmv/ny/practice',
+    desc: `${questionCount} 道中文题目，可搜索筛选，点击选项即可做题`,
+    href: '/dmv/ny/questions',
     Icon: BookMarked,
     color: 'blue',
   },
@@ -50,7 +52,7 @@ const dmvExamCards = [
 ]
 
 const quickTools = [
-  { title: 'DMV 笔试练习', desc: 'Learner Permit 中文题库入口', href: '/dmv/ny/practice', Icon: BookOpen, external: false },
+  { title: 'DMV 笔试模拟', desc: '查看题库、练习模式、模拟考试与错题练习', href: '/dmv/ny/practice', Icon: BookOpen, external: false },
   { title: '罚单查询', desc: '交通罚单与处理指引', href: ticketsLink, Icon: AlertTriangle, external: false },
   { title: '驾照申请', desc: 'Learner Permit 官方入口', href: 'https://dmv.ny.gov/driver-license/get-learner-permit', Icon: FileText, external: true },
   { title: '车辆注册', desc: '车辆注册与牌照流程', href: 'https://dmv.ny.gov/registration/register-and-title-vehicle-new-york-state', Icon: Car, external: true },
@@ -140,7 +142,7 @@ export default function DMVPage() {
 
       <section className="mt-4">
         <h2 className="text-base font-bold text-zinc-900">纽约 DMV 笔试练习</h2>
-        <p className="mt-1 text-xs text-zinc-500">中文题库 · 60 题 · 无需登录 · 支持错题练习</p>
+        <p className="mt-1 text-xs text-zinc-500">中文题库 · {questionCount} 题 · 无需登录 · 支持错题练习</p>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {dmvExamCards.map(({ title, desc, href, Icon, color }) => {
             const colorMap: Record<string, string> = {
