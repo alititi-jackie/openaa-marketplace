@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
-  id: string
+  id: number
   category: string
   question: string
   image: string | null
@@ -21,7 +21,15 @@ interface Question {
   tags: string[]
 }
 
-const allQuestions = questionsData as Question[]
+type QuestionBank = {
+  _meta?: {
+    totalQuestions?: number
+  }
+  questions: Question[]
+}
+
+const questionBank = questionsData as QuestionBank
+const allQuestions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
 
@@ -64,7 +72,7 @@ export default function WrongQuestionsPage() {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
   }, [])
 
-  const wrongQuestions = allQuestions.filter((q) => wrongIds.includes(q.id))
+  const wrongQuestions = allQuestions.filter((q) => wrongIds.includes(String(q.id)))
   const filtered = onlySign
     ? wrongQuestions.filter((q) => q.category === '交通标志')
     : wrongQuestions
@@ -91,8 +99,8 @@ export default function WrongQuestionsPage() {
   const handleNext = useCallback(() => {
     const isCorrect = selected === q.answerIndex
     if (isCorrect) {
-      removeWrongId(q.id)
-      setWrongIds((prev) => prev.filter((id) => id !== q.id))
+      removeWrongId(String(q.id))
+      setWrongIds((prev) => prev.filter((id) => id !== String(q.id)))
     }
     const remaining = filtered.filter((fq) => {
       if (isCorrect && fq.id === q.id) return false

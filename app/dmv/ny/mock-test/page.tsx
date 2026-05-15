@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
-  id: string
+  id: number
   category: string
   question: string
   image: string | null
@@ -107,7 +107,7 @@ export default function MockTestPage() {
     // Save wrong questions to localStorage
     questions.forEach((q, i) => {
       if (answers[i] !== q.answerIndex) {
-        saveWrongQuestion(q.id)
+        saveWrongQuestion(String(q.id))
       }
     })
     setPhase('result')
