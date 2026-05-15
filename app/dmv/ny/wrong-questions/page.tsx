@@ -318,7 +318,7 @@ export default function WrongQuestionsPage() {
             </p>
             <div className="mt-4 flex flex-col gap-2">
               <Link
-                href="/dmv/ny/practice"
+                href="/dmv/ny/questions"
                 className="rounded-2xl bg-blue-600 py-3 text-center text-sm font-bold text-white"
               >
                 去查看题库
