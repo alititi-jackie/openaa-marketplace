@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowRight, RotateCcw } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
@@ -61,16 +61,84 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-const signQuestions = allQuestions.filter((q) => q.category === '交通标志')
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === 'string' && v.trim() !== ''
+}
 
 export default function SignTestPage() {
+  // Prefer image-based detection: in the new question bank, sign questions are picture questions.
+  const signQuestions = useMemo(
+    () =>
+      allQuestions.filter((q) => {
+        const hasImage = isNonEmptyString(q.image)
+        const isSignByMeta = q.category === 'traffic-signs' || q.tags?.includes('sign')
+        return hasImage || isSignByMeta
+      }),
+    [],
+  )
+
   const [questions, setQuestions] = useState<Question[]>(() => shuffle(signQuestions))
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState({ correct: 0, wrong: 0 })
 
+  // If questions become empty or current index is out of range, reset to a safe state.
+  useEffect(() => {
+    if (questions.length === 0) return
+    if (current < 0 || current >= questions.length) {
+      setCurrent(0)
+      setSelected(null)
+      setAnswered(false)
+    }
+  }, [questions.length, current])
+
+  // Guard: empty sign question set -> show empty state (avoid reading q.question)
+  if (signQuestions.length === 0 || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-zinc-50 pb-28">
+        <div className="px-4 pt-4">
+          <DetailBackButton fallbackHref="/dmv/ny/practice" />
+        </div>
+
+        <div className="px-4 pt-4">
+          <div className="mb-3 text-center">
+            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <p className="text-sm font-semibold text-zinc-900">暂无交通标志题，请检查题库图片字段。</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const q = questions[current]
+
+  // Guard: current question missing -> show safe state (avoid reading q.*)
+  if (!q) {
+    return (
+      <div className="min-h-screen bg-zinc-50 pb-28">
+        <div className="px-4 pt-4">
+          <DetailBackButton fallbackHref="/dmv/ny/practice" />
+        </div>
+
+        <div className="px-4 pt-4">
+          <div className="mb-3 text-center">
+            <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <p className="text-sm font-semibold text-zinc-900">题目加载异常，正在回到第一题…</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const progress = ((current + 1) / questions.length) * 100
 
   const handleSelect = useCallback(
@@ -103,7 +171,7 @@ export default function SignTestPage() {
     setSelected(null)
     setAnswered(false)
     setScore({ correct: 0, wrong: 0 })
-  }, [])
+  }, [signQuestions])
 
   const isCorrect = answered && selected === q.answerIndex
 
@@ -145,23 +213,15 @@ export default function SignTestPage() {
             <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600 font-medium">
               第 {current + 1} 题
             </span>
-            <span className="rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-zinc-500">
-              交通标志
-            </span>
+            <span className="rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-zinc-500">交通标志</span>
           </div>
 
-          <p className="mt-2 text-base font-semibold leading-relaxed text-zinc-900">
-            {q.question}
-          </p>
+          <p className="mt-2 text-base font-semibold leading-relaxed text-zinc-900">{q.question}</p>
 
           {q.image && (
             <div className="mt-4 flex justify-center">
               <div className="rounded-2xl bg-zinc-50 p-4">
-                <img
-                  src={q.image}
-                  alt="交通标志"
-                  className="h-48 w-48 object-contain"
-                />
+                <img src={q.image} alt="交通标志" className="h-48 w-48 object-contain" />
               </div>
             </div>
           )}
@@ -179,8 +239,7 @@ export default function SignTestPage() {
                   cls += ' border-zinc-100 bg-zinc-50 text-zinc-400'
                 }
               } else {
-                cls +=
-                  ' border-zinc-200 bg-white text-zinc-800 active:bg-blue-50 active:border-blue-200'
+                cls += ' border-zinc-200 bg-white text-zinc-800 active:bg-blue-50 active:border-blue-200'
               }
               return (
                 <button key={i} type="button" className={cls} onClick={() => handleSelect(i)}>
