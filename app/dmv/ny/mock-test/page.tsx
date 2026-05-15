@@ -21,7 +21,15 @@ interface Question {
   tags: string[]
 }
 
-const allQuestions = questionsData as Question[]
+type QuestionBank = {
+  _meta?: {
+    totalQuestions?: number
+  }
+  questions: Question[]
+}
+
+const questionBank = questionsData as QuestionBank
+const allQuestions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
 
