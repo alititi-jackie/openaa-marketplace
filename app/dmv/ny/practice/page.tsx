@@ -13,8 +13,8 @@ const entryCards = [
   },
   {
     title: '随机 / 顺序练习',
-    desc: '交通标志专项练习，快速巩固高频考点。',
-    href: '/dmv/ny/sign-test',
+    desc: '全题库随机或顺序练习，答题后立即显示正确答案和解释。',
+    href: '/dmv/ny/quiz',
     Icon: Shuffle,
     colorClass: 'bg-orange-50 text-orange-500',
   },
