@@ -7,17 +7,50 @@ import {
   BookOpen,
   Car,
   ChevronRight,
-  ClipboardCheck,
   FileText,
   MapPin,
   RefreshCw,
+  BookMarked,
+  ClipboardList,
+  AlertCircle,
+  TrafficCone,
 } from 'lucide-react'
 
-const practiceLink = 'https://openaa.com/dmv/ny/practice/index.html'
 const ticketsLink = 'https://openaa.com/dmv/tickets/index.html'
 
+const dmvExamCards = [
+  {
+    title: '查看题库',
+    desc: '60 道中文题目，可搜索筛选，点击选项即可做题',
+    href: '/dmv/ny/practice',
+    Icon: BookMarked,
+    color: 'blue',
+  },
+  {
+    title: '模拟考试',
+    desc: '按官方规则：20 题，答对 14 题通过',
+    href: '/dmv/ny/mock-test',
+    Icon: ClipboardList,
+    color: 'green',
+  },
+  {
+    title: '错题练习',
+    desc: '自动保存错题，重点攻克弱项',
+    href: '/dmv/ny/wrong-questions',
+    Icon: AlertCircle,
+    color: 'red',
+  },
+  {
+    title: '交通标志专项',
+    desc: '纽约常见交通标志图文解析',
+    href: '/dmv/ny/sign-test',
+    Icon: TrafficCone,
+    color: 'orange',
+  },
+]
+
 const quickTools = [
-  { title: 'DMV 笔试模拟', desc: 'Learner Permit 练习入口', href: practiceLink, Icon: BookOpen, external: false },
+  { title: 'DMV 笔试练习', desc: 'Learner Permit 中文题库入口', href: '/dmv/ny/practice', Icon: BookOpen, external: false },
   { title: '罚单查询', desc: '交通罚单与处理指引', href: ticketsLink, Icon: AlertTriangle, external: false },
   { title: '驾照申请', desc: 'Learner Permit 官方入口', href: 'https://dmv.ny.gov/driver-license/get-learner-permit', Icon: FileText, external: true },
   { title: '车辆注册', desc: '车辆注册与牌照流程', href: 'https://dmv.ny.gov/registration/register-and-title-vehicle-new-york-state', Icon: Car, external: true },
@@ -105,24 +138,35 @@ export default function DMVPage() {
         </div>
       </section>
 
-      <section className="mt-4 grid gap-3">
-        <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-base font-bold text-zinc-900">纽约 DMV 笔试模拟</h3>
-              <p className="mt-1 text-sm text-zinc-600">适合准备 Learner Permit 的新手提前练习</p>
-            </div>
-            <ClipboardCheck size={18} className="shrink-0 text-blue-600" />
-          </div>
-          <Link
-            href={practiceLink}
-            className="mt-3 inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-sm font-medium text-white"
-          >
-            开始练习
-            <ArrowRight size={14} />
-          </Link>
+      <section className="mt-4">
+        <h2 className="text-base font-bold text-zinc-900">纽约 DMV 笔试练习</h2>
+        <p className="mt-1 text-xs text-zinc-500">中文题库 · 60 题 · 无需登录 · 支持错题练习</p>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {dmvExamCards.map(({ title, desc, href, Icon, color }) => {
+            const colorMap: Record<string, string> = {
+              blue: 'bg-blue-50 text-blue-600',
+              green: 'bg-green-50 text-green-600',
+              red: 'bg-red-50 text-red-500',
+              orange: 'bg-orange-50 text-orange-500',
+            }
+            return (
+              <Link
+                key={title}
+                href={href}
+                className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
+              >
+                <div className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${colorMap[color]}`}>
+                  <Icon size={18} />
+                </div>
+                <p className="mt-2 text-sm font-bold text-zinc-900">{title}</p>
+                <p className="mt-0.5 text-xs text-zinc-500 leading-relaxed">{desc}</p>
+              </Link>
+            )
+          })}
         </div>
+      </section>
 
+      <section className="mt-4 grid gap-3">
         <div className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div>
