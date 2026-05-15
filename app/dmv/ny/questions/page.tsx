@@ -21,8 +21,15 @@ interface Question {
   tags: string[]
 }
 
-const questions = questionsData as Question[]
-const EXPECTED_QUESTION_COUNT = 150
+type QuestionBank = {
+  _meta?: {
+    totalQuestions?: number
+  }
+  questions: Question[]
+}
+
+const questionBank = questionsData as QuestionBank
+const questions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
 
@@ -291,31 +298,20 @@ export default function PracticePage() {
 
       {/* Question List */}
       <div className="space-y-3 px-4 pt-4">
-        {questions.length < EXPECTED_QUESTION_COUNT && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5">
-            <p className="text-xs leading-relaxed text-amber-800">
-              当前题库共 {questions.length} 题，尚未达到目标 {EXPECTED_QUESTION_COUNT} 题。请补充完整题库数据源后更新。
-            </p>
-          </div>
-        )}
         {filtered.length === 0 ? (
           <div className="mt-12 text-center text-zinc-400">
             <p className="text-4xl">🔍</p>
             <p className="mt-2 text-sm">没有找到相关题目</p>
           </div>
         ) : (
-          filtered.map((q, i) => (
-            <QuestionCard key={q.id} q={q} showAnswer={showAnswer} index={i} />
-          ))
+          filtered.map((q, i) => <QuestionCard key={q.id} q={q} showAnswer={showAnswer} index={i} />)
         )}
       </div>
 
       {/* Login Banner */}
       {showLoginBanner && !isLoggedIn && (
         <div className="mx-4 mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-          <p className="text-sm font-semibold text-blue-800">
-            🎉 已浏览完题库！
-          </p>
+          <p className="text-sm font-semibold text-blue-800">🎉 已浏览完题库！</p>
           <p className="mt-1 text-xs text-blue-700 leading-relaxed">
             登录 OpenAA 后，未来可同步错题和学习进度，支持多设备继续学习。
           </p>
