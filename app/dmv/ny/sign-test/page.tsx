@@ -223,7 +223,7 @@ export default function SignTestPage() {
               <div className="rounded-2xl border border-green-100 bg-green-50 p-4 text-center">
                 <p className="text-lg font-black text-green-800">🎉 已完成全部标志题！</p>
                 <p className="mt-1 text-sm text-green-700">
-                  正确 {score.correct + (isCorrect ? 0 : 0)} / {questions.length}
+                  正确 {score.correct} / {questions.length}
                 </p>
               </div>
               <button
