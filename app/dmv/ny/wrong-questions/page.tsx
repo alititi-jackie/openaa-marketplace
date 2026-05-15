@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Trash2 } from 'lucide-react'
+import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
@@ -117,15 +118,8 @@ export default function WrongQuestionsPage() {
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
         <div className="px-4 pt-4">
-          <div className="flex items-center gap-3 mb-4">
-            <Link
-              href="/dmv"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-600"
-            >
-              <ArrowLeft size={16} />
-            </Link>
-            <h1 className="text-base font-bold text-zinc-900">错题练习</h1>
-          </div>
+          <DetailBackButton fallbackHref="/dmv/ny/practice" />
+          <h1 className="mb-4 text-base font-bold text-zinc-900">错题练习</h1>
 
           <div className="rounded-2xl border border-green-200 bg-gradient-to-b from-green-50 to-white p-6 text-center shadow-sm">
             <div className="text-5xl mb-3">🎊</div>
@@ -299,15 +293,8 @@ export default function WrongQuestionsPage() {
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
       <div className="px-4 pt-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Link
-            href="/dmv"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-600"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <h1 className="text-base font-bold text-zinc-900">错题练习</h1>
-        </div>
+        <DetailBackButton fallbackHref="/dmv/ny/practice" />
+        <h1 className="mb-4 text-base font-bold text-zinc-900">错题练习</h1>
 
         {wrongQuestions.length === 0 ? (
           <div className="rounded-2xl border border-zinc-100 bg-white p-8 text-center shadow-sm">
