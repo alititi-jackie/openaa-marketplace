@@ -1,782 +1,3038 @@
-[
-  {
-    "id": "ny-001",
-    "category": "交通规则",
-    "question": "在纽约州，驾驶员看到停车标志（STOP）时应该怎么做？",
-    "image": null,
-    "options": ["A. 减速后继续行驶", "B. 完全停车，确认安全后再行驶", "C. 鸣笛后通过", "D. 只在有行人时停车"],
-    "answerIndex": 1,
-    "answerText": "B. 完全停车，确认安全后再行驶",
-    "explanation": "遇到STOP标志必须完全停车，在停车线或路口前停下，确认四面无来车和行人后才能继续行驶。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["停车标志", "基础规则"]
+{
+  "_meta": {
+    "name": "OpenAA 纽约 DMV 中文笔试题库 V1",
+    "version": "2026-05-15",
+    "language": "zh-CN",
+    "jurisdiction": "New York",
+    "totalQuestions": 150,
+    "sourcePolicy": "OpenAA 根据 NY DMV Driver's Manual 知识范围和常见中文驾考题型重新整理；不直接标注或沿用第三方题库来源。",
+    "disclaimer": "非官方学习题库，仅供学习参考。实际考试内容、题型和规则请以 New York DMV 官方资料为准。",
+    "officialReference": [
+      "NY DMV Driver's Manual",
+      "NY DMV Driver Manual Practice Tests: Chapters 4-11 and Road Signs"
+    ],
+    "imageBase": "https://img.openaa.com/dmv/app/signs",
+    "categories": [
+      "alcohol-drugs",
+      "highway",
+      "law",
+      "parking",
+      "passing-lanes",
+      "right-of-way",
+      "road-signs-general",
+      "safety",
+      "sharing-road",
+      "speed-weather",
+      "traffic-control",
+      "traffic-signs",
+      "turns"
+    ]
   },
-  {
-    "id": "ny-002",
-    "category": "交通规则",
-    "question": "在纽约州，没有限速标志的居民区，最高时速限制是多少？",
-    "image": null,
-    "options": ["A. 20 英里/小时", "B. 25 英里/小时", "C. 30 英里/小时", "D. 35 英里/小时"],
-    "answerIndex": 1,
-    "answerText": "B. 25 英里/小时",
-    "explanation": "在纽约州，没有明确限速标志的居民区，法定最高限速为 25 英里/小时。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["限速", "居民区"]
-  },
-  {
-    "id": "ny-003",
-    "category": "交通规则",
-    "question": "在路口，黄色交通灯亮起时，驾驶员应该怎么做？",
-    "image": null,
-    "options": ["A. 加速通过路口", "B. 减速并准备停车", "C. 继续以原速行驶", "D. 鸣笛警告行人"],
-    "answerIndex": 1,
-    "answerText": "B. 减速并准备停车",
-    "explanation": "黄灯表示红灯即将亮起，驾驶员应减速准备停车，除非停车会造成危险，才可以继续通过。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["交通灯", "黄灯"]
-  },
-  {
-    "id": "ny-004",
-    "category": "交通规则",
-    "question": "在纽约州，超车时必须从哪一侧超过前车？",
-    "image": null,
-    "options": ["A. 右侧", "B. 左侧", "C. 两侧均可", "D. 视路况而定"],
-    "answerIndex": 1,
-    "answerText": "B. 左侧",
-    "explanation": "纽约州规定，超车必须从左侧进行，除非前车打了左转信号且右侧有足够空间时，才可以从右侧超车。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "medium",
-    "tags": ["超车", "规则"]
-  },
-  {
-    "id": "ny-005",
-    "category": "安全驾驶",
-    "question": "雨天行驶时，与前车保持的安全距离应该如何调整？",
-    "image": null,
-    "options": ["A. 与晴天相同", "B. 缩短距离以便紧急制动", "C. 加大跟车距离", "D. 减少到1秒跟车距离"],
-    "answerIndex": 2,
-    "answerText": "C. 加大跟车距离",
-    "explanation": "雨天路面湿滑，制动距离更长，驾驶员应加大与前车的跟车距离，至少保持4秒以上的跟车时间。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "easy",
-    "tags": ["恶劣天气", "安全距离"]
-  },
-  {
-    "id": "ny-006",
-    "category": "停车规定",
-    "question": "在消防栓旁多少英尺内禁止停车？",
-    "image": null,
-    "options": ["A. 5 英尺", "B. 10 英尺", "C. 15 英尺", "D. 20 英尺"],
-    "answerIndex": 2,
-    "answerText": "C. 15 英尺",
-    "explanation": "在纽约州，消防栓两侧各15英尺范围内禁止停车，以确保消防车辆能够迅速接管消防栓。",
-    "reference": "NY DMV Driver Manual Chapter 6",
-    "difficulty": "medium",
-    "tags": ["停车", "消防栓"]
-  },
-  {
-    "id": "ny-007",
-    "category": "酒驾规定",
-    "question": "在纽约州，成年驾驶员（21岁及以上）血液酒精含量达到多少时，属于DWI（驾驶时酒后驾车）？",
-    "image": null,
-    "options": ["A. 0.05%", "B. 0.06%", "C. 0.08%", "D. 0.10%"],
-    "answerIndex": 2,
-    "answerText": "C. 0.08%",
-    "explanation": "在纽约州，成年驾驶员血液酒精含量（BAC）达到或超过0.08%即构成DWI，属于刑事犯罪。",
-    "reference": "NY DMV Driver Manual Chapter 9",
-    "difficulty": "medium",
-    "tags": ["酒驾", "DWI", "BAC"]
-  },
-  {
-    "id": "ny-008",
-    "category": "交通规则",
-    "question": "在高速公路上，最低限速通常是多少英里/小时？",
-    "image": null,
-    "options": ["A. 30 英里/小时", "B. 40 英里/小时", "C. 45 英里/小时", "D. 50 英里/小时"],
-    "answerIndex": 3,
-    "answerText": "D. 50 英里/小时",
-    "explanation": "在纽约州高速公路上，除非有特别规定，最低行驶速度通常为50英里/小时，行驶过慢同样会造成交通危险。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["高速公路", "限速"]
-  },
-  {
-    "id": "ny-009",
-    "category": "道路礼仪",
-    "question": "在无红绿灯的十字路口，谁有优先通行权？",
-    "image": null,
-    "options": ["A. 车速较快的车辆", "B. 先到达路口停止线的车辆", "C. 体积较大的车辆", "D. 从右侧来的车辆"],
-    "answerIndex": 1,
-    "answerText": "B. 先到达路口停止线的车辆",
-    "explanation": "在无信号灯的路口，先到达停止线的车辆有优先通行权。如果同时到达，右侧来车享有优先权（让右规则）。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["优先权", "路口"]
-  },
-  {
-    "id": "ny-010",
-    "category": "安全驾驶",
-    "question": "纽约州要求所有前排乘客必须系安全带，违规最高罚款多少？",
-    "image": null,
-    "options": ["A. $25", "B. $50", "C. $100", "D. $150"],
-    "answerIndex": 2,
-    "answerText": "C. $100",
-    "explanation": "纽约州规定所有前排乘客（司机和副驾驶）必须系好安全带，违规最高罚款$100，并计2个驾照扣分点。",
-    "reference": "NY DMV Driver Manual Chapter 7",
-    "difficulty": "hard",
-    "tags": ["安全带", "罚款"]
-  },
-  {
-    "id": "ny-011",
-    "category": "交通规则",
-    "question": "在学校区域行驶时，当有儿童在场的情况下，最高限速是多少？",
-    "image": null,
-    "options": ["A. 10 英里/小时", "B. 15 英里/小时", "C. 20 英里/小时", "D. 25 英里/小时"],
-    "answerIndex": 2,
-    "answerText": "C. 20 英里/小时",
-    "explanation": "在学校区域，当儿童在场（通常在上学和放学时间）时，最高限速为20英里/小时。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["学校区域", "限速"]
-  },
-  {
-    "id": "ny-012",
-    "category": "交通规则",
-    "question": "驾驶员在变道前必须提前多长时间发出转向信号？",
-    "image": null,
-    "options": ["A. 50 英尺", "B. 100 英尺", "C. 200 英尺", "D. 500 英尺"],
-    "answerIndex": 1,
-    "answerText": "B. 100 英尺",
-    "explanation": "在城市道路上变道或转弯前，必须在距离转弯点至少100英尺处开始发出转向信号。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "medium",
-    "tags": ["转向信号", "变道"]
-  },
-  {
-    "id": "ny-013",
-    "category": "安全驾驶",
-    "question": "当紧急车辆（救护车、消防车、警车）开启警灯和警报时，驾驶员应该怎么做？",
-    "image": null,
-    "options": ["A. 继续正常行驶", "B. 加速离开", "C. 靠右停车并让行", "D. 靠左停车"],
-    "answerIndex": 2,
-    "answerText": "C. 靠右停车并让行",
-    "explanation": "当紧急车辆开启警灯警报时，驾驶员必须靠右让行，在确保安全的前提下靠路边停车，等紧急车辆通过后再继续行驶。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["紧急车辆", "让行"]
-  },
-  {
-    "id": "ny-014",
-    "category": "交通规则",
-    "question": "在铁路道口，当红灯闪烁或栏杆放下时，驾驶员应该怎么做？",
-    "image": null,
-    "options": ["A. 低速通过", "B. 在停止线前完全停车", "C. 先鸣笛再通过", "D. 根据是否有火车决定"],
-    "answerIndex": 1,
-    "answerText": "B. 在停止线前完全停车",
-    "explanation": "在铁路道口，当闪烁灯亮起、警报响起或栏杆放下时，必须在停止线前完全停车，绝对不能抢越铁路道口。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["铁路道口", "停车"]
-  },
-  {
-    "id": "ny-015",
-    "category": "停车规定",
-    "question": "在双黄线（Double Yellow Line）的道路上，以下哪种操作是允许的？",
-    "image": null,
-    "options": ["A. 超车时可以跨越", "B. 左转进入私人车道时可以跨越", "C. 任何情况都不能跨越", "D. 紧急情况下可以跨越"],
-    "answerIndex": 1,
-    "answerText": "B. 左转进入私人车道时可以跨越",
-    "explanation": "双黄实线通常不允许超车或跨越，但为了左转进入私人车道或侧道，可以跨越双黄线。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "hard",
-    "tags": ["双黄线", "超车规则"]
-  },
-  {
-    "id": "ny-016",
-    "category": "交通标志",
-    "question": "下图是什么交通标志？",
-    "image": "https://img.openaa.com/dmv/app/signs/stop-sign.png",
-    "options": ["A. 让行标志", "B. 停车标志（STOP）", "C. 禁止通行", "D. 单行道"],
-    "answerIndex": 1,
-    "answerText": "B. 停车标志（STOP）",
-    "explanation": "红色八边形STOP标志要求驾驶员必须完全停车，确认安全后才能继续行驶。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["停车标志", "交通标志"]
-  },
-  {
-    "id": "ny-017",
-    "category": "交通标志",
-    "question": "下图的三角形交通标志表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/yield-sign.png",
-    "options": ["A. 停车", "B. 让行（YIELD）", "C. 禁止超车", "D. 学校区域"],
-    "answerIndex": 1,
-    "answerText": "B. 让行（YIELD）",
-    "explanation": "倒三角形的YIELD标志要求驾驶员减速，让具有优先权的车辆先行，必要时停车让行。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["让行标志", "交通标志"]
-  },
-  {
-    "id": "ny-018",
-    "category": "交通标志",
-    "question": "下图的警示标志表示前方有什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/traffic-signal-ahead.png",
-    "options": ["A. 铁路道口", "B. 前方有交通信号灯", "C. 学校区域", "D. 行人过街"],
-    "answerIndex": 1,
-    "answerText": "B. 前方有交通信号灯",
-    "explanation": "此黄色菱形警告标志提醒驾驶员前方有交通信号灯，应提前减速准备。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["警告标志", "交通信号灯"]
-  },
-  {
-    "id": "ny-019",
-    "category": "交通标志",
-    "question": "下图的标志表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/school-crossing.png",
-    "options": ["A. 行人过街", "B. 学校区域 / 儿童过街", "C. 运动场", "D. 公园入口"],
-    "answerIndex": 1,
-    "answerText": "B. 学校区域 / 儿童过街",
-    "explanation": "五角形黄色学校区域标志提醒驾驶员附近有学校，可能有儿童过街，需减速慢行并特别注意。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["学校标志", "儿童安全"]
-  },
-  {
-    "id": "ny-020",
-    "category": "交通标志",
-    "question": "下图的铁路道口警示标志意味着什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/railroad-crossing.png",
-    "options": ["A. 前方有桥梁", "B. 前方有铁路道口", "C. 前方有学校", "D. 前方有公路收费站"],
-    "answerIndex": 1,
-    "answerText": "B. 前方有铁路道口",
-    "explanation": "圆形的黄色标志加X形警告前方有铁路道口，驾驶员应减速、查看两侧，确认没有火车后再通过。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["铁路道口", "警告标志"]
-  },
-  {
-    "id": "ny-021",
-    "category": "交通标志",
-    "question": "下图的标志表示什么指令？",
-    "image": "https://img.openaa.com/dmv/app/signs/keep-right.png",
-    "options": ["A. 向左行驶", "B. 向右行驶 / 靠右行驶", "C. 禁止左转", "D. 单行道向右"],
-    "answerIndex": 1,
-    "answerText": "B. 向右行驶 / 靠右行驶",
-    "explanation": "此标志要求驾驶员保持右行，通常出现在分隔岛或障碍物旁，指示驾驶员从右侧绕行。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["靠右行驶", "指令标志"]
-  },
-  {
-    "id": "ny-022",
-    "category": "交通标志",
-    "question": "下图的红色圆形标志表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/do-not-enter.png",
-    "options": ["A. 停车", "B. 禁止进入（DO NOT ENTER）", "C. 让行", "D. 禁止停车"],
-    "answerIndex": 1,
-    "answerText": "B. 禁止进入（DO NOT ENTER）",
-    "explanation": "红色圆形DO NOT ENTER标志表示禁止进入，通常出现在单行道入口或高速公路匝道出口，表示此路不可行驶。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["禁止进入", "管制标志"]
-  },
-  {
-    "id": "ny-023",
-    "category": "交通标志",
-    "question": "下图菱形标志上的波浪线图案表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/slippery-when-wet.png",
-    "options": ["A. 前方有河流", "B. 路面积水", "C. 路面湿滑（Slippery When Wet）", "D. 前方有弯道"],
-    "answerIndex": 2,
-    "answerText": "C. 路面湿滑（Slippery When Wet）",
-    "explanation": "此黄色菱形警告标志提示路面在雨天或积水时容易湿滑，驾驶员应降低车速，避免急刹车或急转弯。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["湿滑路面", "警告标志"]
-  },
-  {
-    "id": "ny-024",
-    "category": "交通标志",
-    "question": "下图标志表示什么路况？",
-    "image": "https://img.openaa.com/dmv/app/signs/two-way-traffic.png",
-    "options": ["A. 单行道", "B. 双向行驶（Two-Way Traffic）", "C. 超车禁止", "D. 分道行驶"],
-    "answerIndex": 1,
-    "answerText": "B. 双向行驶（Two-Way Traffic）",
-    "explanation": "此黄色菱形标志提醒驾驶员前方道路为双向通行，来往车辆共用道路，应注意对向来车。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["双向通行", "警告标志"]
-  },
-  {
-    "id": "ny-025",
-    "category": "交通标志",
-    "question": "下图的蓝色方形标志上有白色'H'字母，表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/hospital-sign.png",
-    "options": ["A. 前方有旅馆", "B. 前方有医院", "C. 禁止停车", "D. 高速公路入口"],
-    "answerIndex": 1,
-    "answerText": "B. 前方有医院",
-    "explanation": "蓝色方形H标志指示附近有医院（Hospital），帮助驾驶员在紧急情况下快速找到医疗机构。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["医院标志", "服务标志"]
-  },
-  {
-    "id": "ny-026",
-    "category": "交通标志",
-    "question": "下图的警告标志表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/merge-left.png",
-    "options": ["A. 道路向右弯曲", "B. 前方有车道向左合并", "C. 禁止左转", "D. 前方有分叉路"],
-    "answerIndex": 1,
-    "answerText": "B. 前方有车道向左合并",
-    "explanation": "此标志警示驾驶员前方有车道从右侧合并到左侧，应注意旁侧来车并适当调整车速。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["合并车道", "警告标志"]
-  },
-  {
-    "id": "ny-027",
-    "category": "交通标志",
-    "question": "下图标志表示什么路况变化？",
-    "image": "https://img.openaa.com/dmv/app/signs/divided-highway-ends.png",
-    "options": ["A. 分隔公路开始", "B. 分隔公路结束", "C. 前方有桥梁", "D. 单行道结束"],
-    "answerIndex": 1,
-    "answerText": "B. 分隔公路结束",
-    "explanation": "此标志警示驾驶员分隔公路（有中央隔离带的道路）即将结束，前方将变成双向共用道路，需注意对向来车。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "hard",
-    "tags": ["分隔公路", "警告标志"]
-  },
-  {
-    "id": "ny-028",
-    "category": "交通标志",
-    "question": "下图菱形标志上的图案表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/hill-ahead.png",
-    "options": ["A. 前方有下坡路", "B. 前方有隧道", "C. 前方有弯道", "D. 道路施工"],
-    "answerIndex": 0,
-    "answerText": "A. 前方有下坡路",
-    "explanation": "此黄色菱形警告标志提示前方道路有陡坡，驾驶员应提前减速，注意刹车，防止失控。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["坡道", "警告标志"]
-  },
-  {
-    "id": "ny-029",
-    "category": "交通标志",
-    "question": "下图的红色圆圈加斜线标志表示什么？",
-    "image": "https://img.openaa.com/dmv/app/signs/no-left-turn.png",
-    "options": ["A. 禁止右转", "B. 禁止左转", "C. 禁止掉头", "D. 单行道"],
-    "answerIndex": 1,
-    "answerText": "B. 禁止左转",
-    "explanation": "此管制标志表示此处禁止左转，驾驶员必须选择其他方向行驶，通常设置在交通拥挤或视线受阻的路口。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["禁止左转", "管制标志"]
-  },
-  {
-    "id": "ny-030",
-    "category": "交通标志",
-    "question": "下图的标志表示什么禁令？",
-    "image": "https://img.openaa.com/dmv/app/signs/no-u-turn.png",
-    "options": ["A. 禁止转弯", "B. 禁止掉头（No U-Turn）", "C. 禁止左转", "D. 禁止倒车"],
-    "answerIndex": 1,
-    "answerText": "B. 禁止掉头（No U-Turn）",
-    "explanation": "此标志表示禁止掉头（U形转弯），驾驶员不得在此处做180度转弯，以避免交通危险。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["禁止掉头", "管制标志"]
-  },
-  {
-    "id": "ny-031",
-    "category": "交通标志",
-    "question": "下图标志表示什么路况？",
-    "image": "https://img.openaa.com/dmv/app/signs/merging-traffic-right.png",
-    "options": ["A. 前方有车道从左侧合并", "B. 前方有车道从右侧汇入", "C. 前方有出口匝道", "D. 禁止变道"],
-    "answerIndex": 1,
-    "answerText": "B. 前方有车道从右侧汇入",
-    "explanation": "此警告标志提醒驾驶员前方有车辆从右侧匝道并入主路，应注意让行或调整车速。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["合并车道", "右侧汇入"]
-  },
-  {
-    "id": "ny-032",
-    "category": "安全驾驶",
-    "question": "行车时使用手机发短信（texting while driving），在纽约州会受到什么处罚？",
-    "image": null,
-    "options": ["A. 口头警告", "B. 罚款和驾照扣分", "C. 只有罚款，不扣分", "D. 没有明确法律规定"],
-    "answerIndex": 1,
-    "answerText": "B. 罚款和驾照扣分",
-    "explanation": "纽约州严禁开车时使用手机发短信，违规将面临罚款，并在驾照上扣5分，首次违规罚款可达$200。",
-    "reference": "NY DMV Driver Manual Chapter 7",
-    "difficulty": "medium",
-    "tags": ["手机", "分心驾驶", "罚款"]
-  },
-  {
-    "id": "ny-033",
-    "category": "交通规则",
-    "question": "在纽约州，行人在没有信号灯的路口过街时，谁有优先通行权？",
-    "image": null,
-    "options": ["A. 车辆", "B. 行人", "C. 速度较快的一方", "D. 谁先到谁先走"],
-    "answerIndex": 1,
-    "answerText": "B. 行人",
-    "explanation": "在纽约州，行人在合法过街时享有优先通行权，驾驶员必须停车让行人通过，否则将面临重罚。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["行人优先", "路口"]
-  },
-  {
-    "id": "ny-034",
-    "category": "停车规定",
-    "question": "在停车计时器前停车，时间到了之后你应该怎么做？",
-    "image": null,
-    "options": ["A. 可以继续停放，会有宽限期", "B. 必须立即移走车辆或续费", "C. 只要不超过1小时不会有问题", "D. 工作时间后停车免费"],
-    "answerIndex": 1,
-    "answerText": "B. 必须立即移走车辆或续费",
-    "explanation": "停车计时器（parking meter）时间到了必须立即续费或驶离，超时停车将收到罚单。",
-    "reference": "NY DMV Driver Manual Chapter 6",
-    "difficulty": "easy",
-    "tags": ["停车计时器", "停车规定"]
-  },
-  {
-    "id": "ny-035",
-    "category": "道路礼仪",
-    "question": "当校车停下并亮起红灯、展开停车臂时，所有方向的车辆应如何处理？",
-    "image": null,
-    "options": ["A. 减速缓行通过", "B. 必须完全停车等待", "C. 只有同向车辆需要停车", "D. 只有对向车辆需要停车"],
-    "answerIndex": 1,
-    "answerText": "B. 必须完全停车等待",
-    "explanation": "当校车亮红灯并展开停车臂时，所有方向的车辆（包括对向）必须停车，等校车关闭红灯、收起停车臂后才能继续行驶。（分隔公路上对向车辆除外）",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["校车", "停车规定"]
-  },
-  {
-    "id": "ny-036",
-    "category": "安全驾驶",
-    "question": "在高速公路上行驶时，感到疲劳困倦应该怎么做？",
-    "image": null,
-    "options": ["A. 打开音乐保持清醒", "B. 开窗通风继续行驶", "C. 立即靠边停车休息", "D. 喝咖啡后继续行驶"],
-    "answerIndex": 2,
-    "answerText": "C. 立即靠边停车休息",
-    "explanation": "疲劳驾驶极其危险，当感到困倦时应立即找安全地点停车休息，不应依赖喝咖啡或其他方法强撑。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "easy",
-    "tags": ["疲劳驾驶", "安全"]
-  },
-  {
-    "id": "ny-037",
-    "category": "交通规则",
-    "question": "在高速公路上，最右侧车道通常用于什么？",
-    "image": null,
-    "options": ["A. 超车", "B. 慢速行驶和进出匝道", "C. 大型卡车专用", "D. 紧急车辆专用"],
-    "answerIndex": 1,
-    "answerText": "B. 慢速行驶和进出匝道",
-    "explanation": "高速公路最右侧车道通常用于速度较慢的车辆行驶，以及车辆进出匝道使用，快速行驶应使用左侧车道。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "medium",
-    "tags": ["高速公路", "车道使用"]
-  },
-  {
-    "id": "ny-038",
-    "category": "酒驾规定",
-    "question": "在纽约州，21岁以下未成年人驾驶员血液酒精含量达到多少即属于违法？",
-    "image": null,
-    "options": ["A. 0.08%", "B. 0.05%", "C. 0.02%", "D. 任何可测量到的酒精含量"],
-    "answerIndex": 2,
-    "answerText": "C. 0.02%",
-    "explanation": "纽约州对未成年驾驶员（21岁以下）实行\"零容忍\"政策，血液酒精含量达到0.02%即属违法，远低于成人标准。",
-    "reference": "NY DMV Driver Manual Chapter 9",
-    "difficulty": "hard",
-    "tags": ["未成年", "酒驾", "零容忍"]
-  },
-  {
-    "id": "ny-039",
-    "category": "安全驾驶",
-    "question": "在正常行驶条件下，建议与前车保持的最小跟车距离是多少秒？",
-    "image": null,
-    "options": ["A. 1秒", "B. 2秒", "C. 3秒", "D. 5秒"],
-    "answerIndex": 1,
-    "answerText": "B. 2秒",
-    "explanation": "在正常行驶条件下，建议与前车保持至少2秒的跟车时间距离。恶劣天气、大型车辆或高速行驶时应增加到4秒或更多。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "easy",
-    "tags": ["跟车距离", "安全驾驶"]
-  },
-  {
-    "id": "ny-040",
-    "category": "交通规则",
-    "question": "在圆形交叉路口（Roundabout）中行驶时，谁有优先通行权？",
-    "image": null,
-    "options": ["A. 进入圆形路口的车辆", "B. 圆形路口内正在行驶的车辆", "C. 体积较大的车辆", "D. 行驶速度较快的车辆"],
-    "answerIndex": 1,
-    "answerText": "B. 圆形路口内正在行驶的车辆",
-    "explanation": "在圆形交叉路口，已经进入并在内部行驶的车辆享有优先通行权，进入路口的车辆必须让行。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["圆形交叉路口", "优先权"]
-  },
-  {
-    "id": "ny-041",
-    "category": "停车规定",
-    "question": "在消防通道（Fire Lane）停车会受到什么处理？",
-    "image": null,
-    "options": ["A. 没有处罚", "B. 仅口头警告", "C. 罚款和可能被拖走", "D. 仅罚款不会被拖走"],
-    "answerIndex": 2,
-    "answerText": "C. 罚款和可能被拖走",
-    "explanation": "在消防通道停车是违法的，车辆可能被开罚单并被拖走，以确保消防车辆在紧急情况下能够快速通过。",
-    "reference": "NY DMV Driver Manual Chapter 6",
-    "difficulty": "easy",
-    "tags": ["消防通道", "非法停车"]
-  },
-  {
-    "id": "ny-042",
-    "category": "道路礼仪",
-    "question": "在高速公路上，如果前方发生事故（有警灯闪烁），按照\"Move Over Law\"应该怎么做？",
-    "image": null,
-    "options": ["A. 继续正常行驶", "B. 变道到离事故车辆最远的车道，如不能变道则减速", "C. 停在原车道等待", "D. 立即靠边停车"],
-    "answerIndex": 1,
-    "answerText": "B. 变道到离事故车辆最远的车道，如不能变道则减速",
-    "explanation": "纽约州Move Over Law要求驾驶员看到路边有警灯闪烁的紧急车辆或施工人员时，必须变换到最远车道；如果无法变道，则必须减速至限速25英里以下。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "hard",
-    "tags": ["Move Over Law", "安全规定"]
-  },
-  {
-    "id": "ny-043",
-    "category": "安全驾驶",
-    "question": "雾天行驶应该使用什么灯光？",
-    "image": null,
-    "options": ["A. 远光灯（High Beam）", "B. 雾灯或近光灯（Low Beam）", "C. 关闭所有灯", "D. 双闪警示灯"],
-    "answerIndex": 1,
-    "answerText": "B. 雾灯或近光灯（Low Beam）",
-    "explanation": "雾天行驶应使用雾灯或近光灯，不要使用远光灯，因为远光灯的光线会被雾气反射，反而降低能见度。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "medium",
-    "tags": ["雾天驾驶", "灯光使用"]
-  },
-  {
-    "id": "ny-044",
-    "category": "交通规则",
-    "question": "驾驶员应在距路口多远处打开转向灯？",
-    "image": null,
-    "options": ["A. 50英尺", "B. 75英尺", "C. 100英尺", "D. 150英尺"],
-    "answerIndex": 2,
-    "answerText": "C. 100英尺",
-    "explanation": "在城市或郊区道路上，驾驶员应在距转弯点至少100英尺处打开转向灯，提前告知后方车辆行驶意图。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "medium",
-    "tags": ["转向灯", "转弯规则"]
-  },
-  {
-    "id": "ny-045",
-    "category": "安全驾驶",
-    "question": "开车时，儿童应该使用什么安全设备？",
-    "image": null,
-    "options": ["A. 与成人相同的安全带即可", "B. 儿童安全座椅或增高垫（视年龄和体重而定）", "C. 坐在后排不系安全带", "D. 成人抱着即可"],
-    "answerIndex": 1,
-    "answerText": "B. 儿童安全座椅或增高垫（视年龄和体重而定）",
-    "explanation": "纽约州要求儿童必须根据年龄、身高和体重使用合适的儿童安全座椅或增高垫，不能仅使用成人安全带。",
-    "reference": "NY DMV Driver Manual Chapter 7",
-    "difficulty": "easy",
-    "tags": ["儿童安全座椅", "安全规定"]
-  },
-  {
-    "id": "ny-046",
-    "category": "交通规则",
-    "question": "在道路上看到橙色菱形标志，通常代表什么？",
-    "image": null,
-    "options": ["A. 学校区域", "B. 施工区域（Work Zone）", "C. 危险品运输", "D. 休闲娱乐区域"],
-    "answerIndex": 1,
-    "answerText": "B. 施工区域（Work Zone）",
-    "explanation": "橙色菱形或矩形标志通常用于标识施工区域，驾驶员应减速慢行，注意施工人员和设备，在施工区超速罚款翻倍。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["施工区域", "橙色标志"]
-  },
-  {
-    "id": "ny-047",
-    "category": "停车规定",
-    "question": "在坡道上停车（车头向下坡），应该把方向盘打向哪个方向？",
-    "image": null,
-    "options": ["A. 向右打向路边", "B. 向左打向行车道", "C. 方向盘保持直行", "D. 无所谓方向"],
-    "answerIndex": 0,
-    "answerText": "A. 向右打向路边",
-    "explanation": "在下坡停车时，应将方向盘向右打向路边（路沿石方向），这样如果刹车失灵，车辆会滚向路边而不是冲入行车道。",
-    "reference": "NY DMV Driver Manual Chapter 6",
-    "difficulty": "hard",
-    "tags": ["坡道停车", "安全操作"]
-  },
-  {
-    "id": "ny-048",
-    "category": "道路礼仪",
-    "question": "在同向双车道中，左侧车道通常用于什么？",
-    "image": null,
-    "options": ["A. 慢速行驶", "B. 超车和快速行驶", "C. 卡车专用", "D. 两者均可，没有区别"],
-    "answerIndex": 1,
-    "answerText": "B. 超车和快速行驶",
-    "explanation": "在多车道道路上，左侧车道通常用于超车和快速行驶，超车完成后应回到右侧车道，不应长时间占用左侧车道行驶。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "easy",
-    "tags": ["车道规则", "超车"]
-  },
-  {
-    "id": "ny-049",
-    "category": "酒驾规定",
-    "question": "被停下接受酒驾检测时，拒绝进行呼气测试（Breathalyzer Test）会有什么后果？",
-    "image": null,
-    "options": ["A. 没有任何处罚", "B. 自动吊销驾照一年以上，并罚款", "C. 只有警告", "D. 可以拒绝，这是合法权利"],
-    "answerIndex": 1,
-    "answerText": "B. 自动吊销驾照一年以上，并罚款",
-    "explanation": "根据纽约州\"默示同意法\"（Implied Consent Law），拒绝呼气测试将自动导致驾照被吊销至少一年，并处以$500以上的罚款。",
-    "reference": "NY DMV Driver Manual Chapter 9",
-    "difficulty": "hard",
-    "tags": ["呼气测试", "默示同意法"]
-  },
-  {
-    "id": "ny-050",
-    "category": "交通规则",
-    "question": "在纽约州，行驶时车辆必须保持哪些车灯开启？",
-    "image": null,
-    "options": ["A. 只在夜间开启", "B. 从日落后30分钟到日出前30分钟必须开启", "C. 全天候必须开启", "D. 只在能见度低于500英尺时开启"],
-    "answerIndex": 1,
-    "answerText": "B. 从日落后30分钟到日出前30分钟必须开启",
-    "explanation": "纽约州要求驾驶员在日落后30分钟至日出前30分钟之间必须开启车灯，在能见度不足1000英尺时也必须开灯。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["车灯规定", "驾驶规则"]
-  },
-  {
-    "id": "ny-051",
-    "category": "安全驾驶",
-    "question": "在高速公路上发生爆胎时，正确的处理方式是？",
-    "image": null,
-    "options": ["A. 立即猛踩刹车", "B. 紧握方向盘，缓慢减速，靠边停车", "C. 迅速转向对侧车道", "D. 加速离开危险区域"],
-    "answerIndex": 1,
-    "answerText": "B. 紧握方向盘，缓慢减速，靠边停车",
-    "explanation": "爆胎时不要猛踩刹车，应紧握方向盘保持车辆稳定，缓慢松开油门减速，打转向灯后慢慢靠边停车。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "medium",
-    "tags": ["爆胎", "紧急处理"]
-  },
-  {
-    "id": "ny-052",
-    "category": "交通规则",
-    "question": "在绿灯亮起时准备直行，但有行人正在过马路，应该怎么做？",
-    "image": null,
-    "options": ["A. 按喇叭催促行人快走", "B. 等行人完全通过后再行驶", "C. 缓慢驾驶通过行人身旁", "D. 立即驶入路口"],
-    "answerIndex": 1,
-    "answerText": "B. 等行人完全通过后再行驶",
-    "explanation": "即使是绿灯，驾驶员也必须优先让行人通过。行人始终享有优先通行权，必须等行人完全通过路口才能行驶。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "easy",
-    "tags": ["行人优先", "绿灯"]
-  },
-  {
-    "id": "ny-053",
-    "category": "道路礼仪",
-    "question": "在多车道道路合并成单车道时（Zipper Merge），正确的做法是？",
-    "image": null,
-    "options": ["A. 尽早并入保持的车道", "B. 利用整个合并区，轮流交替并入", "C. 加速抢在前面合并", "D. 停在原车道等待"],
-    "answerIndex": 1,
-    "answerText": "B. 利用整个合并区，轮流交替并入",
-    "explanation": "Zipper Merge（拉链式合并）要求驾驶员充分利用整个合并区域行驶，到达合并点时轮流交替并入，这样能最有效地疏导交通。",
-    "reference": "NY DMV Driver Manual Chapter 5",
-    "difficulty": "hard",
-    "tags": ["车道合并", "道路礼仪"]
-  },
-  {
-    "id": "ny-054",
-    "category": "安全驾驶",
-    "question": "如果刹车突然失灵，以下哪种操作最有效？",
-    "image": null,
-    "options": ["A. 立即关闭发动机", "B. 反复快速踩踏刹车踏板，同时使用手刹", "C. 猛打方向盘", "D. 立即跳车"],
-    "answerIndex": 1,
-    "answerText": "B. 反复快速踩踏刹车踏板，同时使用手刹",
-    "explanation": "刹车失灵时，应反复快速踩踏刹车以尝试恢复液压，同时缓慢拉起手刹，并通过降档减速，寻找安全地点停车。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "hard",
-    "tags": ["刹车失灵", "紧急情况"]
-  },
-  {
-    "id": "ny-055",
-    "category": "交通规则",
-    "question": "在纽约州，驾驶员必须随车携带哪些文件？",
-    "image": null,
-    "options": ["A. 只需要驾照", "B. 驾照、车辆注册证（Registration）和保险证明", "C. 驾照和护照", "D. 只需要保险证明"],
-    "answerIndex": 1,
-    "answerText": "B. 驾照、车辆注册证（Registration）和保险证明",
-    "explanation": "纽约州要求驾驶员随时携带有效驾照、车辆注册证（Registration Card）以及有效的汽车保险证明。",
-    "reference": "NY DMV Driver Manual Chapter 2",
-    "difficulty": "easy",
-    "tags": ["驾驶文件", "法律要求"]
-  },
-  {
-    "id": "ny-056",
-    "category": "停车规定",
-    "question": "在无标志的普通路段，离路口多远范围内禁止停车？",
-    "image": null,
-    "options": ["A. 10英尺", "B. 20英尺", "C. 25英尺", "D. 30英尺"],
-    "answerIndex": 3,
-    "answerText": "D. 30英尺",
-    "explanation": "在纽约州，路口停止标志或信号灯30英尺范围内禁止停车，以确保路口视线畅通和交通安全。",
-    "reference": "NY DMV Driver Manual Chapter 6",
-    "difficulty": "hard",
-    "tags": ["路口停车", "停车规定"]
-  },
-  {
-    "id": "ny-057",
-    "category": "酒驾规定",
-    "question": "被定为DWI（驾驶时醉酒驾车）后，会面临哪些后果？",
-    "image": null,
-    "options": ["A. 只需缴纳罚款", "B. 吊销驾照、罚款、可能监禁", "C. 只是警告记录", "D. 只扣驾照积分"],
-    "answerIndex": 1,
-    "answerText": "B. 吊销驾照、罚款、可能监禁",
-    "explanation": "在纽约州，DWI是严重违法行为，后果包括：驾照被吊销至少6个月、高额罚款（$500-$1000）、可能判入狱最多1年，以及强制安装点火联锁装置。",
-    "reference": "NY DMV Driver Manual Chapter 9",
-    "difficulty": "medium",
-    "tags": ["DWI后果", "酒驾"]
-  },
-  {
-    "id": "ny-058",
-    "category": "道路礼仪",
-    "question": "在交叉路口准备左转时，对向直行车辆和行人谁有优先权？",
-    "image": null,
-    "options": ["A. 左转车辆有优先权", "B. 对向直行车辆和行人有优先权", "C. 同时让行", "D. 视谁先到路口而定"],
-    "answerIndex": 1,
-    "answerText": "B. 对向直行车辆和行人有优先权",
-    "explanation": "准备左转的车辆必须让对向来车和过马路的行人先行，只有当对向方向确实安全时，才可以完成左转。",
-    "reference": "NY DMV Driver Manual Chapter 4",
-    "difficulty": "medium",
-    "tags": ["左转优先权", "路口规则"]
-  },
-  {
-    "id": "ny-059",
-    "category": "安全驾驶",
-    "question": "在雪天或结冰路面行驶时，以下哪种操作最安全？",
-    "image": null,
-    "options": ["A. 保持正常速度以免打滑", "B. 保持适当距离，低速驾驶，避免急刹车", "C. 频繁踩刹车保持控制", "D. 开启四驱后正常行驶"],
-    "answerIndex": 1,
-    "answerText": "B. 保持适当距离，低速驾驶，避免急刹车",
-    "explanation": "冰雪路面上要大幅降低车速，增加跟车距离（至少8-10秒），避免急刹车和急转弯。四驱虽有助于启动，但不能提高制动能力。",
-    "reference": "NY DMV Driver Manual Chapter 8",
-    "difficulty": "easy",
-    "tags": ["冰雪路面", "恶劣天气驾驶"]
-  },
-  {
-    "id": "ny-060",
-    "category": "交通规则",
-    "question": "发生交通事故后，驾驶员必须首先做什么？",
-    "image": null,
-    "options": ["A. 立即驾车离开现场", "B. 停车、检查伤亡、报警并交换信息", "C. 拍照后再离开", "D. 只需留下联系方式"],
-    "answerIndex": 1,
-    "answerText": "B. 停车、检查伤亡、报警并交换信息",
-    "explanation": "发生事故后必须立即停车，检查是否有人受伤，如有伤亡须立即报警（911），并与对方交换驾照、保险和联系信息。逃逸肇事在纽约州是严重犯罪。",
-    "reference": "NY DMV Driver Manual Chapter 10",
-    "difficulty": "easy",
-    "tags": ["事故处理", "法律要求"]
-  }
-]
+  "questions": [
+    {
+      "id": 1,
+      "category": "traffic-signs",
+      "question": "看到这个标志时，驾驶员必须怎么做？",
+      "image": "https://img.openaa.com/dmv/app/signs/stop-sign.png",
+      "options": [
+        "减速后继续行驶",
+        "完全停车，确认安全后再行驶",
+        "鸣笛后通过",
+        "只在有行人时停车"
+      ],
+      "answerIndex": 1,
+      "answerText": "完全停车，确认安全后再行驶",
+      "explanation": "STOP 标志表示必须完全停车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign",
+        "stop"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/yield-sign.png",
+      "options": [
+        "停车",
+        "靠右",
+        "让路，必要时停车",
+        "禁止驶入"
+      ],
+      "answerIndex": 2,
+      "answerText": "让路，必要时停车",
+      "explanation": "YIELD 表示让路。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign",
+        "yield"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "traffic-signs",
+      "question": "这个标志提醒你什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/traffic-signal-ahead.png",
+      "options": [
+        "前方有交通信号灯",
+        "前方铁路",
+        "前方医院",
+        "前方学校"
+      ],
+      "answerIndex": 0,
+      "answerText": "前方有交通信号灯",
+      "explanation": "交通灯图案表示前方有信号灯。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/no-left-turn.png",
+      "options": [
+        "禁止左转",
+        "禁止掉头",
+        "只能左转",
+        "禁止驶入"
+      ],
+      "answerIndex": 0,
+      "answerText": "禁止左转",
+      "explanation": "红圈斜线加左转箭头表示禁止左转。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/no-u-turn.png",
+      "options": [
+        "禁止左转",
+        "禁止掉头",
+        "靠右行驶",
+        "前方双向交通"
+      ],
+      "answerIndex": 1,
+      "answerText": "禁止掉头",
+      "explanation": "U 形箭头上有红色斜线，表示禁止掉头。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "traffic-signs",
+      "question": "看到这个标志应怎样行驶？",
+      "image": "https://img.openaa.com/dmv/app/signs/keep-right.png",
+      "options": [
+        "靠左",
+        "靠右",
+        "停车",
+        "禁止进入"
+      ],
+      "answerIndex": 1,
+      "answerText": "靠右",
+      "explanation": "KEEP RIGHT 表示应靠右通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/do-not-enter.png",
+      "options": [
+        "禁止驶入",
+        "让路",
+        "停车",
+        "单行道"
+      ],
+      "answerIndex": 0,
+      "answerText": "禁止驶入",
+      "explanation": "DO NOT ENTER 表示禁止从该方向进入。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 8,
+      "category": "traffic-signs",
+      "question": "这个标志提醒你什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/slippery-when-wet.png",
+      "options": [
+        "路面湿滑",
+        "前方施工",
+        "前方学校",
+        "前方铁路"
+      ],
+      "answerIndex": 0,
+      "answerText": "路面湿滑",
+      "explanation": "汽车打滑图案表示湿滑路面。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign",
+        "weather"
+      ]
+    },
+    {
+      "id": 9,
+      "category": "traffic-signs",
+      "question": "这个标志通常表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/railroad-crossing.png",
+      "options": [
+        "铁路道口",
+        "学校区域",
+        "医院方向",
+        "禁止停车"
+      ],
+      "answerIndex": 0,
+      "answerText": "铁路道口",
+      "explanation": "黄色 RR 标志提醒前方铁路平交道。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 10,
+      "category": "traffic-signs",
+      "question": "这个标志提醒驾驶员什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/school-crossing.png",
+      "options": [
+        "学校区域或学生过街",
+        "前方医院",
+        "前方施工",
+        "前方禁止通行"
+      ],
+      "answerIndex": 0,
+      "answerText": "学校区域或学生过街",
+      "explanation": "学校标志提醒有学生或儿童过街。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 11,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/two-way-traffic.png",
+      "options": [
+        "双向交通",
+        "单行道",
+        "分隔公路结束",
+        "车道结束"
+      ],
+      "answerIndex": 0,
+      "answerText": "双向交通",
+      "explanation": "两个相反方向箭头表示双向交通。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 12,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/merge-left.png",
+      "options": [
+        "右车道结束，向左合并",
+        "左转专用",
+        "前方禁止通行",
+        "停车让行"
+      ],
+      "answerIndex": 0,
+      "answerText": "右车道结束，向左合并",
+      "explanation": "车道结束标志提醒应提前安全合并。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "sign",
+        "merge"
+      ]
+    },
+    {
+      "id": 13,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/divided-highway-ends.png",
+      "options": [
+        "分隔公路开始",
+        "分隔公路结束",
+        "前方铁路",
+        "道路封闭"
+      ],
+      "answerIndex": 1,
+      "answerText": "分隔公路结束",
+      "explanation": "分隔公路结束表示前方道路结构改变。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 14,
+      "category": "traffic-signs",
+      "question": "这个标志提醒什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/hill-ahead.png",
+      "options": [
+        "前方下坡",
+        "前方上坡",
+        "前方医院",
+        "前方湿滑"
+      ],
+      "answerIndex": 0,
+      "answerText": "前方下坡",
+      "explanation": "卡车下坡图案提醒前方坡道。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 15,
+      "category": "traffic-signs",
+      "question": "这个标志通常表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/hospital-sign.png",
+      "options": [
+        "医院或医疗服务方向",
+        "学校区域",
+        "停车场",
+        "施工区"
+      ],
+      "answerIndex": 0,
+      "answerText": "医院或医疗服务方向",
+      "explanation": "蓝底白色 H 表示医院或医疗服务方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign"
+      ]
+    },
+    {
+      "id": 16,
+      "category": "traffic-signs",
+      "question": "这个标志表示什么？",
+      "image": "https://img.openaa.com/dmv/app/signs/merging-traffic-right.png",
+      "options": [
+        "右侧车辆汇入主路",
+        "只能右转",
+        "禁止并线",
+        "前方双向交通"
+      ],
+      "answerIndex": 0,
+      "answerText": "右侧车辆汇入主路",
+      "explanation": "合流标志提醒右侧车流可能并入。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "sign",
+        "merge"
+      ]
+    },
+    {
+      "id": 17,
+      "category": "traffic-control",
+      "question": "红灯闪烁时，驾驶员应如何处理？",
+      "image": "",
+      "options": [
+        "像停车标志一样完全停车，再确认安全通过",
+        "快速通过",
+        "只减速不停车",
+        "按喇叭后通过"
+      ],
+      "answerIndex": 0,
+      "answerText": "像停车标志一样完全停车，再确认安全通过",
+      "explanation": "闪烁红灯通常按 STOP 处理。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "red-light"
+      ]
+    },
+    {
+      "id": 18,
+      "category": "traffic-control",
+      "question": "黄灯闪烁通常表示什么？",
+      "image": "",
+      "options": [
+        "必须停车",
+        "小心减速通过",
+        "可以加速通过",
+        "禁止通行"
+      ],
+      "answerIndex": 1,
+      "answerText": "小心减速通过",
+      "explanation": "闪烁黄灯表示警告，应减速并小心通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "yellow-light"
+      ]
+    },
+    {
+      "id": 19,
+      "category": "traffic-control",
+      "question": "交通警察指挥与交通灯冲突时，应听谁的？",
+      "image": "",
+      "options": [
+        "交通灯",
+        "交通警察",
+        "路边标志",
+        "先到先走"
+      ],
+      "answerIndex": 1,
+      "answerText": "交通警察",
+      "explanation": "现场交通警察或执法人员的指挥优先。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "police"
+      ]
+    },
+    {
+      "id": 20,
+      "category": "traffic-control",
+      "question": "绿色箭头亮起时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "可以按箭头方向通行，但仍需注意行人和车辆",
+        "必须停车",
+        "可以向任意方向行驶",
+        "只能直行"
+      ],
+      "answerIndex": 0,
+      "answerText": "可以按箭头方向通行，但仍需注意行人和车辆",
+      "explanation": "绿色箭头允许按箭头方向行驶，但仍要注意安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "green-arrow"
+      ]
+    },
+    {
+      "id": 21,
+      "category": "traffic-control",
+      "question": "双黄实线通常表示什么？",
+      "image": "",
+      "options": [
+        "可随时超车",
+        "两方向车流分隔，通常不得越线超车",
+        "只给公交车使用",
+        "道路施工"
+      ],
+      "answerIndex": 1,
+      "answerText": "两方向车流分隔，通常不得越线超车",
+      "explanation": "双黄实线通常禁止越线超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pavement"
+      ]
+    },
+    {
+      "id": 22,
+      "category": "traffic-control",
+      "question": "白色虚线分隔同方向车道时表示什么？",
+      "image": "",
+      "options": [
+        "不得变道",
+        "在安全情况下可以变道",
+        "必须停车",
+        "只供紧急车辆使用"
+      ],
+      "answerIndex": 1,
+      "answerText": "在安全情况下可以变道",
+      "explanation": "白色虚线通常分隔同方向车道。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "lane"
+      ]
+    },
+    {
+      "id": 23,
+      "category": "right-of-way",
+      "question": "没有信号灯的十字路口，两车同时到达时，谁先行？",
+      "image": "",
+      "options": [
+        "左边车辆",
+        "右边车辆",
+        "车速快的车辆",
+        "较大的车辆"
+      ],
+      "answerIndex": 1,
+      "answerText": "右边车辆",
+      "explanation": "在没有控制标志的路口同时到达时，通常让右侧车辆先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "intersection"
+      ]
+    },
+    {
+      "id": 24,
+      "category": "right-of-way",
+      "question": "左转车辆遇到对向直行车辆时，应怎样做？",
+      "image": "",
+      "options": [
+        "左转车先走",
+        "让对向直行车辆先行",
+        "按喇叭要求对方停车",
+        "加速抢过"
+      ],
+      "answerIndex": 1,
+      "answerText": "让对向直行车辆先行",
+      "explanation": "左转通常要让对向直行车辆和行人先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 25,
+      "category": "right-of-way",
+      "question": "从私人车道驶入道路时，应如何处理？",
+      "image": "",
+      "options": [
+        "主路车辆让你",
+        "让道路上的车辆和行人先行",
+        "快速驶入",
+        "按喇叭后驶入"
+      ],
+      "answerIndex": 1,
+      "answerText": "让道路上的车辆和行人先行",
+      "explanation": "从车道、停车场或小巷进入道路时，应让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "driveway"
+      ]
+    },
+    {
+      "id": 26,
+      "category": "right-of-way",
+      "question": "行人在合法横道内过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "减速或停车让行",
+        "鸣笛让行人快走",
+        "绕过行人",
+        "只在绿灯时让行"
+      ],
+      "answerIndex": 0,
+      "answerText": "减速或停车让行",
+      "explanation": "行人在合法横道内有优先权。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 27,
+      "category": "right-of-way",
+      "question": "盲人携带白色手杖或导盲犬过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "鸣笛提醒",
+        "继续行驶",
+        "必须让行",
+        "只在有信号灯时让行"
+      ],
+      "answerIndex": 2,
+      "answerText": "必须让行",
+      "explanation": "盲人使用白杖或导盲犬过街时，驾驶员必须让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 28,
+      "category": "right-of-way",
+      "question": "听到或看到紧急车辆警灯警报时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即停在原车道",
+        "安全靠右停车，让紧急车辆通过",
+        "加速离开",
+        "跟在紧急车辆后面"
+      ],
+      "answerIndex": 1,
+      "answerText": "安全靠右停车，让紧急车辆通过",
+      "explanation": "应安全靠右并停车，直到紧急车辆通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "emergency"
+      ]
+    },
+    {
+      "id": 29,
+      "category": "right-of-way",
+      "question": "校车红灯闪烁并停车上下学生时，纽约驾驶员通常应怎样做？",
+      "image": "",
+      "options": [
+        "同向车辆才停车",
+        "双向车辆都必须停车",
+        "只减速即可",
+        "如果看不到学生可通过"
+      ],
+      "answerIndex": 1,
+      "answerText": "双向车辆都必须停车",
+      "explanation": "纽约校车红灯闪烁时，通常双向交通都必须停车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "school-bus"
+      ]
+    },
+    {
+      "id": 30,
+      "category": "turns",
+      "question": "右转前应怎样准备？",
+      "image": "",
+      "options": [
+        "尽量靠右并提前打转向灯",
+        "从道路左侧右转",
+        "不需要打灯",
+        "转弯时再看后视镜"
+      ],
+      "answerIndex": 0,
+      "answerText": "尽量靠右并提前打转向灯",
+      "explanation": "右转前应提前打灯、靠右、观察行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "right-turn"
+      ]
+    },
+    {
+      "id": 31,
+      "category": "turns",
+      "question": "左转前应怎样做？",
+      "image": "",
+      "options": [
+        "不需打灯",
+        "提前打左转灯并让对向车辆和行人",
+        "尽量靠右转",
+        "停车后倒车"
+      ],
+      "answerIndex": 1,
+      "answerText": "提前打左转灯并让对向车辆和行人",
+      "explanation": "左转前应提前打灯，观察对向车辆、行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 32,
+      "category": "turns",
+      "question": "在路口等左转时，方向盘最好怎样放？",
+      "image": "",
+      "options": [
+        "提前向左打死",
+        "保持车轮直行方向",
+        "向右打",
+        "随意"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持车轮直行方向",
+      "explanation": "等待左转时保持车轮直行更安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 33,
+      "category": "turns",
+      "question": "错过高速公路出口时，应怎样做？",
+      "image": "",
+      "options": [
+        "倒车回出口",
+        "在路肩掉头",
+        "继续到下一个出口",
+        "立即停车"
+      ],
+      "answerIndex": 2,
+      "answerText": "继续到下一个出口",
+      "explanation": "错过出口时应继续到下一个出口。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 34,
+      "category": "turns",
+      "question": "黄灯亮起时，你已接近路口但能安全停车，应怎样做？",
+      "image": "",
+      "options": [
+        "加速冲过",
+        "准备停车",
+        "鸣笛通过",
+        "换到左车道"
+      ],
+      "answerIndex": 1,
+      "answerText": "准备停车",
+      "explanation": "黄灯表示即将变红，如果能安全停车，应停车等待。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "traffic-light"
+      ]
+    },
+    {
+      "id": 35,
+      "category": "passing-lanes",
+      "question": "变道前最重要的动作是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "打灯、看镜子并检查盲点",
+        "加速",
+        "按喇叭"
+      ],
+      "answerIndex": 1,
+      "answerText": "打灯、看镜子并检查盲点",
+      "explanation": "变道前应打灯、看镜子，并转头检查盲点。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 36,
+      "category": "passing-lanes",
+      "question": "盲点是什么？",
+      "image": "",
+      "options": [
+        "车灯照不到的地方",
+        "镜子不容易看到的区域",
+        "只有夜间存在",
+        "车头前方区域"
+      ],
+      "answerIndex": 1,
+      "answerText": "镜子不容易看到的区域",
+      "explanation": "盲点是镜子不容易看到的区域。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 37,
+      "category": "passing-lanes",
+      "question": "超车通常应从哪一侧进行？",
+      "image": "",
+      "options": [
+        "右侧",
+        "左侧",
+        "路肩",
+        "任意方向"
+      ],
+      "answerIndex": 1,
+      "answerText": "左侧",
+      "explanation": "大多数情况下应从左侧超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 38,
+      "category": "passing-lanes",
+      "question": "何时绝对不应超车？",
+      "image": "",
+      "options": [
+        "前车为行人停车时",
+        "道路很直时",
+        "白天时",
+        "前车慢时"
+      ],
+      "answerIndex": 0,
+      "answerText": "前车为行人停车时",
+      "explanation": "前车为行人停车时，不得从旁边超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 39,
+      "category": "parking",
+      "question": "消防栓附近停车至少应保持多远？",
+      "image": "",
+      "options": [
+        "5英尺",
+        "10英尺",
+        "15英尺",
+        "30英尺"
+      ],
+      "answerIndex": 2,
+      "answerText": "15英尺",
+      "explanation": "纽约通常要求车辆不能停在消防栓 15 英尺以内。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 40,
+      "category": "parking",
+      "question": "车辆停在路边时，离路缘石最远通常不得超过多少？",
+      "image": "",
+      "options": [
+        "6英寸",
+        "12英寸",
+        "18英寸",
+        "3英尺"
+      ],
+      "answerIndex": 1,
+      "answerText": "12英寸",
+      "explanation": "平行停车时通常不得超过路缘 12 英寸。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 41,
+      "category": "parking",
+      "question": "上坡且有路缘石停车时，前轮应怎样打？",
+      "image": "",
+      "options": [
+        "向左，远离路缘石",
+        "向右，靠向路缘石",
+        "保持直",
+        "随意"
+      ],
+      "answerIndex": 0,
+      "answerText": "向左，远离路缘石",
+      "explanation": "上坡有路缘石时，前轮通常向左。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 42,
+      "category": "parking",
+      "question": "下坡停车时，前轮通常应怎样打？",
+      "image": "",
+      "options": [
+        "向路缘石方向",
+        "离开路缘石方向",
+        "保持直",
+        "向左"
+      ],
+      "answerIndex": 0,
+      "answerText": "向路缘石方向",
+      "explanation": "下坡停车时前轮应向路缘石方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 43,
+      "category": "speed-weather",
+      "question": "纽约州普通道路若没有其它限速标志，常见最高限速是多少？",
+      "image": "",
+      "options": [
+        "45 mph",
+        "55 mph",
+        "65 mph",
+        "75 mph"
+      ],
+      "answerIndex": 1,
+      "answerText": "55 mph",
+      "explanation": "纽约州很多普通道路默认最高限速为 55 mph，具体以标志为准。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 44,
+      "category": "speed-weather",
+      "question": "安全车速取决于什么？",
+      "image": "",
+      "options": [
+        "只取决于限速牌",
+        "天气、道路、交通和能见度等情况",
+        "司机心情",
+        "车辆价格"
+      ],
+      "answerIndex": 1,
+      "answerText": "天气、道路、交通和能见度等情况",
+      "explanation": "安全速度要根据道路、天气、交通和能见度调整。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 45,
+      "category": "speed-weather",
+      "question": "雨天或湿滑路面应怎样调整驾驶？",
+      "image": "",
+      "options": [
+        "保持平时速度",
+        "减速并增加跟车距离",
+        "急刹测试路面",
+        "频繁变道"
+      ],
+      "answerIndex": 1,
+      "answerText": "减速并增加跟车距离",
+      "explanation": "湿滑路面制动距离变长，应减速并增加距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "weather"
+      ]
+    },
+    {
+      "id": 46,
+      "category": "speed-weather",
+      "question": "车辆开始打滑时，通常应怎样做？",
+      "image": "",
+      "options": [
+        "急刹车",
+        "朝车尾滑动方向轻转方向盘并避免急刹",
+        "猛打反方向",
+        "加速"
+      ],
+      "answerIndex": 1,
+      "answerText": "朝车尾滑动方向轻转方向盘并避免急刹",
+      "explanation": "打滑时应保持冷静，避免急刹和猛打方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "skid"
+      ]
+    },
+    {
+      "id": 47,
+      "category": "highway",
+      "question": "高速公路和普通道路主要区别之一是什么？",
+      "image": "",
+      "options": [
+        "高速公路车速通常更高，需要更早观察和判断",
+        "高速公路没有规则",
+        "高速公路不能变道",
+        "高速公路只能夜间用"
+      ],
+      "answerIndex": 0,
+      "answerText": "高速公路车速通常更高，需要更早观察和判断",
+      "explanation": "高速公路速度高，更需要保持距离和提前判断。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 48,
+      "category": "highway",
+      "question": "从高速公路出口驶入普通道路时，应注意什么？",
+      "image": "",
+      "options": [
+        "保持高速公路速度",
+        "看速度表并降低到较低限速",
+        "立即停车",
+        "关掉车灯"
+      ],
+      "answerIndex": 1,
+      "answerText": "看速度表并降低到较低限速",
+      "explanation": "离开高速后应看速度表并减速。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 49,
+      "category": "alcohol-drugs",
+      "question": "纽约通常以多少 BAC 作为醉酒驾驶 DWI 的重要标准？",
+      "image": "",
+      "options": [
+        "0.02%",
+        "0.05%",
+        "0.08%",
+        "0.20%"
+      ],
+      "answerIndex": 2,
+      "answerText": "0.08%",
+      "explanation": "在纽约，BAC 0.08% 或以上通常构成 DWI 的重要证据。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 50,
+      "category": "alcohol-drugs",
+      "question": "酒精对驾驶的影响包括什么？",
+      "image": "",
+      "options": [
+        "反应变快",
+        "判断力和反应能力下降",
+        "视力更好",
+        "更容易集中"
+      ],
+      "answerIndex": 1,
+      "answerText": "判断力和反应能力下降",
+      "explanation": "酒精会降低判断、反应和控制能力。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 51,
+      "category": "alcohol-drugs",
+      "question": "使酒精离开身体最可靠的方法是什么？",
+      "image": "",
+      "options": [
+        "喝咖啡",
+        "冷水浴",
+        "时间和休息",
+        "运动出汗"
+      ],
+      "answerIndex": 2,
+      "answerText": "时间和休息",
+      "explanation": "身体需要时间代谢酒精。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 52,
+      "category": "safety",
+      "question": "安全带什么时候应该使用？",
+      "image": "",
+      "options": [
+        "只在高速公路",
+        "只在长途",
+        "每次驾车，驾驶员和乘客都应使用",
+        "只在下雨时"
+      ],
+      "answerIndex": 2,
+      "answerText": "每次驾车，驾驶员和乘客都应使用",
+      "explanation": "每次行车都应系安全带。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "seat-belt"
+      ]
+    },
+    {
+      "id": 53,
+      "category": "safety",
+      "question": "防卫驾驶的核心是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "预判他人可能犯错并保持安全空间",
+        "总是开得更快",
+        "相信别人会让你"
+      ],
+      "answerIndex": 1,
+      "answerText": "预判他人可能犯错并保持安全空间",
+      "explanation": "防卫驾驶强调观察、预判和保留安全空间。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "defensive"
+      ]
+    },
+    {
+      "id": 54,
+      "category": "sharing-road",
+      "question": "遇到骑自行车者时应怎样做？",
+      "image": "",
+      "options": [
+        "贴近通过",
+        "保持安全距离并耐心通过",
+        "鸣笛逼其靠边",
+        "从路肩超越"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持安全距离并耐心通过",
+      "explanation": "自行车也是道路使用者，应保持安全距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "bicycle"
+      ]
+    },
+    {
+      "id": 55,
+      "category": "law",
+      "question": "发生有人受伤或死亡的交通事故时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即离开",
+        "停车、提供信息并按规定报警/报告",
+        "只给保险公司打电话",
+        "只拍照片"
+      ],
+      "answerIndex": 1,
+      "answerText": "停车、提供信息并按规定报警/报告",
+      "explanation": "发生伤亡事故时必须停车、协助并按要求报告。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "crash"
+      ]
+    },
+    {
+      "id": 56,
+      "category": "law",
+      "question": "驾驶执照地址变更后，通常应多快通知 DMV？",
+      "image": "",
+      "options": [
+        "10天内",
+        "30天内",
+        "半年内",
+        "不需要"
+      ],
+      "answerIndex": 0,
+      "answerText": "10天内",
+      "explanation": "纽约驾驶执照地址变更通常需要在 10 天内通知 DMV。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "license"
+      ]
+    },
+    {
+      "id": 57,
+      "category": "road-signs-general",
+      "question": "红色交通标志通常传达什么含义？",
+      "image": "",
+      "options": [
+        "服务信息",
+        "禁止、停止或让行",
+        "风景区",
+        "高速出口"
+      ],
+      "answerIndex": 1,
+      "answerText": "禁止、停止或让行",
+      "explanation": "红色常用于 STOP、YIELD、DO NOT ENTER 等。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-color"
+      ]
+    },
+    {
+      "id": 58,
+      "category": "road-signs-general",
+      "question": "黄色菱形标志通常是什么类型？",
+      "image": "",
+      "options": [
+        "警告标志",
+        "服务标志",
+        "停车许可",
+        "医院方向"
+      ],
+      "answerIndex": 0,
+      "answerText": "警告标志",
+      "explanation": "黄色菱形一般是警告标志。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 59,
+      "category": "road-signs-general",
+      "question": "八边形标志几乎总是表示什么？",
+      "image": "",
+      "options": [
+        "停车",
+        "让路",
+        "铁路",
+        "医院"
+      ],
+      "answerIndex": 0,
+      "answerText": "停车",
+      "explanation": "八边形红色标志是 STOP。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 60,
+      "category": "traffic-control",
+      "question": "常见题：红灯闪烁时，驾驶员应如何处理？",
+      "image": "",
+      "options": [
+        "像停车标志一样完全停车，再确认安全通过",
+        "快速通过",
+        "只减速不停车",
+        "按喇叭后通过"
+      ],
+      "answerIndex": 0,
+      "answerText": "像停车标志一样完全停车，再确认安全通过",
+      "explanation": "闪烁红灯通常按 STOP 处理。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "red-light"
+      ]
+    },
+    {
+      "id": 61,
+      "category": "traffic-control",
+      "question": "练习题：黄灯闪烁通常表示什么？",
+      "image": "",
+      "options": [
+        "必须停车",
+        "小心减速通过",
+        "可以加速通过",
+        "禁止通行"
+      ],
+      "answerIndex": 1,
+      "answerText": "小心减速通过",
+      "explanation": "闪烁黄灯表示警告，应减速并小心通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "yellow-light"
+      ]
+    },
+    {
+      "id": 62,
+      "category": "traffic-control",
+      "question": "复习题：交通警察指挥与交通灯冲突时，应听谁的？",
+      "image": "",
+      "options": [
+        "交通灯",
+        "交通警察",
+        "路边标志",
+        "先到先走"
+      ],
+      "answerIndex": 1,
+      "answerText": "交通警察",
+      "explanation": "现场交通警察或执法人员的指挥优先。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "police"
+      ]
+    },
+    {
+      "id": 63,
+      "category": "traffic-control",
+      "question": "模拟题：绿色箭头亮起时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "可以按箭头方向通行，但仍需注意行人和车辆",
+        "必须停车",
+        "可以向任意方向行驶",
+        "只能直行"
+      ],
+      "answerIndex": 0,
+      "answerText": "可以按箭头方向通行，但仍需注意行人和车辆",
+      "explanation": "绿色箭头允许按箭头方向行驶，但仍要注意安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "green-arrow"
+      ]
+    },
+    {
+      "id": 64,
+      "category": "traffic-control",
+      "question": "常见题：双黄实线通常表示什么？",
+      "image": "",
+      "options": [
+        "可随时超车",
+        "两方向车流分隔，通常不得越线超车",
+        "只给公交车使用",
+        "道路施工"
+      ],
+      "answerIndex": 1,
+      "answerText": "两方向车流分隔，通常不得越线超车",
+      "explanation": "双黄实线通常禁止越线超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pavement"
+      ]
+    },
+    {
+      "id": 65,
+      "category": "traffic-control",
+      "question": "练习题：白色虚线分隔同方向车道时表示什么？",
+      "image": "",
+      "options": [
+        "不得变道",
+        "在安全情况下可以变道",
+        "必须停车",
+        "只供紧急车辆使用"
+      ],
+      "answerIndex": 1,
+      "answerText": "在安全情况下可以变道",
+      "explanation": "白色虚线通常分隔同方向车道。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "lane"
+      ]
+    },
+    {
+      "id": 66,
+      "category": "right-of-way",
+      "question": "复习题：没有信号灯的十字路口，两车同时到达时，谁先行？",
+      "image": "",
+      "options": [
+        "左边车辆",
+        "右边车辆",
+        "车速快的车辆",
+        "较大的车辆"
+      ],
+      "answerIndex": 1,
+      "answerText": "右边车辆",
+      "explanation": "在没有控制标志的路口同时到达时，通常让右侧车辆先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "intersection"
+      ]
+    },
+    {
+      "id": 67,
+      "category": "right-of-way",
+      "question": "模拟题：左转车辆遇到对向直行车辆时，应怎样做？",
+      "image": "",
+      "options": [
+        "左转车先走",
+        "让对向直行车辆先行",
+        "按喇叭要求对方停车",
+        "加速抢过"
+      ],
+      "answerIndex": 1,
+      "answerText": "让对向直行车辆先行",
+      "explanation": "左转通常要让对向直行车辆和行人先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 68,
+      "category": "right-of-way",
+      "question": "常见题：从私人车道驶入道路时，应如何处理？",
+      "image": "",
+      "options": [
+        "主路车辆让你",
+        "让道路上的车辆和行人先行",
+        "快速驶入",
+        "按喇叭后驶入"
+      ],
+      "answerIndex": 1,
+      "answerText": "让道路上的车辆和行人先行",
+      "explanation": "从车道、停车场或小巷进入道路时，应让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "driveway"
+      ]
+    },
+    {
+      "id": 69,
+      "category": "right-of-way",
+      "question": "练习题：行人在合法横道内过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "减速或停车让行",
+        "鸣笛让行人快走",
+        "绕过行人",
+        "只在绿灯时让行"
+      ],
+      "answerIndex": 0,
+      "answerText": "减速或停车让行",
+      "explanation": "行人在合法横道内有优先权。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 70,
+      "category": "right-of-way",
+      "question": "复习题：盲人携带白色手杖或导盲犬过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "鸣笛提醒",
+        "继续行驶",
+        "必须让行",
+        "只在有信号灯时让行"
+      ],
+      "answerIndex": 2,
+      "answerText": "必须让行",
+      "explanation": "盲人使用白杖或导盲犬过街时，驾驶员必须让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 71,
+      "category": "right-of-way",
+      "question": "模拟题：听到或看到紧急车辆警灯警报时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即停在原车道",
+        "安全靠右停车，让紧急车辆通过",
+        "加速离开",
+        "跟在紧急车辆后面"
+      ],
+      "answerIndex": 1,
+      "answerText": "安全靠右停车，让紧急车辆通过",
+      "explanation": "应安全靠右并停车，直到紧急车辆通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "emergency"
+      ]
+    },
+    {
+      "id": 72,
+      "category": "right-of-way",
+      "question": "常见题：校车红灯闪烁并停车上下学生时，纽约驾驶员通常应怎样做？",
+      "image": "",
+      "options": [
+        "同向车辆才停车",
+        "双向车辆都必须停车",
+        "只减速即可",
+        "如果看不到学生可通过"
+      ],
+      "answerIndex": 1,
+      "answerText": "双向车辆都必须停车",
+      "explanation": "纽约校车红灯闪烁时，通常双向交通都必须停车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "school-bus"
+      ]
+    },
+    {
+      "id": 73,
+      "category": "turns",
+      "question": "练习题：右转前应怎样准备？",
+      "image": "",
+      "options": [
+        "尽量靠右并提前打转向灯",
+        "从道路左侧右转",
+        "不需要打灯",
+        "转弯时再看后视镜"
+      ],
+      "answerIndex": 0,
+      "answerText": "尽量靠右并提前打转向灯",
+      "explanation": "右转前应提前打灯、靠右、观察行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "right-turn"
+      ]
+    },
+    {
+      "id": 74,
+      "category": "turns",
+      "question": "复习题：左转前应怎样做？",
+      "image": "",
+      "options": [
+        "不需打灯",
+        "提前打左转灯并让对向车辆和行人",
+        "尽量靠右转",
+        "停车后倒车"
+      ],
+      "answerIndex": 1,
+      "answerText": "提前打左转灯并让对向车辆和行人",
+      "explanation": "左转前应提前打灯，观察对向车辆、行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 75,
+      "category": "turns",
+      "question": "模拟题：在路口等左转时，方向盘最好怎样放？",
+      "image": "",
+      "options": [
+        "提前向左打死",
+        "保持车轮直行方向",
+        "向右打",
+        "随意"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持车轮直行方向",
+      "explanation": "等待左转时保持车轮直行更安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 76,
+      "category": "turns",
+      "question": "常见题：错过高速公路出口时，应怎样做？",
+      "image": "",
+      "options": [
+        "倒车回出口",
+        "在路肩掉头",
+        "继续到下一个出口",
+        "立即停车"
+      ],
+      "answerIndex": 2,
+      "answerText": "继续到下一个出口",
+      "explanation": "错过出口时应继续到下一个出口。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 77,
+      "category": "turns",
+      "question": "练习题：黄灯亮起时，你已接近路口但能安全停车，应怎样做？",
+      "image": "",
+      "options": [
+        "加速冲过",
+        "准备停车",
+        "鸣笛通过",
+        "换到左车道"
+      ],
+      "answerIndex": 1,
+      "answerText": "准备停车",
+      "explanation": "黄灯表示即将变红，如果能安全停车，应停车等待。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "traffic-light"
+      ]
+    },
+    {
+      "id": 78,
+      "category": "passing-lanes",
+      "question": "复习题：变道前最重要的动作是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "打灯、看镜子并检查盲点",
+        "加速",
+        "按喇叭"
+      ],
+      "answerIndex": 1,
+      "answerText": "打灯、看镜子并检查盲点",
+      "explanation": "变道前应打灯、看镜子，并转头检查盲点。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 79,
+      "category": "passing-lanes",
+      "question": "模拟题：盲点是什么？",
+      "image": "",
+      "options": [
+        "车灯照不到的地方",
+        "镜子不容易看到的区域",
+        "只有夜间存在",
+        "车头前方区域"
+      ],
+      "answerIndex": 1,
+      "answerText": "镜子不容易看到的区域",
+      "explanation": "盲点是镜子不容易看到的区域。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 80,
+      "category": "passing-lanes",
+      "question": "常见题：超车通常应从哪一侧进行？",
+      "image": "",
+      "options": [
+        "右侧",
+        "左侧",
+        "路肩",
+        "任意方向"
+      ],
+      "answerIndex": 1,
+      "answerText": "左侧",
+      "explanation": "大多数情况下应从左侧超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 81,
+      "category": "passing-lanes",
+      "question": "练习题：何时绝对不应超车？",
+      "image": "",
+      "options": [
+        "前车为行人停车时",
+        "道路很直时",
+        "白天时",
+        "前车慢时"
+      ],
+      "answerIndex": 0,
+      "answerText": "前车为行人停车时",
+      "explanation": "前车为行人停车时，不得从旁边超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 82,
+      "category": "parking",
+      "question": "复习题：消防栓附近停车至少应保持多远？",
+      "image": "",
+      "options": [
+        "5英尺",
+        "10英尺",
+        "15英尺",
+        "30英尺"
+      ],
+      "answerIndex": 2,
+      "answerText": "15英尺",
+      "explanation": "纽约通常要求车辆不能停在消防栓 15 英尺以内。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 83,
+      "category": "parking",
+      "question": "模拟题：车辆停在路边时，离路缘石最远通常不得超过多少？",
+      "image": "",
+      "options": [
+        "6英寸",
+        "12英寸",
+        "18英寸",
+        "3英尺"
+      ],
+      "answerIndex": 1,
+      "answerText": "12英寸",
+      "explanation": "平行停车时通常不得超过路缘 12 英寸。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 84,
+      "category": "parking",
+      "question": "常见题：上坡且有路缘石停车时，前轮应怎样打？",
+      "image": "",
+      "options": [
+        "向左，远离路缘石",
+        "向右，靠向路缘石",
+        "保持直",
+        "随意"
+      ],
+      "answerIndex": 0,
+      "answerText": "向左，远离路缘石",
+      "explanation": "上坡有路缘石时，前轮通常向左。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 85,
+      "category": "parking",
+      "question": "练习题：下坡停车时，前轮通常应怎样打？",
+      "image": "",
+      "options": [
+        "向路缘石方向",
+        "离开路缘石方向",
+        "保持直",
+        "向左"
+      ],
+      "answerIndex": 0,
+      "answerText": "向路缘石方向",
+      "explanation": "下坡停车时前轮应向路缘石方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 86,
+      "category": "speed-weather",
+      "question": "复习题：纽约州普通道路若没有其它限速标志，常见最高限速是多少？",
+      "image": "",
+      "options": [
+        "45 mph",
+        "55 mph",
+        "65 mph",
+        "75 mph"
+      ],
+      "answerIndex": 1,
+      "answerText": "55 mph",
+      "explanation": "纽约州很多普通道路默认最高限速为 55 mph，具体以标志为准。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 87,
+      "category": "speed-weather",
+      "question": "模拟题：安全车速取决于什么？",
+      "image": "",
+      "options": [
+        "只取决于限速牌",
+        "天气、道路、交通和能见度等情况",
+        "司机心情",
+        "车辆价格"
+      ],
+      "answerIndex": 1,
+      "answerText": "天气、道路、交通和能见度等情况",
+      "explanation": "安全速度要根据道路、天气、交通和能见度调整。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 88,
+      "category": "speed-weather",
+      "question": "常见题：雨天或湿滑路面应怎样调整驾驶？",
+      "image": "",
+      "options": [
+        "保持平时速度",
+        "减速并增加跟车距离",
+        "急刹测试路面",
+        "频繁变道"
+      ],
+      "answerIndex": 1,
+      "answerText": "减速并增加跟车距离",
+      "explanation": "湿滑路面制动距离变长，应减速并增加距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "weather"
+      ]
+    },
+    {
+      "id": 89,
+      "category": "speed-weather",
+      "question": "练习题：车辆开始打滑时，通常应怎样做？",
+      "image": "",
+      "options": [
+        "急刹车",
+        "朝车尾滑动方向轻转方向盘并避免急刹",
+        "猛打反方向",
+        "加速"
+      ],
+      "answerIndex": 1,
+      "answerText": "朝车尾滑动方向轻转方向盘并避免急刹",
+      "explanation": "打滑时应保持冷静，避免急刹和猛打方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "skid"
+      ]
+    },
+    {
+      "id": 90,
+      "category": "highway",
+      "question": "复习题：高速公路和普通道路主要区别之一是什么？",
+      "image": "",
+      "options": [
+        "高速公路车速通常更高，需要更早观察和判断",
+        "高速公路没有规则",
+        "高速公路不能变道",
+        "高速公路只能夜间用"
+      ],
+      "answerIndex": 0,
+      "answerText": "高速公路车速通常更高，需要更早观察和判断",
+      "explanation": "高速公路速度高，更需要保持距离和提前判断。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 91,
+      "category": "highway",
+      "question": "模拟题：从高速公路出口驶入普通道路时，应注意什么？",
+      "image": "",
+      "options": [
+        "保持高速公路速度",
+        "看速度表并降低到较低限速",
+        "立即停车",
+        "关掉车灯"
+      ],
+      "answerIndex": 1,
+      "answerText": "看速度表并降低到较低限速",
+      "explanation": "离开高速后应看速度表并减速。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 92,
+      "category": "alcohol-drugs",
+      "question": "常见题：纽约通常以多少 BAC 作为醉酒驾驶 DWI 的重要标准？",
+      "image": "",
+      "options": [
+        "0.02%",
+        "0.05%",
+        "0.08%",
+        "0.20%"
+      ],
+      "answerIndex": 2,
+      "answerText": "0.08%",
+      "explanation": "在纽约，BAC 0.08% 或以上通常构成 DWI 的重要证据。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 93,
+      "category": "alcohol-drugs",
+      "question": "练习题：酒精对驾驶的影响包括什么？",
+      "image": "",
+      "options": [
+        "反应变快",
+        "判断力和反应能力下降",
+        "视力更好",
+        "更容易集中"
+      ],
+      "answerIndex": 1,
+      "answerText": "判断力和反应能力下降",
+      "explanation": "酒精会降低判断、反应和控制能力。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 94,
+      "category": "alcohol-drugs",
+      "question": "复习题：使酒精离开身体最可靠的方法是什么？",
+      "image": "",
+      "options": [
+        "喝咖啡",
+        "冷水浴",
+        "时间和休息",
+        "运动出汗"
+      ],
+      "answerIndex": 2,
+      "answerText": "时间和休息",
+      "explanation": "身体需要时间代谢酒精。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 95,
+      "category": "safety",
+      "question": "模拟题：安全带什么时候应该使用？",
+      "image": "",
+      "options": [
+        "只在高速公路",
+        "只在长途",
+        "每次驾车，驾驶员和乘客都应使用",
+        "只在下雨时"
+      ],
+      "answerIndex": 2,
+      "answerText": "每次驾车，驾驶员和乘客都应使用",
+      "explanation": "每次行车都应系安全带。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "seat-belt"
+      ]
+    },
+    {
+      "id": 96,
+      "category": "safety",
+      "question": "常见题：防卫驾驶的核心是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "预判他人可能犯错并保持安全空间",
+        "总是开得更快",
+        "相信别人会让你"
+      ],
+      "answerIndex": 1,
+      "answerText": "预判他人可能犯错并保持安全空间",
+      "explanation": "防卫驾驶强调观察、预判和保留安全空间。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "defensive"
+      ]
+    },
+    {
+      "id": 97,
+      "category": "sharing-road",
+      "question": "练习题：遇到骑自行车者时应怎样做？",
+      "image": "",
+      "options": [
+        "贴近通过",
+        "保持安全距离并耐心通过",
+        "鸣笛逼其靠边",
+        "从路肩超越"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持安全距离并耐心通过",
+      "explanation": "自行车也是道路使用者，应保持安全距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "bicycle"
+      ]
+    },
+    {
+      "id": 98,
+      "category": "law",
+      "question": "复习题：发生有人受伤或死亡的交通事故时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即离开",
+        "停车、提供信息并按规定报警/报告",
+        "只给保险公司打电话",
+        "只拍照片"
+      ],
+      "answerIndex": 1,
+      "answerText": "停车、提供信息并按规定报警/报告",
+      "explanation": "发生伤亡事故时必须停车、协助并按要求报告。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "crash"
+      ]
+    },
+    {
+      "id": 99,
+      "category": "law",
+      "question": "模拟题：驾驶执照地址变更后，通常应多快通知 DMV？",
+      "image": "",
+      "options": [
+        "10天内",
+        "30天内",
+        "半年内",
+        "不需要"
+      ],
+      "answerIndex": 0,
+      "answerText": "10天内",
+      "explanation": "纽约驾驶执照地址变更通常需要在 10 天内通知 DMV。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "license"
+      ]
+    },
+    {
+      "id": 100,
+      "category": "road-signs-general",
+      "question": "常见题：红色交通标志通常传达什么含义？",
+      "image": "",
+      "options": [
+        "服务信息",
+        "禁止、停止或让行",
+        "风景区",
+        "高速出口"
+      ],
+      "answerIndex": 1,
+      "answerText": "禁止、停止或让行",
+      "explanation": "红色常用于 STOP、YIELD、DO NOT ENTER 等。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-color"
+      ]
+    },
+    {
+      "id": 101,
+      "category": "road-signs-general",
+      "question": "练习题：黄色菱形标志通常是什么类型？",
+      "image": "",
+      "options": [
+        "警告标志",
+        "服务标志",
+        "停车许可",
+        "医院方向"
+      ],
+      "answerIndex": 0,
+      "answerText": "警告标志",
+      "explanation": "黄色菱形一般是警告标志。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 102,
+      "category": "road-signs-general",
+      "question": "复习题：八边形标志几乎总是表示什么？",
+      "image": "",
+      "options": [
+        "停车",
+        "让路",
+        "铁路",
+        "医院"
+      ],
+      "answerIndex": 0,
+      "answerText": "停车",
+      "explanation": "八边形红色标志是 STOP。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 103,
+      "category": "traffic-control",
+      "question": "模拟题：红灯闪烁时，驾驶员应如何处理？",
+      "image": "",
+      "options": [
+        "像停车标志一样完全停车，再确认安全通过",
+        "快速通过",
+        "只减速不停车",
+        "按喇叭后通过"
+      ],
+      "answerIndex": 0,
+      "answerText": "像停车标志一样完全停车，再确认安全通过",
+      "explanation": "闪烁红灯通常按 STOP 处理。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "red-light"
+      ]
+    },
+    {
+      "id": 104,
+      "category": "traffic-control",
+      "question": "常见题：黄灯闪烁通常表示什么？",
+      "image": "",
+      "options": [
+        "必须停车",
+        "小心减速通过",
+        "可以加速通过",
+        "禁止通行"
+      ],
+      "answerIndex": 1,
+      "answerText": "小心减速通过",
+      "explanation": "闪烁黄灯表示警告，应减速并小心通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "yellow-light"
+      ]
+    },
+    {
+      "id": 105,
+      "category": "traffic-control",
+      "question": "练习题：交通警察指挥与交通灯冲突时，应听谁的？",
+      "image": "",
+      "options": [
+        "交通灯",
+        "交通警察",
+        "路边标志",
+        "先到先走"
+      ],
+      "answerIndex": 1,
+      "answerText": "交通警察",
+      "explanation": "现场交通警察或执法人员的指挥优先。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "police"
+      ]
+    },
+    {
+      "id": 106,
+      "category": "traffic-control",
+      "question": "复习题：绿色箭头亮起时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "可以按箭头方向通行，但仍需注意行人和车辆",
+        "必须停车",
+        "可以向任意方向行驶",
+        "只能直行"
+      ],
+      "answerIndex": 0,
+      "answerText": "可以按箭头方向通行，但仍需注意行人和车辆",
+      "explanation": "绿色箭头允许按箭头方向行驶，但仍要注意安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "green-arrow"
+      ]
+    },
+    {
+      "id": 107,
+      "category": "traffic-control",
+      "question": "模拟题：双黄实线通常表示什么？",
+      "image": "",
+      "options": [
+        "可随时超车",
+        "两方向车流分隔，通常不得越线超车",
+        "只给公交车使用",
+        "道路施工"
+      ],
+      "answerIndex": 1,
+      "answerText": "两方向车流分隔，通常不得越线超车",
+      "explanation": "双黄实线通常禁止越线超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pavement"
+      ]
+    },
+    {
+      "id": 108,
+      "category": "traffic-control",
+      "question": "常见题：白色虚线分隔同方向车道时表示什么？",
+      "image": "",
+      "options": [
+        "不得变道",
+        "在安全情况下可以变道",
+        "必须停车",
+        "只供紧急车辆使用"
+      ],
+      "answerIndex": 1,
+      "answerText": "在安全情况下可以变道",
+      "explanation": "白色虚线通常分隔同方向车道。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "lane"
+      ]
+    },
+    {
+      "id": 109,
+      "category": "right-of-way",
+      "question": "练习题：没有信号灯的十字路口，两车同时到达时，谁先行？",
+      "image": "",
+      "options": [
+        "左边车辆",
+        "右边车辆",
+        "车速快的车辆",
+        "较大的车辆"
+      ],
+      "answerIndex": 1,
+      "answerText": "右边车辆",
+      "explanation": "在没有控制标志的路口同时到达时，通常让右侧车辆先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "intersection"
+      ]
+    },
+    {
+      "id": 110,
+      "category": "right-of-way",
+      "question": "复习题：左转车辆遇到对向直行车辆时，应怎样做？",
+      "image": "",
+      "options": [
+        "左转车先走",
+        "让对向直行车辆先行",
+        "按喇叭要求对方停车",
+        "加速抢过"
+      ],
+      "answerIndex": 1,
+      "answerText": "让对向直行车辆先行",
+      "explanation": "左转通常要让对向直行车辆和行人先行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 111,
+      "category": "right-of-way",
+      "question": "模拟题：从私人车道驶入道路时，应如何处理？",
+      "image": "",
+      "options": [
+        "主路车辆让你",
+        "让道路上的车辆和行人先行",
+        "快速驶入",
+        "按喇叭后驶入"
+      ],
+      "answerIndex": 1,
+      "answerText": "让道路上的车辆和行人先行",
+      "explanation": "从车道、停车场或小巷进入道路时，应让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "driveway"
+      ]
+    },
+    {
+      "id": 112,
+      "category": "right-of-way",
+      "question": "常见题：行人在合法横道内过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "减速或停车让行",
+        "鸣笛让行人快走",
+        "绕过行人",
+        "只在绿灯时让行"
+      ],
+      "answerIndex": 0,
+      "answerText": "减速或停车让行",
+      "explanation": "行人在合法横道内有优先权。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 113,
+      "category": "right-of-way",
+      "question": "练习题：盲人携带白色手杖或导盲犬过街时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "鸣笛提醒",
+        "继续行驶",
+        "必须让行",
+        "只在有信号灯时让行"
+      ],
+      "answerIndex": 2,
+      "answerText": "必须让行",
+      "explanation": "盲人使用白杖或导盲犬过街时，驾驶员必须让行。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pedestrian"
+      ]
+    },
+    {
+      "id": 114,
+      "category": "right-of-way",
+      "question": "复习题：听到或看到紧急车辆警灯警报时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即停在原车道",
+        "安全靠右停车，让紧急车辆通过",
+        "加速离开",
+        "跟在紧急车辆后面"
+      ],
+      "answerIndex": 1,
+      "answerText": "安全靠右停车，让紧急车辆通过",
+      "explanation": "应安全靠右并停车，直到紧急车辆通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "emergency"
+      ]
+    },
+    {
+      "id": 115,
+      "category": "right-of-way",
+      "question": "模拟题：校车红灯闪烁并停车上下学生时，纽约驾驶员通常应怎样做？",
+      "image": "",
+      "options": [
+        "同向车辆才停车",
+        "双向车辆都必须停车",
+        "只减速即可",
+        "如果看不到学生可通过"
+      ],
+      "answerIndex": 1,
+      "answerText": "双向车辆都必须停车",
+      "explanation": "纽约校车红灯闪烁时，通常双向交通都必须停车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "school-bus"
+      ]
+    },
+    {
+      "id": 116,
+      "category": "turns",
+      "question": "常见题：右转前应怎样准备？",
+      "image": "",
+      "options": [
+        "尽量靠右并提前打转向灯",
+        "从道路左侧右转",
+        "不需要打灯",
+        "转弯时再看后视镜"
+      ],
+      "answerIndex": 0,
+      "answerText": "尽量靠右并提前打转向灯",
+      "explanation": "右转前应提前打灯、靠右、观察行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "right-turn"
+      ]
+    },
+    {
+      "id": 117,
+      "category": "turns",
+      "question": "练习题：左转前应怎样做？",
+      "image": "",
+      "options": [
+        "不需打灯",
+        "提前打左转灯并让对向车辆和行人",
+        "尽量靠右转",
+        "停车后倒车"
+      ],
+      "answerIndex": 1,
+      "answerText": "提前打左转灯并让对向车辆和行人",
+      "explanation": "左转前应提前打灯，观察对向车辆、行人和自行车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 118,
+      "category": "turns",
+      "question": "复习题：在路口等左转时，方向盘最好怎样放？",
+      "image": "",
+      "options": [
+        "提前向左打死",
+        "保持车轮直行方向",
+        "向右打",
+        "随意"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持车轮直行方向",
+      "explanation": "等待左转时保持车轮直行更安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "left-turn"
+      ]
+    },
+    {
+      "id": 119,
+      "category": "turns",
+      "question": "模拟题：错过高速公路出口时，应怎样做？",
+      "image": "",
+      "options": [
+        "倒车回出口",
+        "在路肩掉头",
+        "继续到下一个出口",
+        "立即停车"
+      ],
+      "answerIndex": 2,
+      "answerText": "继续到下一个出口",
+      "explanation": "错过出口时应继续到下一个出口。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 120,
+      "category": "turns",
+      "question": "常见题：黄灯亮起时，你已接近路口但能安全停车，应怎样做？",
+      "image": "",
+      "options": [
+        "加速冲过",
+        "准备停车",
+        "鸣笛通过",
+        "换到左车道"
+      ],
+      "answerIndex": 1,
+      "answerText": "准备停车",
+      "explanation": "黄灯表示即将变红，如果能安全停车，应停车等待。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "traffic-light"
+      ]
+    },
+    {
+      "id": 121,
+      "category": "passing-lanes",
+      "question": "练习题：变道前最重要的动作是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "打灯、看镜子并检查盲点",
+        "加速",
+        "按喇叭"
+      ],
+      "answerIndex": 1,
+      "answerText": "打灯、看镜子并检查盲点",
+      "explanation": "变道前应打灯、看镜子，并转头检查盲点。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 122,
+      "category": "passing-lanes",
+      "question": "复习题：盲点是什么？",
+      "image": "",
+      "options": [
+        "车灯照不到的地方",
+        "镜子不容易看到的区域",
+        "只有夜间存在",
+        "车头前方区域"
+      ],
+      "answerIndex": 1,
+      "answerText": "镜子不容易看到的区域",
+      "explanation": "盲点是镜子不容易看到的区域。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "blind-spot"
+      ]
+    },
+    {
+      "id": 123,
+      "category": "passing-lanes",
+      "question": "模拟题：超车通常应从哪一侧进行？",
+      "image": "",
+      "options": [
+        "右侧",
+        "左侧",
+        "路肩",
+        "任意方向"
+      ],
+      "answerIndex": 1,
+      "answerText": "左侧",
+      "explanation": "大多数情况下应从左侧超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 124,
+      "category": "passing-lanes",
+      "question": "常见题：何时绝对不应超车？",
+      "image": "",
+      "options": [
+        "前车为行人停车时",
+        "道路很直时",
+        "白天时",
+        "前车慢时"
+      ],
+      "answerIndex": 0,
+      "answerText": "前车为行人停车时",
+      "explanation": "前车为行人停车时，不得从旁边超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "passing"
+      ]
+    },
+    {
+      "id": 125,
+      "category": "parking",
+      "question": "练习题：消防栓附近停车至少应保持多远？",
+      "image": "",
+      "options": [
+        "5英尺",
+        "10英尺",
+        "15英尺",
+        "30英尺"
+      ],
+      "answerIndex": 2,
+      "answerText": "15英尺",
+      "explanation": "纽约通常要求车辆不能停在消防栓 15 英尺以内。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 126,
+      "category": "parking",
+      "question": "复习题：车辆停在路边时，离路缘石最远通常不得超过多少？",
+      "image": "",
+      "options": [
+        "6英寸",
+        "12英寸",
+        "18英寸",
+        "3英尺"
+      ],
+      "answerIndex": 1,
+      "answerText": "12英寸",
+      "explanation": "平行停车时通常不得超过路缘 12 英寸。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 127,
+      "category": "parking",
+      "question": "模拟题：上坡且有路缘石停车时，前轮应怎样打？",
+      "image": "",
+      "options": [
+        "向左，远离路缘石",
+        "向右，靠向路缘石",
+        "保持直",
+        "随意"
+      ],
+      "answerIndex": 0,
+      "answerText": "向左，远离路缘石",
+      "explanation": "上坡有路缘石时，前轮通常向左。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 128,
+      "category": "parking",
+      "question": "常见题：下坡停车时，前轮通常应怎样打？",
+      "image": "",
+      "options": [
+        "向路缘石方向",
+        "离开路缘石方向",
+        "保持直",
+        "向左"
+      ],
+      "answerIndex": 0,
+      "answerText": "向路缘石方向",
+      "explanation": "下坡停车时前轮应向路缘石方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "parking"
+      ]
+    },
+    {
+      "id": 129,
+      "category": "speed-weather",
+      "question": "练习题：纽约州普通道路若没有其它限速标志，常见最高限速是多少？",
+      "image": "",
+      "options": [
+        "45 mph",
+        "55 mph",
+        "65 mph",
+        "75 mph"
+      ],
+      "answerIndex": 1,
+      "answerText": "55 mph",
+      "explanation": "纽约州很多普通道路默认最高限速为 55 mph，具体以标志为准。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 130,
+      "category": "speed-weather",
+      "question": "复习题：安全车速取决于什么？",
+      "image": "",
+      "options": [
+        "只取决于限速牌",
+        "天气、道路、交通和能见度等情况",
+        "司机心情",
+        "车辆价格"
+      ],
+      "answerIndex": 1,
+      "answerText": "天气、道路、交通和能见度等情况",
+      "explanation": "安全速度要根据道路、天气、交通和能见度调整。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": 131,
+      "category": "speed-weather",
+      "question": "模拟题：雨天或湿滑路面应怎样调整驾驶？",
+      "image": "",
+      "options": [
+        "保持平时速度",
+        "减速并增加跟车距离",
+        "急刹测试路面",
+        "频繁变道"
+      ],
+      "answerIndex": 1,
+      "answerText": "减速并增加跟车距离",
+      "explanation": "湿滑路面制动距离变长，应减速并增加距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "weather"
+      ]
+    },
+    {
+      "id": 132,
+      "category": "speed-weather",
+      "question": "常见题：车辆开始打滑时，通常应怎样做？",
+      "image": "",
+      "options": [
+        "急刹车",
+        "朝车尾滑动方向轻转方向盘并避免急刹",
+        "猛打反方向",
+        "加速"
+      ],
+      "answerIndex": 1,
+      "answerText": "朝车尾滑动方向轻转方向盘并避免急刹",
+      "explanation": "打滑时应保持冷静，避免急刹和猛打方向。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "skid"
+      ]
+    },
+    {
+      "id": 133,
+      "category": "highway",
+      "question": "练习题：高速公路和普通道路主要区别之一是什么？",
+      "image": "",
+      "options": [
+        "高速公路车速通常更高，需要更早观察和判断",
+        "高速公路没有规则",
+        "高速公路不能变道",
+        "高速公路只能夜间用"
+      ],
+      "answerIndex": 0,
+      "answerText": "高速公路车速通常更高，需要更早观察和判断",
+      "explanation": "高速公路速度高，更需要保持距离和提前判断。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 134,
+      "category": "highway",
+      "question": "复习题：从高速公路出口驶入普通道路时，应注意什么？",
+      "image": "",
+      "options": [
+        "保持高速公路速度",
+        "看速度表并降低到较低限速",
+        "立即停车",
+        "关掉车灯"
+      ],
+      "answerIndex": 1,
+      "answerText": "看速度表并降低到较低限速",
+      "explanation": "离开高速后应看速度表并减速。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "highway"
+      ]
+    },
+    {
+      "id": 135,
+      "category": "alcohol-drugs",
+      "question": "模拟题：纽约通常以多少 BAC 作为醉酒驾驶 DWI 的重要标准？",
+      "image": "",
+      "options": [
+        "0.02%",
+        "0.05%",
+        "0.08%",
+        "0.20%"
+      ],
+      "answerIndex": 2,
+      "answerText": "0.08%",
+      "explanation": "在纽约，BAC 0.08% 或以上通常构成 DWI 的重要证据。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 136,
+      "category": "alcohol-drugs",
+      "question": "常见题：酒精对驾驶的影响包括什么？",
+      "image": "",
+      "options": [
+        "反应变快",
+        "判断力和反应能力下降",
+        "视力更好",
+        "更容易集中"
+      ],
+      "answerIndex": 1,
+      "answerText": "判断力和反应能力下降",
+      "explanation": "酒精会降低判断、反应和控制能力。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 137,
+      "category": "alcohol-drugs",
+      "question": "练习题：使酒精离开身体最可靠的方法是什么？",
+      "image": "",
+      "options": [
+        "喝咖啡",
+        "冷水浴",
+        "时间和休息",
+        "运动出汗"
+      ],
+      "answerIndex": 2,
+      "answerText": "时间和休息",
+      "explanation": "身体需要时间代谢酒精。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "alcohol"
+      ]
+    },
+    {
+      "id": 138,
+      "category": "safety",
+      "question": "复习题：安全带什么时候应该使用？",
+      "image": "",
+      "options": [
+        "只在高速公路",
+        "只在长途",
+        "每次驾车，驾驶员和乘客都应使用",
+        "只在下雨时"
+      ],
+      "answerIndex": 2,
+      "answerText": "每次驾车，驾驶员和乘客都应使用",
+      "explanation": "每次行车都应系安全带。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "seat-belt"
+      ]
+    },
+    {
+      "id": 139,
+      "category": "safety",
+      "question": "模拟题：防卫驾驶的核心是什么？",
+      "image": "",
+      "options": [
+        "只看前方",
+        "预判他人可能犯错并保持安全空间",
+        "总是开得更快",
+        "相信别人会让你"
+      ],
+      "answerIndex": 1,
+      "answerText": "预判他人可能犯错并保持安全空间",
+      "explanation": "防卫驾驶强调观察、预判和保留安全空间。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "defensive"
+      ]
+    },
+    {
+      "id": 140,
+      "category": "sharing-road",
+      "question": "常见题：遇到骑自行车者时应怎样做？",
+      "image": "",
+      "options": [
+        "贴近通过",
+        "保持安全距离并耐心通过",
+        "鸣笛逼其靠边",
+        "从路肩超越"
+      ],
+      "answerIndex": 1,
+      "answerText": "保持安全距离并耐心通过",
+      "explanation": "自行车也是道路使用者，应保持安全距离。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "bicycle"
+      ]
+    },
+    {
+      "id": 141,
+      "category": "law",
+      "question": "练习题：发生有人受伤或死亡的交通事故时，应怎样做？",
+      "image": "",
+      "options": [
+        "立即离开",
+        "停车、提供信息并按规定报警/报告",
+        "只给保险公司打电话",
+        "只拍照片"
+      ],
+      "answerIndex": 1,
+      "answerText": "停车、提供信息并按规定报警/报告",
+      "explanation": "发生伤亡事故时必须停车、协助并按要求报告。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "crash"
+      ]
+    },
+    {
+      "id": 142,
+      "category": "law",
+      "question": "复习题：驾驶执照地址变更后，通常应多快通知 DMV？",
+      "image": "",
+      "options": [
+        "10天内",
+        "30天内",
+        "半年内",
+        "不需要"
+      ],
+      "answerIndex": 0,
+      "answerText": "10天内",
+      "explanation": "纽约驾驶执照地址变更通常需要在 10 天内通知 DMV。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "medium",
+      "tags": [
+        "license"
+      ]
+    },
+    {
+      "id": 143,
+      "category": "road-signs-general",
+      "question": "模拟题：红色交通标志通常传达什么含义？",
+      "image": "",
+      "options": [
+        "服务信息",
+        "禁止、停止或让行",
+        "风景区",
+        "高速出口"
+      ],
+      "answerIndex": 1,
+      "answerText": "禁止、停止或让行",
+      "explanation": "红色常用于 STOP、YIELD、DO NOT ENTER 等。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-color"
+      ]
+    },
+    {
+      "id": 144,
+      "category": "road-signs-general",
+      "question": "常见题：黄色菱形标志通常是什么类型？",
+      "image": "",
+      "options": [
+        "警告标志",
+        "服务标志",
+        "停车许可",
+        "医院方向"
+      ],
+      "answerIndex": 0,
+      "answerText": "警告标志",
+      "explanation": "黄色菱形一般是警告标志。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 145,
+      "category": "road-signs-general",
+      "question": "练习题：八边形标志几乎总是表示什么？",
+      "image": "",
+      "options": [
+        "停车",
+        "让路",
+        "铁路",
+        "医院"
+      ],
+      "answerIndex": 0,
+      "answerText": "停车",
+      "explanation": "八边形红色标志是 STOP。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "sign-shape"
+      ]
+    },
+    {
+      "id": 146,
+      "category": "traffic-control",
+      "question": "复习题：红灯闪烁时，驾驶员应如何处理？",
+      "image": "",
+      "options": [
+        "像停车标志一样完全停车，再确认安全通过",
+        "快速通过",
+        "只减速不停车",
+        "按喇叭后通过"
+      ],
+      "answerIndex": 0,
+      "answerText": "像停车标志一样完全停车，再确认安全通过",
+      "explanation": "闪烁红灯通常按 STOP 处理。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "red-light"
+      ]
+    },
+    {
+      "id": 147,
+      "category": "traffic-control",
+      "question": "模拟题：黄灯闪烁通常表示什么？",
+      "image": "",
+      "options": [
+        "必须停车",
+        "小心减速通过",
+        "可以加速通过",
+        "禁止通行"
+      ],
+      "answerIndex": 1,
+      "answerText": "小心减速通过",
+      "explanation": "闪烁黄灯表示警告，应减速并小心通过。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "yellow-light"
+      ]
+    },
+    {
+      "id": 148,
+      "category": "traffic-control",
+      "question": "常见题：交通警察指挥与交通灯冲突时，应听谁的？",
+      "image": "",
+      "options": [
+        "交通灯",
+        "交通警察",
+        "路边标志",
+        "先到先走"
+      ],
+      "answerIndex": 1,
+      "answerText": "交通警察",
+      "explanation": "现场交通警察或执法人员的指挥优先。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "police"
+      ]
+    },
+    {
+      "id": 149,
+      "category": "traffic-control",
+      "question": "练习题：绿色箭头亮起时，驾驶员应怎样做？",
+      "image": "",
+      "options": [
+        "可以按箭头方向通行，但仍需注意行人和车辆",
+        "必须停车",
+        "可以向任意方向行驶",
+        "只能直行"
+      ],
+      "answerIndex": 0,
+      "answerText": "可以按箭头方向通行，但仍需注意行人和车辆",
+      "explanation": "绿色箭头允许按箭头方向行驶，但仍要注意安全。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "green-arrow"
+      ]
+    },
+    {
+      "id": 150,
+      "category": "traffic-control",
+      "question": "复习题：双黄实线通常表示什么？",
+      "image": "",
+      "options": [
+        "可随时超车",
+        "两方向车流分隔，通常不得越线超车",
+        "只给公交车使用",
+        "道路施工"
+      ],
+      "answerIndex": 1,
+      "answerText": "两方向车流分隔，通常不得越线超车",
+      "explanation": "双黄实线通常禁止越线超车。",
+      "reference": "NY DMV Driver's Manual",
+      "difficulty": "easy",
+      "tags": [
+        "pavement"
+      ]
+    }
+  ]
+}
