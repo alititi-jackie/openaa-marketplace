@@ -1,6 +1,8 @@
 import Link from 'next/link'
-import { ArrowLeft, BookMarked, Shuffle, ClipboardList, AlertCircle } from 'lucide-react'
+import { BookMarked, Shuffle, ClipboardList, AlertCircle, FileText } from 'lucide-react'
+import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
 const entryCards = [
   {
     title: '查看题库',
@@ -35,21 +37,13 @@ const entryCards = [
 export default function PracticeHomePage() {
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
-      <div className="sticky top-14 z-40 border-b border-zinc-100 bg-white px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dmv"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-600"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-          <h1 className="text-base font-bold text-zinc-900">DMV 笔试模拟首页</h1>
-        </div>
-      </div>
+      <AppTopSection bannerPosition="dmv" />
 
       <div className="px-4 pt-4">
+        <DetailBackButton fallbackHref="/dmv" />
+
         <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
-          <h2 className="text-xl font-black text-zinc-900">纽约 DMV 中文笔试模拟</h2>
+          <h1 className="text-xl font-black text-zinc-900">纽约 DMV 中文笔试模拟</h1>
           <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
             查看题库、练习模式、模拟考试、错题练习，适合手机刷题学习。
           </p>
@@ -69,6 +63,17 @@ export default function PracticeHomePage() {
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">{desc}</p>
             </Link>
           ))}
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-start gap-2">
+            <FileText size={16} className="mt-0.5 shrink-0 text-amber-700" />
+            <div className="space-y-1 text-xs leading-5 text-amber-900">
+              <p>OpenAA 只提供中文整理和入口导航。</p>
+              <p>DMV 规则、费用、预约和罚单信息以官方页面为准。</p>
+              <p>涉及法律、罚单争议、保险等问题，请咨询专业人士或官方机构。</p>
+            </div>
+          </div>
         </section>
       </div>
 

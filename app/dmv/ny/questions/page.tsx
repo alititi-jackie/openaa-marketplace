@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Search, X, Eye, EyeOff, ChevronDown } from 'lucide-react'
+import { Search, X, Eye, EyeOff, ChevronDown } from 'lucide-react'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
@@ -219,12 +220,13 @@ export default function PracticePage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      <div className="px-4 pt-4">
+        <DetailBackButton fallbackHref="/dmv/ny/practice" />
+      </div>
+
       {/* Header */}
       <div className="sticky top-14 z-40 border-b border-zinc-100 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <Link href="/dmv" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-600">
-            <ArrowLeft size={16} />
-          </Link>
           <h1 className="text-base font-bold text-zinc-900">查看题库</h1>
           <div className="ml-auto flex items-center gap-2">
             <button

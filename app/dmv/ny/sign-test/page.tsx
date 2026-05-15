@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react'
+import { ArrowRight, RotateCcw } from 'lucide-react'
+import DetailBackButton from '@/components/DetailBackButton'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -100,6 +101,10 @@ export default function SignTestPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      <div className="px-4 pt-4">
+        <DetailBackButton fallbackHref="/dmv/ny/practice" />
+      </div>
+
       {/* Progress */}
       <div className="sticky top-14 z-40 bg-white shadow-sm">
         <div className="flex h-1.5 w-full bg-zinc-100">
@@ -109,12 +114,7 @@ export default function SignTestPage() {
           />
         </div>
         <div className="flex items-center justify-between px-4 py-2">
-          <Link
-            href="/dmv"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-500"
-          >
-            <ArrowLeft size={16} />
-          </Link>
+          <div className="h-8 w-8" />
           <span className="text-sm font-semibold text-zinc-700">
             {current + 1} / {questions.length}
           </span>
