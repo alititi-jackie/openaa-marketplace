@@ -7,7 +7,7 @@ import DetailBackButton from '@/components/DetailBackButton'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
-  id: string
+  id: number
   category: string
   question: string
   image: string | null
@@ -20,7 +20,15 @@ interface Question {
   tags: string[]
 }
 
-const allQuestions = questionsData as Question[]
+type QuestionBank = {
+  _meta?: {
+    totalQuestions?: number
+  }
+  questions: Question[]
+}
+
+const questionBank = questionsData as QuestionBank
+const allQuestions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
 
@@ -72,10 +80,10 @@ export default function SignTestPage() {
       setAnswered(true)
       if (i === q.answerIndex) {
         setScore((s) => ({ ...s, correct: s.correct + 1 }))
-        removeWrongQuestion(q.id)
+        removeWrongQuestion(String(q.id))
       } else {
         setScore((s) => ({ ...s, wrong: s.wrong + 1 }))
-        saveWrongQuestion(q.id)
+        saveWrongQuestion(String(q.id))
       }
     },
     [answered, q],
