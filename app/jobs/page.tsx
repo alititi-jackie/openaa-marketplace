@@ -1,6 +1,5 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -12,42 +11,12 @@ import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting, JobPostingType } from '@/types'
 
-const JOBS_CANONICAL = 'https://app.openaa.com/jobs'
-
-export const metadata: Metadata = {
-  title: 'OpenAA 招聘｜美国华人招聘｜纽约招聘｜找工作｜168招聘',
-  description:
-    'OpenAA 招聘频道为美国华人提供招聘求职信息，涵盖纽约招聘、餐馆招聘、兼职、全职、司机、仓库、电工、装修、前台、文员等岗位，帮助华人更方便找工作和发布招聘信息。',
-  keywords: [
-    'OpenAA 招聘',
-    '美国华人招聘',
-    '纽约招聘',
-    '找工作',
-    '168招聘',
-    '华人招聘',
-    '美国找工作',
-    '纽约找工作',
-    '兼职招聘',
-    '全职招聘',
-    '法拉盛招聘',
-    '布鲁克林招聘',
-    '司机招聘',
-    '餐馆招聘',
-    '华人工作',
-    '美国工作',
-    '美华人招聘',
-  ],
-  alternates: {
-    canonical: JOBS_CANONICAL,
-  },
-}
-
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: 'OpenAA 招聘频道',
   alternateName: ['美国华人招聘', '纽约招聘', '找工作', '168招聘'],
-  url: JOBS_CANONICAL,
+  url: 'https://app.openaa.com/jobs',
   description:
     'OpenAA 招聘频道为美国华人提供招聘求职信息，涵盖纽约招聘、兼职、全职、餐馆、司机、仓库、电工、装修等工作信息，帮助华人更方便找工作和发布招聘。',
   isPartOf: {
@@ -104,9 +73,7 @@ export default function JobsPage() {
 
     const { data, error } = await query
     if (!error) {
-      setJobs(
-        (data || []).filter((job) => isPublicOwnerVisible((job as JobPosting).user)) as JobPosting[]
-      )
+      setJobs((data || []).filter((job) => isPublicOwnerVisible((job as JobPosting).user)) as JobPosting[])
       setLoading(false)
       return
     }
@@ -129,13 +96,12 @@ export default function JobsPage() {
     const searchLower = search.toLowerCase()
     const nowTime = Date.now()
     return jobs
-      .filter(
-        (job) =>
-          (!search ||
-            job.title.toLowerCase().includes(searchLower) ||
-            job.company.toLowerCase().includes(searchLower) ||
-            job.location.toLowerCase().includes(searchLower)) &&
-          (location === ALL_REGIONS || job.location === location)
+      .filter((job) =>
+        (!search ||
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.location.toLowerCase().includes(searchLower)) &&
+        (location === ALL_REGIONS || job.location === location)
       )
       .sort((a, b) => {
         const aPinned = isEffectivePinned(a, nowTime)
@@ -160,7 +126,10 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* JSON-LD: lightweight, page-level only */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       <AppTopSection bannerPosition="jobs" />
 
@@ -193,8 +162,8 @@ export default function JobsPage() {
                 >
                   {t.label}
                 </button>
-              )}
-            )}
+              )
+            })}
           </div>
         </div>
 
@@ -239,7 +208,10 @@ export default function JobsPage() {
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-3">💼</div>
             <p>暂无符合条件的招聘信息</p>
-            <Link href={`/jobs/publish?type=${activeTab}`} className="text-[#1976d2] mt-2 inline-block hover:underline">
+            <Link
+              href={`/jobs/publish?type=${activeTab}`}
+              className="text-[#1976d2] mt-2 inline-block hover:underline"
+            >
               发布第一条
             </Link>
           </div>
