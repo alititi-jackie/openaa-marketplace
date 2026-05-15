@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import type { Metadata } from 'next'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
@@ -10,6 +11,51 @@ import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting, JobPostingType } from '@/types'
+
+const JOBS_CANONICAL = 'https://app.openaa.com/jobs'
+
+export const metadata: Metadata = {
+  title: 'OpenAA 招聘｜美国华人招聘｜纽约招聘｜找工作｜168招聘',
+  description:
+    'OpenAA 招聘频道为美国华人提供招聘求职信息，涵盖纽约招聘、餐馆招聘、兼职、全职、司机、仓库、电工、装修、前台、文员等岗位，帮助华人更方便找工作和发布招聘信息。',
+  keywords: [
+    'OpenAA 招聘',
+    '美国华人招聘',
+    '纽约招聘',
+    '找工作',
+    '168招聘',
+    '华人招聘',
+    '美国找工作',
+    '纽约找工作',
+    '兼职招聘',
+    '全职招聘',
+    '法拉盛招聘',
+    '布鲁克林招聘',
+    '司机招聘',
+    '餐馆招聘',
+    '华人工作',
+    '美国工作',
+    '美华人招聘',
+  ],
+  alternates: {
+    canonical: JOBS_CANONICAL,
+  },
+}
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'OpenAA 招聘频道',
+  alternateName: ['美国华人招聘', '纽约招聘', '找工作', '168招聘'],
+  url: JOBS_CANONICAL,
+  description:
+    'OpenAA 招聘频道为美国华人提供招聘求职信息，涵盖纽约招聘、兼职、全职、餐馆、司机、仓库、电工、装修等工作信息，帮助华人更方便找工作和发布招聘。',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'OpenAA',
+    url: 'https://app.openaa.com/',
+  },
+}
 
 const TABS: Array<{ key: JobPostingType; label: string }> = [
   { key: 'hiring', label: '招聘岗位' },
@@ -58,7 +104,9 @@ export default function JobsPage() {
 
     const { data, error } = await query
     if (!error) {
-      setJobs((data || []).filter((job) => isPublicOwnerVisible((job as JobPosting).user)) as JobPosting[])
+      setJobs(
+        (data || []).filter((job) => isPublicOwnerVisible((job as JobPosting).user)) as JobPosting[]
+      )
       setLoading(false)
       return
     }
@@ -69,9 +117,7 @@ export default function JobsPage() {
     if (category) fallback = fallback.eq('category', category)
 
     const { data: fallbackData } = await fallback
-    setJobs(
-      ((fallbackData || []) as JobPosting[]).filter((job) => isPublicOwnerVisible(job.user))
-    )
+    setJobs(((fallbackData || []) as JobPosting[]).filter((job) => isPublicOwnerVisible(job.user)))
     setLoading(false)
   }, [activeTab, jobType, category])
 
@@ -83,12 +129,13 @@ export default function JobsPage() {
     const searchLower = search.toLowerCase()
     const nowTime = Date.now()
     return jobs
-      .filter((job) =>
-        (!search ||
-          job.title.toLowerCase().includes(searchLower) ||
-          job.company.toLowerCase().includes(searchLower) ||
-          job.location.toLowerCase().includes(searchLower)) &&
-        (location === ALL_REGIONS || job.location === location)
+      .filter(
+        (job) =>
+          (!search ||
+            job.title.toLowerCase().includes(searchLower) ||
+            job.company.toLowerCase().includes(searchLower) ||
+            job.location.toLowerCase().includes(searchLower)) &&
+          (location === ALL_REGIONS || job.location === location)
       )
       .sort((a, b) => {
         const aPinned = isEffectivePinned(a, nowTime)
@@ -112,6 +159,9 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      {/* JSON-LD: lightweight, page-level only */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <AppTopSection bannerPosition="jobs" />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -143,8 +193,8 @@ export default function JobsPage() {
                 >
                   {t.label}
                 </button>
-              )
-            })}
+              )}
+            )}
           </div>
         </div>
 
@@ -189,10 +239,7 @@ export default function JobsPage() {
           <div className="text-center py-12 text-gray-500">
             <div className="text-4xl mb-3">💼</div>
             <p>暂无符合条件的招聘信息</p>
-            <Link
-              href={`/jobs/publish?type=${activeTab}`}
-              className="text-[#1976d2] mt-2 inline-block hover:underline"
-            >
+            <Link href={`/jobs/publish?type=${activeTab}`} className="text-[#1976d2] mt-2 inline-block hover:underline">
               发布第一条
             </Link>
           </div>
@@ -203,7 +250,15 @@ export default function JobsPage() {
             ))}
           </div>
         )}
+
+        {/* Lightweight SEO copy (near bottom) */}
+        <section className="mt-8">
+          <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-4 text-[12.5px] leading-relaxed text-zinc-600">
+            OpenAA 招聘频道为美国华人和美华人提供招聘求职信息，涵盖纽约招聘、兼职、全职、餐馆、司机、仓库、电工、装修等工作信息，帮助华人更方便找工作和发布招聘。
+          </div>
+        </section>
       </div>
+
       <BackToTopButton />
     </div>
   )
