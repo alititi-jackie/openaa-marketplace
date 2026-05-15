@@ -18,7 +18,12 @@ import {
 } from 'lucide-react'
 
 const ticketsLink = 'https://openaa.com/dmv/tickets/index.html'
-const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
+type QuestionBank = {
+  questions: { id: number }[]
+}
+
+const questionBank = questionsData as QuestionBank
+const questionCount = questionBank.questions.length
 
 const dmvExamCards = [
   {

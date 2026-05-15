@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
-  id: string
+  id: string | number
   category: string
   question: string
   image: string | null
@@ -19,7 +19,15 @@ interface Question {
   tags: string[]
 }
 
-const allQuestions = questionsData as Question[]
+type QuestionBank = {
+  _meta?: {
+    totalQuestions?: number
+  }
+  questions: Question[]
+}
+
+const questionBank = questionsData as QuestionBank
+const allQuestions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
 
@@ -53,9 +61,10 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const signQuestions = allQuestions.filter((q) => q.category === '交通标志')
+const signQuestionPool = signQuestions.length > 0 ? signQuestions : allQuestions
 
 export default function SignTestPage() {
-  const [questions, setQuestions] = useState<Question[]>(() => shuffle(signQuestions))
+  const [questions, setQuestions] = useState<Question[]>(() => shuffle(signQuestionPool))
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [answered, setAnswered] = useState(false)
@@ -71,10 +80,10 @@ export default function SignTestPage() {
       setAnswered(true)
       if (i === q.answerIndex) {
         setScore((s) => ({ ...s, correct: s.correct + 1 }))
-        removeWrongQuestion(q.id)
+        removeWrongQuestion(String(q.id))
       } else {
         setScore((s) => ({ ...s, wrong: s.wrong + 1 }))
-        saveWrongQuestion(q.id)
+        saveWrongQuestion(String(q.id))
       }
     },
     [answered, q],
@@ -89,7 +98,7 @@ export default function SignTestPage() {
   }, [current, questions.length])
 
   const handleRestart = useCallback(() => {
-    setQuestions(shuffle(signQuestions))
+    setQuestions(shuffle(signQuestionPool))
     setCurrent(0)
     setSelected(null)
     setAnswered(false)

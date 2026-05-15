@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
-  id: string
+  id: string | number
   category: string
   question: string
   image: string | null
@@ -74,9 +74,9 @@ function QuestionCard({ q, showAnswer, index }: QuestionCardProps) {
       setSelected(i)
       setAnswered(true)
       if (i !== q.answerIndex) {
-        saveWrongQuestion(q.id)
+        saveWrongQuestion(String(q.id))
       } else {
-        removeWrongQuestion(q.id)
+        removeWrongQuestion(String(q.id))
       }
     },
     [showAnswer, answered, q.answerIndex, q.id],
