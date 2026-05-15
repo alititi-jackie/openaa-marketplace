@@ -1,9 +1,32 @@
 import type { Metadata } from 'next'
 
+const NAVIGATION_CANONICAL = 'https://app.openaa.com/navigation'
+
 export const metadata: Metadata = {
-  title: '美国华人生活导航 - OpenAA',
+  title: 'OpenAA 导航｜美国华人导航｜华人常用网站｜实用网址导航',
   description:
-    'OpenAA 美国华人生活导航，整理政务办事、招聘求职、房屋生活、银行购物、AI工具、新闻资讯等常用网站入口。',
+    'OpenAA 导航为美国华人提供常用网站和实用网址入口，涵盖政府服务、银行金融、购物平台、新闻资讯、社交媒体、视频平台、AI 工具、DMV 和本地生活服务，帮助华人更方便访问美国常用网站。',
+  keywords: [
+    'OpenAA 导航',
+    '美国华人导航',
+    '华人导航',
+    '华人常用网站',
+    '美国常用网站',
+    '实用网址导航',
+    '政府服务',
+    '银行金融',
+    '购物平台',
+    '新闻资讯',
+    '社交媒体',
+    '视频平台',
+    'AI 工具',
+    'DMV 导航',
+    '美国生活导航',
+    '美华人导航',
+  ],
+  alternates: {
+    canonical: NAVIGATION_CANONICAL,
+  },
 }
 
 export default function NavigationLayout({
