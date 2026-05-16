@@ -8,6 +8,7 @@ import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import BackToTopButton from '@/components/BackToTopButton'
+import { fetchPublishedNewsPosts } from '@/lib/newsPosts'
 import { supabase } from '@/lib/supabase'
 import { NEWS_FILTER_CATEGORIES, NEWS_PAGE_SIZE, normalizeNewsFilterCategory } from '@/lib/news'
 import type { NewsPost } from '@/types'
@@ -46,41 +47,10 @@ export default function NewsListClient() {
 
   const fetchPosts = useCallback(async (currentCategory: string) => {
     setLoading(true)
-    const now = new Date().toISOString()
-    let pinnedQuery = supabase
-      .from('news_posts')
-      .select('*')
-      .eq('is_published', true)
-      .eq('is_pinned', true)
-      .or(`pinned_until.is.null,pinned_until.gt.${now}`)
-      .order('pinned_order', { ascending: true })
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    let normalQuery = supabase
-      .from('news_posts')
-      .select('*')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(NEWS_PAGE_SIZE)
-
-    if (currentCategory !== '全部') {
-      pinnedQuery = pinnedQuery.eq('category', currentCategory)
-      normalQuery = normalQuery.eq('category', currentCategory)
-    }
-
-    const [{ data: pinnedData }, { data: normalData }] = await Promise.all([pinnedQuery, normalQuery])
-    const merged: NewsPost[] = []
-    const seenIds = new Set<string>()
-
-    for (const item of [...((pinnedData as NewsPost[] | null) || []), ...((normalData as NewsPost[] | null) || [])]) {
-      const key = String(item.id)
-      if (seenIds.has(key)) continue
-      seenIds.add(key)
-      merged.push(item)
-    }
-
+    const merged = await fetchPublishedNewsPosts(supabase, {
+      category: currentCategory === '全部' ? undefined : currentCategory,
+      limit: NEWS_PAGE_SIZE,
+    })
     setPosts(merged)
     setLoading(false)
   }, [])
