@@ -193,7 +193,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-3">
                 <Link
                   href="/jobs/publish"
-                  className="rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center">
@@ -208,7 +208,7 @@ export default function ProfilePage() {
 
                 <Link
                   href="/housing/publish"
-                  className="rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
