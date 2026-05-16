@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
-import { isPublicOwnerVisible } from '@/lib/publicVisibility'
+import { isPublicOwnerVisible, isPublicUserStatusVisible } from '@/lib/publicVisibility'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
@@ -65,14 +65,42 @@ function normalizeTypeForQuery(t: HousingPostType): string[] {
   // - current schema uses: renting | seeking
   // - some environments may have: rent | renting | 出租 | 求租
   if (t === 'seeking') return ['seeking', 'seek', '求租', '求购']
-  return ['renting', 'rent', '出租', '出售']
+  return ['renting', 'rent', '出租', '出售', 'sale', 'sell', 'rent_out', 'rentout']
 }
 
 function normalizeTypeRow(t: unknown, fallback: HousingPostType): HousingPostType {
   const v = typeof t === 'string' ? t.trim().toLowerCase() : ''
   if (v === 'seeking' || v === 'seek' || v === '求租' || v === '求购') return 'seeking'
-  if (v === 'renting' || v === 'rent' || v === '出租' || v === '出售') return 'renting'
+  if (
+    v === 'renting' ||
+    v === 'rent' ||
+    v === '出租' ||
+    v === '出售' ||
+    v === 'sale' ||
+    v === 'sell' ||
+    v === 'rent_out' ||
+    v === 'rentout'
+  )
+    return 'renting'
   return fallback
+}
+
+function isHousingPostPublicVisible(joinedUser: unknown): boolean {
+  // IMPORTANT:
+  // Some environments may fail to join `users` due to RLS / missing profile rows,
+  // resulting in `user: null`. In that case we SHOULD NOT hide the post by default.
+  // Only hide when the user status is explicitly restricted/banned.
+  if (joinedUser === null || joinedUser === undefined) return true
+
+  if (Array.isArray(joinedUser)) {
+    const first = joinedUser[0]
+    return isHousingPostPublicVisible(first)
+  }
+
+  if (typeof joinedUser !== 'object') return true
+
+  const status = (joinedUser as { status?: unknown }).status
+  return isPublicUserStatusVisible(status)
 }
 
 export default function HousingPage() {
@@ -98,30 +126,57 @@ export default function HousingPage() {
     query = query.in('type', normalizeTypeForQuery(activeTab))
 
     const { data, error } = await query
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[housing] query params', { activeTab, location, searchTerm: search })
+      console.log('[housing] raw data', data)
+      console.log('[housing] query error', error)
+    }
+
     if (!error) {
-      const visible = (data || []).filter((row) => isPublicOwnerVisible((row as HousingPost).user)) as HousingPost[]
-      // normalize legacy type values for UI rendering
-      setPosts(
-        visible.map((p) => ({
-          ...p,
-          type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
-        }))
-      )
+      const visible = (data || [])
+        .filter((row) => isHousingPostPublicVisible((row as HousingPost).user))
+        // keep legacy helper for extra safety (should be consistent now)
+        .filter((row) => isPublicOwnerVisible((row as HousingPost).user)) as HousingPost[]
+
+      const normalized = visible.map((p) => ({
+        ...p,
+        type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
+      }))
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[housing] after filter', normalized)
+      }
+
+      setPosts(normalized)
       setLoading(false)
       return
     }
 
     // Fallback: ignore type filter (for older DB / env without the column)
-    const { data: fallbackData } = await baseQuery
-    const visible = ((fallbackData || []) as HousingPost[]).filter((post) => isPublicOwnerVisible(post.user))
-    setPosts(
-      visible.map((p) => ({
-        ...p,
-        type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
-      }))
-    )
+    const { data: fallbackData, error: fallbackError } = await baseQuery
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[housing] fallback raw data', fallbackData)
+      console.log('[housing] fallback error', fallbackError)
+    }
+
+    const visible = ((fallbackData || []) as HousingPost[])
+      .filter((row) => isHousingPostPublicVisible((row as HousingPost).user))
+      .filter((post) => isPublicOwnerVisible(post.user))
+
+    const normalized = visible.map((p) => ({
+      ...p,
+      type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
+    }))
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[housing] fallback after filter', normalized)
+    }
+
+    setPosts(normalized)
     setLoading(false)
-  }, [activeTab])
+  }, [activeTab, location, search])
 
   useEffect(() => {
     fetchPosts()
