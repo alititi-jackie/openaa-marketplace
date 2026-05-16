@@ -2,12 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import BackToTopButton from '@/components/BackToTopButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
-import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -43,9 +41,22 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
   if (!post.is_pinned) return false
-  if (post.status !== 'active') return false
+  if (post.status !== 'active' && post.status !== 'published') return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
+}
+
+type ServicesApiResponse = {
+  data?: unknown
+  error?: string
+}
+
+function safeArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : []
+}
+
+function encodeQuery(value: string): string {
+  return encodeURIComponent(value)
 }
 
 function ServiceCard({ post }: { post: ServicePost }) {
@@ -100,59 +111,51 @@ export default function ServicesListClient() {
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('service_posts')
-      .select('*, user:users(status)')
-      .eq('status', 'active')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-    setPosts(
-      ((data || []) as (ServicePost & { user?: { status?: unknown } | null })[])
-        .filter((post) => isPublicOwnerVisible(post.user))
-        .map((post) => {
-          const next = { ...post } as ServicePost & { user?: { status?: unknown } | null }
-          delete next.user
-          return next
-        })
-    )
-    setLoading(false)
-  }, [])
+    const qs = `category=${encodeQuery(category)}&location=${encodeQuery(location)}&search=${encodeQuery(search)}`
+    try {
+      const res = await fetch(`/api/services?${qs}`, { cache: 'no-store' })
+      const json = (await res.json().catch(() => null)) as ServicesApiResponse | null
+      if (!res.ok) {
+        setPosts([])
+        setLoading(false)
+        return
+      }
+
+      const normalized = safeArray(json?.data)
+        .map((row) => row as Partial<ServicePost> & { id?: unknown })
+        .filter((row) => typeof row.id === 'string' || typeof row.id === 'number')
+        .map((row) => ({ ...row, id: String(row.id) }) as ServicePost)
+
+      setPosts(normalized)
+      setLoading(false)
+    } catch {
+      setPosts([])
+      setLoading(false)
+    }
+  }, [category, location, search])
 
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts])
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
     const nowTime = Date.now()
-    return posts
-      .filter((p) => {
-        const matchCat = category === '全部' || p.category === category
-        const matchLoc = location === ALL_REGIONS || p.location === location
-        const matchSearch =
-          !q ||
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.location.toLowerCase().includes(q)
-        return matchCat && matchLoc && matchSearch
-      })
-      .sort((a, b) => {
-        const aPinned = isEffectivePinned(a, nowTime)
-        const bPinned = isEffectivePinned(b, nowTime)
-        if (aPinned !== bPinned) return aPinned ? -1 : 1
+    return [...posts].sort((a, b) => {
+      const aPinned = isEffectivePinned(a, nowTime)
+      const bPinned = isEffectivePinned(b, nowTime)
+      if (aPinned !== bPinned) return aPinned ? -1 : 1
 
-        if (aPinned && bPinned) {
-          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
-          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+      if (aPinned && bPinned) {
+        const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+        if (pinnedOrderDiff !== 0) return pinnedOrderDiff
 
-          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
-          if (createdAtDiff !== 0) return createdAtDiff
-        }
+        const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+        if (createdAtDiff !== 0) return createdAtDiff
+      }
 
-        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
-      })
-  }, [posts, category, location, search])
+      return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+    })
+  }, [posts])
 
   return (
     <div className="min-h-screen bg-white pb-24">
