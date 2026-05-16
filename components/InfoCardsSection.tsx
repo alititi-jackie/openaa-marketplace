@@ -13,7 +13,7 @@ export default function InfoCardsSection() {
       <div className="grid grid-cols-2 gap-2">
         {/* DMV practice card */}
         <Link
-          href="https://openaa.com/dmv/ny/practice/index.html"
+          href="/dmv/ny/practice"
           className="rounded-2xl p-2.5 min-h-[110px] bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
         >
           <div className="flex items-start justify-between gap-2">
@@ -35,7 +35,7 @@ export default function InfoCardsSection() {
 
         {/* Ticket query card */}
         <Link
-          href="https://openaa.com/dmv/tickets/index.html"
+          href="/dmv/tickets"
           className="rounded-2xl p-2.5 min-h-[110px] bg-gradient-to-br from-orange-50 to-rose-100 border border-orange-100 shadow-[0_1px_10px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform duration-150"
         >
           <div className="flex items-start justify-between gap-2">
