@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
-import { isPublicOwnerVisible, isPublicUserStatusVisible } from '@/lib/publicVisibility'
 import type { HousingPost, HousingPostType } from '@/types'
 
 const TABS: Array<{ key: HousingPostType; label: string }> = [
@@ -60,17 +58,9 @@ function isEffectivePinned(post: HousingPost, nowTime: number): boolean {
   return toSortableTime(post.pinned_until) > nowTime
 }
 
-function normalizeTypeForQuery(t: HousingPostType): string[] {
-  // Backward/legacy compatibility:
-  // - current schema uses: renting | seeking
-  // - some environments may have: rent | renting | 出租 | 求租
-  if (t === 'seeking') return ['seeking', 'seek', '求租', '求购']
-  return ['renting', 'rent', '出租', '出售', 'sale', 'sell', 'rent_out', 'rentout']
-}
-
 function normalizeTypeRow(t: unknown, fallback: HousingPostType): HousingPostType {
   const v = typeof t === 'string' ? t.trim().toLowerCase() : ''
-  if (v === 'seeking' || v === 'seek' || v === '求租' || v === '求购') return 'seeking'
+  if (v === 'seeking' || v === 'seek' || v === 'wanted' || v === '求租' || v === '求购') return 'seeking'
   if (
     v === 'renting' ||
     v === 'rent' ||
@@ -85,132 +75,89 @@ function normalizeTypeRow(t: unknown, fallback: HousingPostType): HousingPostTyp
   return fallback
 }
 
-function isHousingPostPublicVisible(joinedUser: unknown): boolean {
-  // IMPORTANT:
-  // Some environments may fail to join `users` due to RLS / missing profile rows,
-  // resulting in `user: null`. In that case we SHOULD NOT hide the post by default.
-  // Only hide when the user status is explicitly restricted/banned.
-  if (joinedUser === null || joinedUser === undefined) return true
+type HousingApiResponse = {
+  data?: unknown
+  error?: string
+}
 
-  if (Array.isArray(joinedUser)) {
-    const first = joinedUser[0]
-    return isHousingPostPublicVisible(first)
-  }
+function safeArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : []
+}
 
-  if (typeof joinedUser !== 'object') return true
-
-  const status = (joinedUser as { status?: unknown }).status
-  return isPublicUserStatusVisible(status)
+function encodeQuery(value: string): string {
+  return encodeURIComponent(value)
 }
 
 export default function HousingPage() {
   const [activeTab, setActiveTab] = useState<HousingPostType>('renting')
   const [posts, setPosts] = useState<HousingPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
   const [search, setSearch] = useState('')
   const [location, setLocation] = useState(ALL_REGIONS)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
+    setError('')
 
-    const baseQuery = supabase
-      .from('housing_posts')
-      .select('*, user:users(status)')
-      // be tolerant: some envs may store "显示中" as active
-      .in('status', ['published', 'active'])
-      .order('created_at', { ascending: false })
-      .limit(50)
+    const qs = `type=${encodeQuery(activeTab)}&location=${encodeQuery(location)}&search=${encodeQuery(search)}&limit=50`
 
-    // prefer filtering by type, but tolerate legacy values via `.in`
-    let query = baseQuery
-    query = query.in('type', normalizeTypeForQuery(activeTab))
+    try {
+      const res = await fetch(`/api/housing?${qs}`, { cache: 'no-store' })
+      const json = (await res.json().catch(() => null)) as HousingApiResponse | null
 
-    const { data, error } = await query
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[housing] query params', { activeTab, location, searchTerm: search })
-      console.log('[housing] raw data', data)
-      console.log('[housing] query error', error)
-    }
-
-    if (!error) {
-      const visible = (data || [])
-        .filter((row) => isHousingPostPublicVisible((row as HousingPost).user))
-        // keep legacy helper for extra safety (should be consistent now)
-        .filter((row) => isPublicOwnerVisible((row as HousingPost).user)) as HousingPost[]
-
-      const normalized = visible.map((p) => ({
-        ...p,
-        type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
-      }))
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[housing] after filter', normalized)
+      if (!res.ok) {
+        setPosts([])
+        setError(json?.error || `请求失败 (${res.status})`)
+        setLoading(false)
+        return
       }
+
+      const raw = safeArray(json?.data)
+      const normalized = raw
+        .map((row) => row as Partial<HousingPost>)
+        .filter((row) => typeof row.id === 'number' || typeof row.id === 'string')
+        .map((row) => {
+          const p = row as HousingPost
+          return {
+            ...p,
+            type: normalizeTypeRow((row as { type?: unknown }).type, activeTab),
+          }
+        })
 
       setPosts(normalized)
       setLoading(false)
-      return
+    } catch (e) {
+      setPosts([])
+      setError(e instanceof Error ? e.message : '请求失败')
+      setLoading(false)
     }
-
-    // Fallback: ignore type filter (for older DB / env without the column)
-    const { data: fallbackData, error: fallbackError } = await baseQuery
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[housing] fallback raw data', fallbackData)
-      console.log('[housing] fallback error', fallbackError)
-    }
-
-    const visible = ((fallbackData || []) as HousingPost[])
-      .filter((row) => isHousingPostPublicVisible((row as HousingPost).user))
-      .filter((post) => isPublicOwnerVisible(post.user))
-
-    const normalized = visible.map((p) => ({
-      ...p,
-      type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
-    }))
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[housing] fallback after filter', normalized)
-    }
-
-    setPosts(normalized)
-    setLoading(false)
   }, [activeTab, location, search])
 
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts])
 
+  // API already filters by type/location/search.
+  // Keep only sorting on client to preserve existing UI behavior.
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
     const nowTime = Date.now()
-    return posts
-      .filter((p) => {
-        const matchSearch =
-          !q ||
-          `${p.title || ''} ${p.description || ''} ${p.location || ''} ${p.room_type || ''}`
-            .toLowerCase()
-            .includes(q)
-        const matchLoc = location === ALL_REGIONS || p.location === location
-        return matchSearch && matchLoc
-      })
-      .sort((a, b) => {
-        const aPinned = isEffectivePinned(a, nowTime)
-        const bPinned = isEffectivePinned(b, nowTime)
-        if (aPinned !== bPinned) return aPinned ? -1 : 1
+    return [...posts].sort((a, b) => {
+      const aPinned = isEffectivePinned(a, nowTime)
+      const bPinned = isEffectivePinned(b, nowTime)
+      if (aPinned !== bPinned) return aPinned ? -1 : 1
 
-        if (aPinned && bPinned) {
-          const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
-          if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+      if (aPinned && bPinned) {
+        const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
+        if (pinnedOrderDiff !== 0) return pinnedOrderDiff
 
-          const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
-          if (createdAtDiff !== 0) return createdAtDiff
-        }
+        const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+        if (createdAtDiff !== 0) return createdAtDiff
+      }
 
-        return toSortableTime(b.created_at) - toSortableTime(a.created_at)
-      })
-  }, [posts, search, location])
+      return toSortableTime(b.created_at) - toSortableTime(a.created_at)
+    })
+  }, [posts])
 
   const pageTitle = activeTab === 'renting' ? '房屋租售' : '求租求购'
   const publishLabel = activeTab === 'renting' ? '发布房源' : '发布求租'
@@ -253,7 +200,7 @@ export default function HousingPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-3">
           <input
             type="text"
             value={search}
@@ -263,6 +210,12 @@ export default function HousingPage() {
           />
           <RegionFilter value={location} onChange={setLocation} />
         </div>
+
+        {!!error && !loading && (
+          <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            加载失败：{error}
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center py-20 text-gray-500">加载中...</div>
