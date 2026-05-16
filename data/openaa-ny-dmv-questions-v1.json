@@ -54,7 +54,7 @@
       "id": 2,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/img/dmv/yn/signs/yield-sign.png",
+      "image": "https://img.openaa.com/img/dmv/ny/signs/yield-sign.png",
       "options": [
         "停车",
         "靠右",
@@ -75,7 +75,7 @@
       "id": 3,
       "category": "traffic-signs",
       "question": "这个标志提醒你什么？",
-      "image": "https://img.openaa.com/img/dmv/yn/signs/traffic-signal-ahead.png",
+      "image": "https://img.openaa.com/img/dmv/ny/signs/traffic-signal-ahead.png",
       "options": [
         "前方有交通信号灯",
         "前方铁路",
