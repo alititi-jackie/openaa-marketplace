@@ -1,8 +1,11 @@
+'use client'
+
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
 import Link from 'next/link'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
+import { useRef } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -92,6 +95,12 @@ const dmvGuides = [
 ]
 
 export default function DMVPage() {
+  const practiceSectionRef = useRef<HTMLElement | null>(null)
+
+  const handleScrollToPractice = () => {
+    practiceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
       <AppTopSection bannerPosition="dmv" />
@@ -114,25 +123,51 @@ export default function DMVPage() {
       <section className="mt-4">
         <h2 className="text-base font-bold text-zinc-900">DMV 快捷工具</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
-          {quickTools.map(({ title, desc, href, Icon, external }) => (
-            <Link
-              key={title}
-              href={href}
-              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                    <Icon size={16} />
+          {quickTools.map(({ title, desc, href, Icon, external }) => {
+            const isPractice = title === 'DMV 笔试模拟'
+
+            if (isPractice) {
+              return (
+                <button
+                  key={title}
+                  type="button"
+                  onClick={handleScrollToPractice}
+                  className="rounded-2xl border border-zinc-100 bg-white p-3 text-left shadow-sm transition-transform active:scale-[0.98]"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        <Icon size={16} />
+                      </div>
+                      <p className="mt-2 text-sm font-semibold text-zinc-900">{title}</p>
+                      <p className="mt-1 text-xs text-zinc-500">{desc}</p>
+                    </div>
+                    <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-zinc-900">{title}</p>
-                  <p className="mt-1 text-xs text-zinc-500">{desc}</p>
+                </button>
+              )
+            }
+
+            return (
+              <Link
+                key={title}
+                href={href}
+                {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                      <Icon size={16} />
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-zinc-900">{title}</p>
+                    <p className="mt-1 text-xs text-zinc-500">{desc}</p>
+                  </div>
+                  <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
                 </div>
-                <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       </section>
 
@@ -150,7 +185,7 @@ export default function DMVPage() {
         </div>
       </section>
 
-      <section className="mt-4">
+      <section ref={practiceSectionRef} id="dmv-practice-section" className="mt-4">
         <h2 className="text-base font-bold text-zinc-900">纽约 DMV 笔试练习</h2>
         <p className="mt-1 text-xs text-zinc-500">中文题库 · {questionCount} 题 · 无需登录 · 支持错题练习</p>
         <div className="mt-3 grid grid-cols-2 gap-3">
