@@ -134,7 +134,7 @@ export interface UnifiedPost {
   pinned_order?: number
 }
 
-export type ServicePostStatus = 'active' | 'hidden' | 'deleted'
+export type ServicePostStatus = 'active' | 'published' | 'hidden' | 'deleted'
 
 export interface ServicePost {
   id: string
