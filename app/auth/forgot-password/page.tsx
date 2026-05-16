@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     }
 
     setLoading(true)
-    const redirectTo = toAbsoluteUrl('/auth/reset-password')
+    const redirectTo = getSiteUrl('/auth/reset-password')
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
     })

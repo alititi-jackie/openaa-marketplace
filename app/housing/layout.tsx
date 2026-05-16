@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
-const HOUSING_CANONICAL = toAbsoluteUrl('/housing')
+const HOUSING_CANONICAL = getSiteUrl('/housing')
 
 export const metadata: Metadata = {
   title: 'OpenAA 房屋｜美国华人房屋出租｜纽约租房｜华人租房',

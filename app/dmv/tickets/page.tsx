@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import TicketsClient from './TicketsClient'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
-const CANONICAL = toAbsoluteUrl('/dmv/tickets')
+const CANONICAL = getSiteUrl('/dmv/tickets')
 
 export const metadata: Metadata = {
   title: 'OpenAA 罚单查询｜美国停车罚单｜纽约罚单查询｜闯红灯超速拍照',
@@ -105,7 +105,7 @@ const webPageJsonLd = {
   isPartOf: {
     '@type': 'WebSite',
     name: 'OpenAA',
-    url: toAbsoluteUrl('/'),
+    url: getSiteUrl('/'),
   },
 }
 

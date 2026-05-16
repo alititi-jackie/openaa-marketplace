@@ -9,10 +9,8 @@ import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import NewsTipCard from '@/components/NewsTipCard'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
-import { SITE_URL } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 import type { NewsPost } from '@/types'
-
-const NEWS_SITE_URL = SITE_URL
 
 type NewsNavPost = Pick<NewsPost, 'id' | 'slug' | 'title' | 'published_at' | 'created_at' | 'category'>
 type NewsRelatedPost = Pick<
@@ -128,7 +126,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: `${NEWS_SITE_URL}/news/${slug}`,
+      canonical: getSiteUrl(`/news/${slug}`),
     },
     openGraph: {
       title,
@@ -157,7 +155,7 @@ export default async function NewsDetailPage({
     .filter(Boolean)
   const publishedSource = post.published_at || post.created_at
   const modifiedSource = post.updated_at && post.updated_at !== publishedSource ? post.updated_at : null
-  const canonicalUrl = `${NEWS_SITE_URL}/news/${post.slug}`
+  const canonicalUrl = getSiteUrl(`/news/${post.slug}`)
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -172,7 +170,7 @@ export default async function NewsDetailPage({
     publisher: {
       '@type': 'Organization',
       name: 'OpenAA',
-      url: NEWS_SITE_URL,
+      url: getSiteUrl('/'),
     },
   }
 
