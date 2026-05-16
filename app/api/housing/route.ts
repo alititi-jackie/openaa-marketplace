@@ -62,10 +62,6 @@ type HousingRow = {
   price: number | null
   location: string | null
   room_type: string | null
-  contact: string | null
-  contact_name: string | null
-  phone: string | null
-  wechat: string | null
   images: unknown
   status: string | null
   views: number | null
@@ -92,23 +88,12 @@ function isPinnedActive(row: HousingRow, nowTime: number): boolean {
   return toSortableTime(row.pinned_until) > nowTime
 }
 
-type DebugHousingRow = {
-  id: number
-  title: string | null
-  status: string | null
-  type: string | null
-  location: string | null
-  user_id: string
-  created_at: string | null
-}
-
 export async function GET(request: NextRequest) {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: 'Supabase service role missing' }, { status: 500 })
   }
 
   const { searchParams } = new URL(request.url)
-  const debug = searchParams.get('debug')
 
   const type = normalizeTypeFilter(searchParams.get('type'))
   const typeValues = type ? typeCandidates(type) : null
@@ -118,31 +103,6 @@ export async function GET(request: NextRequest) {
   const statusValues = ['published', 'active']
 
   const supabase = getServiceClient()
-
-  // Debug: return raw latest 10 rows without any filters (no status/type/location/search)
-  if (debug === '1') {
-    const { data, error } = await supabase
-      .from('housing_posts')
-      .select('id, title, status, type, location, user_id, created_at')
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      debug: true,
-      params: {
-        type,
-        typeValues,
-        location,
-        search,
-        statusValues,
-      },
-      data: (data || []) as DebugHousingRow[],
-    })
-  }
 
   // Normal mode: query housing_posts.
   // IMPORTANT: do not return sensitive fields here.
@@ -212,14 +172,5 @@ export async function GET(request: NextRequest) {
     return toSortableTime(b.created_at) - toSortableTime(a.created_at)
   })
 
-  return NextResponse.json({
-    params: {
-      type,
-      typeValues,
-      location,
-      search,
-      statusValues,
-    },
-    data: visibleByUser,
-  })
+  return NextResponse.json({ data: visibleByUser })
 }
