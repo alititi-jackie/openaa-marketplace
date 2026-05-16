@@ -87,30 +87,69 @@ function isPinnedActive(row: HousingRow, nowTime: number): boolean {
   return toSortableTime(row.pinned_until) > nowTime
 }
 
+type DebugHousingRow = {
+  id: number
+  title: string | null
+  status: string | null
+  type: string | null
+  location: string | null
+  user_id: string
+  created_at: string | null
+}
+
 export async function GET(request: NextRequest) {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: 'Supabase service role missing' }, { status: 500 })
   }
 
   const { searchParams } = new URL(request.url)
+  const debug = searchParams.get('debug')
+
   const type = normalizeTypeFilter(searchParams.get('type'))
+  const typeValues = type ? typeCandidates(type) : null
   const location = normalizeLocationFilter(searchParams.get('location'))
   const search = normalizeSearch(searchParams.get('search'))
   const limit = toInt(searchParams.get('limit'), 50, 1, 200)
+  const statusValues = ['published', 'active']
 
   const supabase = getServiceClient()
+
+  // Debug: return raw latest 10 rows without any filters (no status/type/location/search)
+  if (debug === '1') {
+    const { data, error } = await supabase
+      .from('housing_posts')
+      .select('id, title, status, type, location, user_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    return NextResponse.json({
+      debug: true,
+      params: {
+        type,
+        typeValues,
+        location,
+        search,
+        statusValues,
+      },
+      data: (data || []) as DebugHousingRow[],
+    })
+  }
 
   let query = supabase
     .from('housing_posts')
     .select(
       'id, user_id, type, title, description, price, location, room_type, contact, contact_name, phone, wechat, images, status, views, created_at, updated_at, is_pinned, pinned_until, pinned_order'
     )
-    .in('status', ['published', 'active'])
+    .in('status', statusValues)
     .order('created_at', { ascending: false })
     .limit(limit)
 
   if (type) {
-    query = query.in('type', typeCandidates(type))
+    query = query.in('type', typeValues || [])
   }
 
   if (location) {
