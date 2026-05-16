@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, CheckCircle, XCircle } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
@@ -63,12 +63,22 @@ function buildExam(): Question[] {
 
 type Phase = 'intro' | 'exam' | 'result'
 
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  if (m === 0) return `${s}秒`
+  return `${m}分${s}秒`
+}
+
 export default function MockTestPage() {
   const [phase, setPhase] = useState<Phase>('intro')
   const [questions, setQuestions] = useState<Question[]>([])
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>([])
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const startTimeRef = useRef<number | null>(null)
+  const [examSeconds, setExamSeconds] = useState(0)
+  const [shareToast, setShareToast] = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
@@ -79,6 +89,7 @@ export default function MockTestPage() {
     setQuestions(qs)
     setAnswers(new Array(qs.length).fill(null))
     setCurrent(0)
+    startTimeRef.current = Date.now()
     setPhase('exam')
   }, [])
 
@@ -110,6 +121,8 @@ export default function MockTestPage() {
         saveWrongQuestion(String(q.id))
       }
     })
+    const elapsed = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : 0
+    setExamSeconds(elapsed)
     setPhase('result')
   }, [questions, answers])
 
@@ -149,6 +162,15 @@ export default function MockTestPage() {
             >
               开始考试
             </button>
+          </div>
+
+          <div className="mt-6 flex justify-center pb-2">
+            <Link
+              href="/dmv/ny/practice"
+              className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+            >
+              退出练习
+            </Link>
           </div>
         </div>
       </div>
@@ -283,6 +305,15 @@ export default function MockTestPage() {
               ))}
             </div>
           </div>
+
+          <div className="mt-6 flex justify-center pb-2">
+            <Link
+              href="/dmv/ny/practice"
+              className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+            >
+              退出练习
+            </Link>
+          </div>
         </div>
       </div>
     )
@@ -300,6 +331,24 @@ export default function MockTestPage() {
     return answers[globalIdx] === q.answerIndex
   }).length
   const passed = correctCount >= 14 && signCorrect >= 2
+
+  const handleMockShare = async () => {
+    const timeStr = formatTime(examSeconds)
+    const text = passed
+      ? `我刚刚通过了 OpenAA DMV 模拟考试 🎉\n正确：${correctCount}/20\n交通标志：${signCorrect}/${signQuestions.length}\n用时：${timeStr}\n\nhttps://app.openaa.com/dmv/ny/practice`
+      : `我正在练习 OpenAA DMV 中文模拟考试 🚗\n正确：${correctCount}/20\n继续加油！\n\nhttps://app.openaa.com/dmv/ny/practice`
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: 'OpenAA DMV 模拟考试', text })
+      } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(text)
+      } catch {}
+      setShareToast('链接已复制')
+      setTimeout(() => setShareToast(''), 2000)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
@@ -350,6 +399,12 @@ export default function MockTestPage() {
             </p>
             <p className="text-xs text-zinc-500">标志题正确</p>
           </div>
+        </div>
+
+        {/* Time Used */}
+        <div className="mt-3 rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm flex items-center justify-between px-4">
+          <p className="text-sm font-medium text-zinc-500">考试用时</p>
+          <p className="text-sm font-bold text-zinc-700">{formatTime(examSeconds)}</p>
         </div>
 
         {/* Pass criteria */}
@@ -417,6 +472,15 @@ export default function MockTestPage() {
           </Link>
         </div>
 
+        {/* Share */}
+        <button
+          type="button"
+          onClick={handleMockShare}
+          className="mt-3 w-full rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-bold text-zinc-700 shadow-sm active:scale-[0.98]"
+        >
+          📤 分享
+        </button>
+
         {/* Login Banner */}
         {!isLoggedIn && (
           <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
@@ -432,7 +496,22 @@ export default function MockTestPage() {
             </Link>
           </div>
         )}
+
+        <div className="mt-6 flex justify-center pb-2">
+          <Link
+            href="/dmv/ny/practice"
+            className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+          >
+            退出练习
+          </Link>
+        </div>
       </div>
+
+      {shareToast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-xl bg-zinc-800 px-4 py-2 text-sm text-white z-50">
+          {shareToast}
+        </div>
+      )}
     </div>
   )
 }

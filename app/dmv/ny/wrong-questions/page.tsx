@@ -405,6 +405,15 @@ export default function WrongQuestionsPage() {
         )}
       </div>
 
+      <div className="mt-6 flex justify-center pb-2 px-4">
+        <Link
+          href="/dmv/ny/practice"
+          className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+        >
+          退出练习
+        </Link>
+      </div>
+
       {/* Confirm Clear Dialog */}
       {showConfirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
