@@ -145,6 +145,8 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
   },
 ]
 
+const STEP_HEADER_SCROLL_OFFSET_PX = 12
+
 function StepBlock({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
@@ -173,7 +175,8 @@ export default function DmvLicenseProcessModal({
   const [expandedStep, setExpandedStep] = useState(initialStep)
   const headerRef = useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
-  const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>(processSteps.map(() => null))
+  const scrollFrameRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -184,28 +187,44 @@ export default function DmvLicenseProcessModal({
   const handleToggleStep = (index: number) => {
     setExpandedStep((prev) => {
       if (prev === index) return -1
-
-      requestAnimationFrame(() => {
-        const scrollArea = scrollAreaRef.current
-        const header = headerRef.current
-        const stepButton = stepButtonRefs.current[index]
-        if (!scrollArea || !header || !stepButton) return
-
-        const scrollAreaRect = scrollArea.getBoundingClientRect()
-        const stepRect = stepButton.getBoundingClientRect()
-        const minVisibleTop = scrollAreaRect.top + header.getBoundingClientRect().height + 12
-
-        if (stepRect.top < minVisibleTop) {
-          scrollArea.scrollBy({
-            top: stepRect.top - minVisibleTop,
-            behavior: 'smooth',
-          })
-        }
-      })
-
       return index
     })
   }
+
+  useEffect(() => {
+    if (!open || expandedStep < 0) return
+
+    if (scrollFrameRef.current) {
+      cancelAnimationFrame(scrollFrameRef.current)
+      scrollFrameRef.current = null
+    }
+
+    scrollFrameRef.current = requestAnimationFrame(() => {
+      const scrollArea = scrollAreaRef.current
+      const header = headerRef.current
+      const stepButton = stepButtonRefs.current[expandedStep]
+      if (!scrollArea || !header || !stepButton) return
+
+      const scrollAreaRect = scrollArea.getBoundingClientRect()
+      const stepRect = stepButton.getBoundingClientRect()
+      const headerHeight = header.getBoundingClientRect().height
+      const minVisibleTop = scrollAreaRect.top + headerHeight + STEP_HEADER_SCROLL_OFFSET_PX
+
+      if (stepRect.top < minVisibleTop) {
+        scrollArea.scrollBy({
+          top: stepRect.top - minVisibleTop,
+          behavior: 'smooth',
+        })
+      }
+    })
+
+    return () => {
+      if (scrollFrameRef.current) {
+        cancelAnimationFrame(scrollFrameRef.current)
+        scrollFrameRef.current = null
+      }
+    }
+  }, [open, expandedStep])
 
   useEffect(() => {
     if (!open) return
@@ -221,6 +240,10 @@ export default function DmvLicenseProcessModal({
     window.addEventListener('keydown', handleEsc)
 
     return () => {
+      if (scrollFrameRef.current) {
+        cancelAnimationFrame(scrollFrameRef.current)
+        scrollFrameRef.current = null
+      }
       document.body.style.overflow = originalOverflow
       window.removeEventListener('keydown', handleEsc)
     }
