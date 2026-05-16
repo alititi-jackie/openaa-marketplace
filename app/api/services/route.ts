@@ -24,7 +24,7 @@ function normalizeFilter(value: string | null): string {
   return (value || '').trim()
 }
 
-function safeLike(value: string): string {
+function escapeLikePattern(value: string): string {
   return value.replace(/[%_]/g, (m) => `\\${m}`)
 }
 
@@ -71,6 +71,16 @@ type UserStatusRow = {
   status: string | null
 }
 
+function ensureArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : []
+}
+
+function isServicePublicRow(value: unknown): value is ServicePublicRow {
+  if (!value || typeof value !== 'object') return false
+  const row = value as { id?: unknown; user_id?: unknown }
+  return (typeof row.id === 'string' || typeof row.id === 'number') && typeof row.user_id === 'string'
+}
+
 async function queryServicePosts(
   supabase: ReturnType<typeof getServiceClient>,
   location: string,
@@ -97,7 +107,7 @@ async function queryServicePosts(
     }
 
     if (search) {
-      const q = safeLike(search)
+      const q = escapeLikePattern(search)
       query = query.or(
         [
           `title.ilike.%${q}%`,
@@ -138,9 +148,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  const rows = ((Array.isArray(data) ? data : []) as unknown as ServicePublicRow[]).filter(
-    (row) => row.is_active !== false
-  )
+  const rows = ensureArray<unknown>(data)
+    .filter(isServicePublicRow)
+    .map((row) => ({ ...row, id: String(row.id) }))
+    .filter((row) => row.is_active !== false)
 
   const userIds = Array.from(new Set(rows.map((row) => row.user_id).filter(Boolean)))
   const userStatusMap = new Map<string, string | null>()
@@ -168,6 +179,9 @@ export async function GET(request: NextRequest) {
     if (aPinned && bPinned) {
       const pinnedOrderDiff = (a.pinned_order ?? 0) - (b.pinned_order ?? 0)
       if (pinnedOrderDiff !== 0) return pinnedOrderDiff
+
+      const createdAtDiff = toSortableTime(b.created_at) - toSortableTime(a.created_at)
+      if (createdAtDiff !== 0) return createdAtDiff
     }
 
     return toSortableTime(b.created_at) - toSortableTime(a.created_at)

@@ -47,16 +47,8 @@ function isEffectivePinned(post: ServicePost, nowTime: number): boolean {
 }
 
 type ServicesApiResponse = {
-  data?: unknown
+  data?: ServicePost[]
   error?: string
-}
-
-function safeArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : []
-}
-
-function encodeQuery(value: string): string {
-  return encodeURIComponent(value)
 }
 
 function ServiceCard({ post }: { post: ServicePost }) {
@@ -111,7 +103,11 @@ export default function ServicesListClient() {
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
-    const qs = `category=${encodeQuery(category)}&location=${encodeQuery(location)}&search=${encodeQuery(search)}`
+    const qs = new URLSearchParams({
+      category,
+      location,
+      search,
+    }).toString()
     try {
       const res = await fetch(`/api/services?${qs}`, { cache: 'no-store' })
       const json = (await res.json().catch(() => null)) as ServicesApiResponse | null
@@ -121,12 +117,7 @@ export default function ServicesListClient() {
         return
       }
 
-      const normalized = safeArray(json?.data)
-        .map((row) => row as Partial<ServicePost> & { id?: unknown })
-        .filter((row) => typeof row.id === 'string' || typeof row.id === 'number')
-        .map((row) => ({ ...row, id: String(row.id) }) as ServicePost)
-
-      setPosts(normalized)
+      setPosts(Array.isArray(json?.data) ? json.data : [])
       setLoading(false)
     } catch {
       setPosts([])
