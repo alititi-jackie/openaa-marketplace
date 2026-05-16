@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { SITE_URL, toAbsoluteUrl } from './site'
+import { getSiteUrl } from './site'
 
 export async function getCurrentUser() {
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -32,14 +32,14 @@ export async function signUpWithEmail(email: string, password: string, username:
     password,
     options: {
       data: { username },
-      emailRedirectTo: toAbsoluteUrl('/auth/confirmed'),
+      emailRedirectTo: getSiteUrl('/auth/confirmed'),
     },
   })
   return { data, error }
 }
 
 export async function signInWithGoogle(redirectPath?: string) {
-  const redirectUrl = new URL('/auth/callback', SITE_URL)
+  const redirectUrl = new URL(getSiteUrl('/auth/callback'))
 
   if (redirectPath) {
     redirectUrl.searchParams.set('redirect', redirectPath)

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
-const DMV_CANONICAL = toAbsoluteUrl('/dmv')
+const DMV_CANONICAL = getSiteUrl('/dmv')
 
 export const metadata: Metadata = {
   title: 'OpenAA DMV｜美国驾照｜纽约 DMV｜笔试模拟｜罚单查询',

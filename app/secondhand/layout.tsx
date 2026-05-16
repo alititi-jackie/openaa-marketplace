@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
-const SECONDHAND_CANONICAL = toAbsoluteUrl('/secondhand')
+const SECONDHAND_CANONICAL = getSiteUrl('/secondhand')
 
 export const metadata: Metadata = {
   title: 'OpenAA 二手｜美国华人二手市场｜纽约二手｜闲置转让',

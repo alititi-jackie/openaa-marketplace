@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { toAbsoluteUrl } from '@/lib/site'
+import { getSiteUrl } from '@/lib/site'
 
 // Next.js will serve this at /robots.txt
 export default function robots(): MetadataRoute.Robots {
@@ -26,6 +26,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     // keep sitemap discoverable (but ensure sitemap.ts only outputs public pages)
-    sitemap: toAbsoluteUrl('/sitemap.xml'),
+    sitemap: getSiteUrl('/sitemap.xml'),
   }
 }

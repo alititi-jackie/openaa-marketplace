@@ -2,7 +2,7 @@ export type OpenMode = 'auto' | 'same' | 'new'
 export type NavigationDefault = 'public' | 'my'
 
 function getConfiguredOpenAAHosts(): string[] {
-  const hosts = ['openaa.com', 'app.openaa.com', 'ny.openaa.com', 'www.openaa.com']
+  const hosts = ['openaa.com', 'www.openaa.com', 'ny.openaa.com', 'app.openaa.com']
 
   if (process.env.NEXT_PUBLIC_APP_URL) {
     try {
