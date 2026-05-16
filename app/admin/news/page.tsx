@@ -589,18 +589,6 @@ export default function AdminNewsPage() {
         <div ref={formRef} className="scroll-mt-24">
           <form onSubmit={submitForm} className="mb-6 space-y-3 rounded-xl border bg-white p-4 shadow-sm">
           <h2 className="text-lg font-semibold">{editingId ? '编辑新闻' : '新增新闻'}</h2>
-          <input
-            value={form.title}
-            onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-            placeholder="标题 *"
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
-          <input
-            value={form.slug}
-            onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
-            placeholder="slug *"
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
           <select
             value={form.category}
             onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
@@ -613,9 +601,41 @@ export default function AdminNewsPage() {
             ))}
           </select>
           <input
+            value={form.title}
+            onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+            placeholder="标题 *"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <input
+            value={form.slug}
+            onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
+            placeholder="slug *"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <input
             value={form.summary}
             onChange={(e) => setForm((prev) => ({ ...prev, summary: e.target.value }))}
             placeholder="摘要"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <input
+            value={form.seo_title}
+            onChange={(e) => setForm((prev) => ({ ...prev, seo_title: e.target.value }))}
+            placeholder="SEO 标题"
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <textarea
+            value={form.seo_description}
+            onChange={(e) => setForm((prev) => ({ ...prev, seo_description: e.target.value }))}
+            placeholder="SEO 描述"
+            rows={3}
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+          />
+          <textarea
+            value={form.content}
+            onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
+            placeholder="正文 *"
+            rows={8}
             className="w-full rounded-lg border px-3 py-2 text-sm"
           />
           {/* Cover image upload section */}
@@ -699,26 +719,6 @@ export default function AdminNewsPage() {
               </div>
             ) : null}
           </div>
-          <textarea
-            value={form.content}
-            onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
-            placeholder="正文 *"
-            rows={8}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
-          <input
-            value={form.seo_title}
-            onChange={(e) => setForm((prev) => ({ ...prev, seo_title: e.target.value }))}
-            placeholder="SEO 标题"
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
-          <textarea
-            value={form.seo_description}
-            onChange={(e) => setForm((prev) => ({ ...prev, seo_description: e.target.value }))}
-            placeholder="SEO 描述"
-            rows={3}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
-          />
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
