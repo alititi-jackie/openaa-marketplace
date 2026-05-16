@@ -6,6 +6,8 @@ import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
+import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
+
 const entryCards = [
   {
     title: '查看题库',
@@ -49,9 +51,7 @@ export default function PracticeHomePage() {
           <div className="flex items-start justify-between gap-2">
             <div>
               <h1 className="text-xl font-black text-zinc-900">纽约 DMV 中文笔试模拟</h1>
-              <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
-                查看题库、练习模式、模拟考试、错题练习，适合手机刷题学习。
-              </p>
+              <p className="mt-2 text-sm text-zinc-600 leading-relaxed">查看题库、练习模式、模拟考试、错题练习，适合手机刷题学习。</p>
             </div>
             <DmvShareButton
               path="/dmv/ny/practice"
@@ -61,21 +61,7 @@ export default function PracticeHomePage() {
           </div>
         </section>
 
-        <section className="mt-4 grid grid-cols-2 gap-3">
-          {entryCards.map(({ title, desc, href, Icon, colorClass }) => (
-            <Link
-              key={title}
-              href={href}
-              className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-transform active:scale-[0.98]"
-            >
-              <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${colorClass}`}>
-                <Icon size={18} />
-              </div>
-              <p className="mt-3 text-sm font-bold text-zinc-900">{title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-500">{desc}</p>
-            </Link>
-          ))}
-        </section>
+        <DmvPracticeEntryCards cards={entryCards} />
 
         <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
           <div className="flex items-start gap-2">
