@@ -416,6 +416,7 @@ export default function ItemForm({ initialType, editItem }: Props) {
 
   const locationValue = mode === 'buying' ? buying.location : selling.location
   const isDailyLimitError = error.includes('今天发布的信息已达到平台限制')
+  const cancelHref = isEdit ? '/profile/my-items' : '/secondhand'
 
   const legacySellingCategory =
     isEdit && mode === 'selling' && selling.category && !SECONDHAND_CATEGORIES.includes(selling.category)
@@ -672,13 +673,21 @@ export default function ItemForm({ initialType, editItem }: Props) {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
-          >
-            {loading ? '保存中...' : isEdit ? '保存修改' : '发布商品'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
+            >
+              {loading ? '保存中...' : isEdit ? '保存修改' : '发布商品'}
+            </button>
+            <Link
+              href={cancelHref}
+              className="flex-1 text-center py-3 rounded-lg font-medium text-gray-600 ring-1 ring-gray-300 bg-white hover:bg-gray-50 transition"
+            >
+              取消
+            </Link>
+          </div>
         </>
       ) : (
         <>
@@ -785,13 +794,21 @@ export default function ItemForm({ initialType, editItem }: Props) {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
-          >
-            {loading ? '保存中...' : isEdit ? '保存修改' : '发布求购'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
+            >
+              {loading ? '保存中...' : isEdit ? '保存修改' : '发布求购'}
+            </button>
+            <Link
+              href={cancelHref}
+              className="flex-1 text-center py-3 rounded-lg font-medium text-gray-600 ring-1 ring-gray-300 bg-white hover:bg-gray-50 transition"
+            >
+              取消
+            </Link>
+          </div>
         </>
       )}
     </form>
