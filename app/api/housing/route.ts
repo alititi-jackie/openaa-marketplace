@@ -22,10 +22,15 @@ function normalizeTypeFilter(value: string | null): 'renting' | 'seeking' | null
   return null
 }
 
-function normalizeLocationFilter(value: string | null): string {
+function isAllRegion(value: string | null) {
   const v = (value || '').trim()
-  if (!v || v === '全部地区') return ''
-  return v
+  return !v || v === '全部地区' || v === '全部' || v.toLowerCase() === 'all'
+}
+
+function normalizeLocationFilter(value: string | null): string {
+  // Keep raw string (trim only). Do NOT convert "全部地区" to empty here,
+  // because we want a single source of truth via isAllRegion().
+  return (value || '').trim()
 }
 
 function normalizeSearch(value: string | null): string {
@@ -139,10 +144,12 @@ export async function GET(request: NextRequest) {
     })
   }
 
+  // Normal mode: query housing_posts.
+  // IMPORTANT: do not return sensitive fields here.
   let query = supabase
     .from('housing_posts')
     .select(
-      'id, user_id, type, title, description, price, location, room_type, contact, contact_name, phone, wechat, images, status, views, created_at, updated_at, is_pinned, pinned_until, pinned_order'
+      'id, user_id, type, title, description, price, location, room_type, images, status, views, created_at, updated_at, is_pinned, pinned_until, pinned_order'
     )
     .in('status', statusValues)
     .order('created_at', { ascending: false })
@@ -152,23 +159,15 @@ export async function GET(request: NextRequest) {
     query = query.in('type', typeValues || [])
   }
 
-  if (location) {
+  if (!isAllRegion(location)) {
     query = query.eq('location', location)
   }
 
   if (search) {
     const q = safeLike(search)
-    // Search title / description / location / contact_name / phone / wechat
-    query = query.or(
-      [
-        `title.ilike.%${q}%`,
-        `description.ilike.%${q}%`,
-        `location.ilike.%${q}%`,
-        `contact_name.ilike.%${q}%`,
-        `phone.ilike.%${q}%`,
-        `wechat.ilike.%${q}%`,
-      ].join(',')
-    )
+    // Search title / description / location
+    // (exclude sensitive contact fields)
+    query = query.or([`title.ilike.%${q}%`, `description.ilike.%${q}%`, `location.ilike.%${q}%`].join(','))
   }
 
   const { data, error } = await query
@@ -213,5 +212,14 @@ export async function GET(request: NextRequest) {
     return toSortableTime(b.created_at) - toSortableTime(a.created_at)
   })
 
-  return NextResponse.json({ data: visibleByUser })
+  return NextResponse.json({
+    params: {
+      type,
+      typeValues,
+      location,
+      search,
+      statusValues,
+    },
+    data: visibleByUser,
+  })
 }
