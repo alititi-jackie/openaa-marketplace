@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -182,7 +183,9 @@ export default async function NewsDetailPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
-        <AdminReturnButton />
+        <Suspense fallback={null}>
+          <AdminReturnButton />
+        </Suspense>
         <DetailBackButton fallbackHref="/news" label="← 返回" />
 
         <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
