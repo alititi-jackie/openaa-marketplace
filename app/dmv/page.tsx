@@ -4,6 +4,7 @@ import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
 import DmvLicenseProcessModal from '@/components/dmv/DmvLicenseProcessModal'
+import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
 import Link from 'next/link'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 import { useRef, useState } from 'react'
@@ -19,7 +20,7 @@ import {
   BookMarked,
   ClipboardList,
   AlertCircle,
-  TrafficCone,
+  Shuffle,
 } from 'lucide-react'
 
 const ticketsLink = '/dmv/tickets'
@@ -28,31 +29,31 @@ const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
 const dmvExamCards = [
   {
     title: '查看题库',
-    desc: `${questionCount} 道中文题目，可搜索筛选，点击选项即可做题`,
+    desc: '按分类筛选与搜索，支持边看边做题。',
     href: '/dmv/ny/questions',
     Icon: BookMarked,
-    color: 'blue',
+    colorClass: 'bg-blue-50 text-blue-600',
+  },
+  {
+    title: '随机 / 顺序练习',
+    desc: '全题库随机或顺序练习，答题后立即显示正确答案和解释。',
+    href: '/dmv/ny/quiz',
+    Icon: Shuffle,
+    colorClass: 'bg-orange-50 text-orange-500',
   },
   {
     title: '模拟考试',
-    desc: '按官方规则：20 题，答对 14 题通过',
+    desc: '按 DMV 规则出题，提交后立即看结果。',
     href: '/dmv/ny/mock-test',
     Icon: ClipboardList,
-    color: 'green',
+    colorClass: 'bg-green-50 text-green-600',
   },
   {
     title: '错题练习',
-    desc: '自动保存错题，重点攻克弱项',
+    desc: '自动汇总错题，集中练习薄弱题目。',
     href: '/dmv/ny/wrong-questions',
     Icon: AlertCircle,
-    color: 'red',
-  },
-  {
-    title: '交通标志专项',
-    desc: '纽约常见交通标志图文解析',
-    href: '/dmv/ny/sign-test',
-    Icon: TrafficCone,
-    color: 'orange',
+    colorClass: 'bg-red-50 text-red-500',
   },
 ]
 
@@ -113,34 +114,55 @@ export default function DMVPage() {
     <div className="min-h-screen bg-zinc-50 pb-28">
       <AppTopSection bannerPosition="dmv" />
       <div className="px-4 pt-4">
-      <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h1 className="text-2xl font-black text-zinc-900">OpenAA DMV 工具中心</h1>
-            <p className="mt-2 text-sm font-medium text-blue-700">纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口</p>
+        <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h1 className="text-2xl font-black text-zinc-900">OpenAA DMV 工具中心</h1>
+              <p className="mt-2 text-sm font-medium text-blue-700">纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口</p>
+            </div>
+            <DmvShareButton
+              path="/dmv"
+              title="OpenAA DMV 工具中心"
+              text="纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口。"
+            />
           </div>
-          <DmvShareButton
-            path="/dmv"
-            title="OpenAA DMV 工具中心"
-            text="纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口。"
-          />
-        </div>
-        <p className="mt-2 text-sm text-zinc-600">为美国华人整理常用 DMV 工具、官方入口和中文说明</p>
-      </section>
+          <p className="mt-2 text-sm text-zinc-600">为美国华人整理常用 DMV 工具、官方入口和中文说明</p>
+        </section>
 
-      <section className="mt-4">
-        <h2 className="text-base font-bold text-zinc-900">DMV 快捷工具</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {quickTools.map(({ title, desc, href, Icon, external }) => {
-            const isPractice = title === 'DMV 笔试模拟'
+        <section className="mt-4">
+          <h2 className="text-base font-bold text-zinc-900">DMV 快捷工具</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {quickTools.map(({ title, desc, href, Icon, external }) => {
+              const isPractice = title === 'DMV 笔试模拟'
 
-            if (isPractice) {
+              if (isPractice) {
+                return (
+                  <button
+                    key={title}
+                    type="button"
+                    onClick={handleScrollToPractice}
+                    className="rounded-2xl border border-zinc-100 bg-white p-3 text-left shadow-sm transition-transform active:scale-[0.98]"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                          <Icon size={16} />
+                        </div>
+                        <p className="mt-2 text-sm font-semibold text-zinc-900">{title}</p>
+                        <p className="mt-1 text-xs text-zinc-500">{desc}</p>
+                      </div>
+                      <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
+                    </div>
+                  </button>
+                )
+              }
+
               return (
-                <button
+                <Link
                   key={title}
-                  type="button"
-                  onClick={handleScrollToPractice}
-                  className="rounded-2xl border border-zinc-100 bg-white p-3 text-left shadow-sm transition-transform active:scale-[0.98]"
+                  href={href}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -152,167 +174,125 @@ export default function DMVPage() {
                     </div>
                     <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
                   </div>
-                </button>
+                </Link>
               )
-            }
-
-            return (
-              <Link
-                key={title}
-                href={href}
-                {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                      <Icon size={16} />
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-zinc-900">{title}</p>
-                    <p className="mt-1 text-xs text-zinc-500">{desc}</p>
-                  </div>
-                  <ChevronRight size={14} className="mt-1 shrink-0 text-zinc-400" />
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-        <button
-          type="button"
-          onClick={() => openProcessModal(0)}
-          className="flex cursor-pointer items-center gap-1 rounded-md text-left text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-50 hover:text-zinc-700 active:bg-zinc-100"
-        >
-          新手办驾照流程
-          <ChevronRight size={14} className="text-zinc-400" />
-        </button>
-        <div className="mt-3 space-y-2">
-          {licenseSteps.map((step, index) => (
-            <button
-              key={step}
-              type="button"
-              onClick={() => openProcessModal(index)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl bg-zinc-50 px-3 py-2 text-left transition-colors hover:bg-zinc-100 active:bg-zinc-100 cursor-pointer"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                {index + 1}
-              </span>
-                <p className="text-sm text-zinc-700">{step}</p>
-              </div>
-              <ChevronRight size={14} className="shrink-0 text-zinc-300" />
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section ref={practiceSectionRef} id="dmv-practice-section" className="mt-4">
-        <h2 className="text-base font-bold text-zinc-900">纽约 DMV 笔试练习</h2>
-        <p className="mt-1 text-xs text-zinc-500">中文题库 · {questionCount} 题 · 无需登录 · 支持错题练习</p>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {dmvExamCards.map(({ title, desc, href, Icon, color }) => {
-            const colorMap: Record<string, string> = {
-              blue: 'bg-blue-50 text-blue-600',
-              green: 'bg-green-50 text-green-600',
-              red: 'bg-red-50 text-red-500',
-              orange: 'bg-orange-50 text-orange-500',
-            }
-            return (
-              <Link
-                key={title}
-                href={href}
-                className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]"
-              >
-                <div className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${colorMap[color]}`}>
-                  <Icon size={18} />
-                </div>
-                <p className="mt-2 text-sm font-bold text-zinc-900">{title}</p>
-                <p className="mt-0.5 text-xs text-zinc-500 leading-relaxed">{desc}</p>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="mt-4 grid gap-3">
-        <div className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-base font-bold text-zinc-900">罚单查询</h3>
-              <p className="mt-1 text-sm text-zinc-600">整理停车罚单、红灯摄像头、交通罚单等常用入口</p>
-            </div>
-            <AlertTriangle size={18} className="shrink-0 text-amber-600" />
+            })}
           </div>
-          <Link
-            href={ticketsLink}
-            className="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1.5 text-sm font-medium text-white"
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <button
+            type="button"
+            onClick={() => openProcessModal(0)}
+            className="flex cursor-pointer items-center gap-1 rounded-md text-left text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-50 hover:text-zinc-700 active:bg-zinc-100"
           >
-            查询罚单
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-bold text-zinc-900">官方入口</h2>
-        <div className="mt-2 divide-y divide-zinc-100">
-          {officialLinks.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between gap-3 py-3"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
-                <p className="mt-1 text-xs text-zinc-500">{item.desc}</p>
-              </div>
-              <ChevronRight size={16} className="shrink-0 text-zinc-400" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-bold text-zinc-900">DMV 相关本地服务</h2>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {localServices.map((item) => (
-            <Link
-              key={item}
-              href="/services"
-              className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 transition-colors active:bg-zinc-100"
-            >
-              {item}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-bold text-zinc-900">DMV 教程文章</h2>
-        <div className="mt-2 divide-y divide-zinc-100">
-          {dmvGuides.map((item) => (
-            <Link key={item} href="/news?category=DMV教程" className="flex items-center justify-between py-3">
-              <p className="text-sm text-zinc-700">{item}</p>
-              <ChevronRight size={15} className="shrink-0 text-zinc-400" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-        <div className="flex items-start gap-2">
-          <FileText size={16} className="mt-0.5 shrink-0 text-amber-700" />
-          <div className="space-y-1 text-xs leading-5 text-amber-900">
-            <p>OpenAA 只提供中文整理和入口导航。</p>
-            <p>DMV 规则、费用、预约和罚单信息以官方页面为准。</p>
-            <p>涉及法律、罚单争议、保险等问题，请咨询专业人士或官方机构。</p>
+            新手办驾照流程
+            <ChevronRight size={14} className="text-zinc-400" />
+          </button>
+          <div className="mt-3 space-y-2">
+            {licenseSteps.map((step, index) => (
+              <button
+                key={step}
+                type="button"
+                onClick={() => openProcessModal(index)}
+                className="flex w-full items-center justify-between gap-3 rounded-xl bg-zinc-50 px-3 py-2 text-left transition-colors hover:bg-zinc-100 active:bg-zinc-100 cursor-pointer"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm text-zinc-700">{step}</p>
+                </div>
+                <ChevronRight size={14} className="shrink-0 text-zinc-300" />
+              </button>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section ref={practiceSectionRef} id="dmv-practice-section" className="mt-4">
+          <h2 className="text-base font-bold text-zinc-900">纽约 DMV 笔试练习</h2>
+          <p className="mt-1 text-xs text-zinc-500">中文题库 · {questionCount} 题 · 无需登录 · 支持错题练习</p>
+
+          <DmvPracticeEntryCards cards={dmvExamCards} className="mt-3 grid grid-cols-2 gap-3" />
+        </section>
+
+        <section className="mt-4 grid gap-3">
+          <div className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-zinc-900">罚单查询</h3>
+                <p className="mt-1 text-sm text-zinc-600">整理停车罚单、红灯摄像头、交通罚单等常用入口</p>
+              </div>
+              <AlertTriangle size={18} className="shrink-0 text-amber-600" />
+            </div>
+            <Link
+              href={ticketsLink}
+              className="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1.5 text-sm font-medium text-white"
+            >
+              查询罚单
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">官方入口</h2>
+          <div className="mt-2 divide-y divide-zinc-100">
+            {officialLinks.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-3 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
+                  <p className="mt-1 text-xs text-zinc-500">{item.desc}</p>
+                </div>
+                <ChevronRight size={16} className="shrink-0 text-zinc-400" />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">DMV 相关本地服务</h2>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {localServices.map((item) => (
+              <Link
+                key={item}
+                href="/services"
+                className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 transition-colors active:bg-zinc-100"
+              >
+                {item}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">DMV 教程文章</h2>
+          <div className="mt-2 divide-y divide-zinc-100">
+            {dmvGuides.map((item) => (
+              <Link key={item} href="/news?category=DMV教程" className="flex items-center justify-between py-3">
+                <p className="text-sm text-zinc-700">{item}</p>
+                <ChevronRight size={15} className="shrink-0 text-zinc-400" />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-start gap-2">
+            <FileText size={16} className="mt-0.5 shrink-0 text-amber-700" />
+            <div className="space-y-1 text-xs leading-5 text-amber-900">
+              <p>OpenAA 只提供中文整理和入口导航。</p>
+              <p>DMV 规则、费用、预约和罚单信息以官方页面为准。</p>
+              <p>涉及法律、罚单争议、保险等问题，请咨询专业人士或官方机构。</p>
+            </div>
+          </div>
+        </section>
       </div>
       <DmvLicenseProcessModal
         open={isProcessModalOpen}
