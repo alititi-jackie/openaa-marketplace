@@ -3,9 +3,10 @@
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
+import DmvLicenseProcessModal from '@/components/dmv/DmvLicenseProcessModal'
 import Link from 'next/link'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -96,9 +97,16 @@ const dmvGuides = [
 
 export default function DMVPage() {
   const practiceSectionRef = useRef<HTMLElement | null>(null)
+  const [isProcessModalOpen, setIsProcessModalOpen] = useState(false)
+  const [defaultProcessStep, setDefaultProcessStep] = useState(0)
 
   const handleScrollToPractice = () => {
     practiceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const openProcessModal = (stepIndex: number) => {
+    setDefaultProcessStep(stepIndex)
+    setIsProcessModalOpen(true)
   }
 
   return (
@@ -172,15 +180,30 @@ export default function DMVPage() {
       </section>
 
       <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-bold text-zinc-900">新手办驾照流程</h2>
+        <button
+          type="button"
+          onClick={() => openProcessModal(0)}
+          className="flex cursor-pointer items-center gap-1 rounded-md text-left text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-50 hover:text-zinc-700 active:bg-zinc-100"
+        >
+          新手办驾照流程
+          <ChevronRight size={14} className="text-zinc-400" />
+        </button>
         <div className="mt-3 space-y-2">
           {licenseSteps.map((step, index) => (
-            <div key={step} className="flex items-center gap-3 rounded-xl bg-zinc-50 px-3 py-2">
+            <button
+              key={step}
+              type="button"
+              onClick={() => openProcessModal(index)}
+              className="flex w-full items-center justify-between gap-3 rounded-xl bg-zinc-50 px-3 py-2 text-left transition-colors hover:bg-zinc-100 active:bg-zinc-100 cursor-pointer"
+            >
+              <div className="flex min-w-0 items-center gap-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                 {index + 1}
               </span>
-              <p className="text-sm text-zinc-700">{step}</p>
-            </div>
+                <p className="text-sm text-zinc-700">{step}</p>
+              </div>
+              <ChevronRight size={14} className="shrink-0 text-zinc-300" />
+            </button>
           ))}
         </div>
       </section>
@@ -291,6 +314,11 @@ export default function DMVPage() {
         </div>
       </section>
       </div>
+      <DmvLicenseProcessModal
+        open={isProcessModalOpen}
+        initialStep={defaultProcessStep}
+        onClose={() => setIsProcessModalOpen(false)}
+      />
       <BackToTopButton />
     </div>
   )

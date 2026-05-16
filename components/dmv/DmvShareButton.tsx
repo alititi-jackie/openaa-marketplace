@@ -8,12 +8,13 @@ type DmvShareButtonProps = {
   title: string
   text: string
   className?: string
+  label?: string
 }
 
 const defaultClassName =
   'shrink-0 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 active:scale-[0.97]'
 
-export default function DmvShareButton({ path, title, text, className }: DmvShareButtonProps) {
+export default function DmvShareButton({ path, title, text, className, label = '📤 分享' }: DmvShareButtonProps) {
   const [shareToast, setShareToast] = useState('')
 
   const handleShare = async () => {
@@ -49,7 +50,7 @@ export default function DmvShareButton({ path, title, text, className }: DmvShar
         aria-label="分享当前页面"
         className={className ?? defaultClassName}
       >
-        📤 分享
+        {label}
       </button>
       {shareToast && (
         <div
