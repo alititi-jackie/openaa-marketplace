@@ -7,7 +7,7 @@ import DmvLicenseProcessModal from '@/components/dmv/DmvLicenseProcessModal'
 import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
 import Link from 'next/link'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -22,6 +22,8 @@ import {
   AlertCircle,
   Shuffle,
 } from 'lucide-react'
+import { fetchPublishedNewsPosts } from '@/lib/newsPosts'
+import { supabase } from '@/lib/supabase'
 
 const ticketsLink = '/dmv/tickets'
 const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
@@ -88,18 +90,46 @@ const officialLinks = [
 
 const localServices = ['驾校', '汽车保险', '翻译公证', '罚单律师', '修车服务', '二手车买卖']
 
-const dmvGuides = [
-  '纽约 DMV 笔试怎么准备？',
-  'Learner Permit 是什么？',
-  '纽约路考预约流程',
-  '纽约停车罚单怎么查？',
-  '新手买车后需要做什么？',
-]
+type DmvGuidePost = {
+  id: string
+  slug: string
+  title: string
+}
 
 export default function DMVPage() {
   const practiceSectionRef = useRef<HTMLElement | null>(null)
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false)
   const [defaultProcessStep, setDefaultProcessStep] = useState(0)
+  const [dmvGuides, setDmvGuides] = useState<DmvGuidePost[] | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchDmvGuides = async () => {
+      const posts = await fetchPublishedNewsPosts(supabase, {
+        category: 'DMV教程',
+        limit: 5,
+      })
+
+      if (cancelled) return
+
+      setDmvGuides(
+        posts
+          .filter((post) => !!post.slug)
+          .map((post) => ({
+            id: post.id,
+            slug: post.slug,
+            title: post.title,
+          }))
+      )
+    }
+
+    fetchDmvGuides()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleScrollToPractice = () => {
     practiceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -272,14 +302,20 @@ export default function DMVPage() {
         </section>
 
         <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-bold text-zinc-900">DMV 教程文章</h2>
+          <Link href="/news?category=DMV教程" className="text-base font-bold text-zinc-900">
+            DMV 教程文章
+          </Link>
           <div className="mt-2 divide-y divide-zinc-100">
-            {dmvGuides.map((item) => (
-              <Link key={item} href="/news?category=DMV教程" className="flex items-center justify-between py-3">
-                <p className="text-sm text-zinc-700">{item}</p>
-                <ChevronRight size={15} className="shrink-0 text-zinc-400" />
-              </Link>
-            ))}
+            {dmvGuides && dmvGuides.length > 0 ? (
+              dmvGuides.map((item) => (
+                <Link key={item.id} href={`/news/${item.slug}`} className="flex items-center justify-between py-3">
+                  <p className="text-sm text-zinc-700">{item.title}</p>
+                  <ChevronRight size={15} className="shrink-0 text-zinc-400" />
+                </Link>
+              ))
+            ) : dmvGuides?.length === 0 ? (
+              <p className="py-3 text-sm text-zinc-400">暂无 DMV 教程文章</p>
+            ) : null}
           </div>
         </section>
 
