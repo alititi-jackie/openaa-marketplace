@@ -164,7 +164,7 @@ export default function MyItemsPage() {
 
                 <div className="mt-4 flex items-center gap-2">
                   <Link
-                    href={`/secondhand/publish?edit=${item.id}`}
+                    href={`/secondhand/edit/${item.id}`}
                     className="flex-1 text-center px-3 py-2 rounded-lg text-sm text-zinc-800 ring-1 ring-zinc-300 bg-white hover:bg-zinc-50 transition"
                   >
                     编辑

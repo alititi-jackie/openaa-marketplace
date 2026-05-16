@@ -696,13 +696,21 @@ function HousingPublishClient() {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
-            >
-              {loading ? (isEditing ? '保存中...' : '发布中...') : isEditing ? '保存修改' : '发布'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-[#1976d2] text-white py-3 rounded-lg font-medium hover:bg-[#1565c0] transition disabled:opacity-50"
+              >
+                {loading ? (isEditing ? '保存中...' : '发布中...') : isEditing ? '保存修改' : '发布'}
+              </button>
+              <Link
+                href={isEditing ? '/profile/my-housing' : '/housing'}
+                className="flex-1 text-center py-3 rounded-lg font-medium text-gray-600 ring-1 ring-gray-300 bg-white hover:bg-gray-50 transition"
+              >
+                取消
+              </Link>
+            </div>
           </form>
         </>
       )}
