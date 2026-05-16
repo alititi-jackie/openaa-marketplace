@@ -30,7 +30,7 @@ interface NavLink {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const OPENAA_HOSTS = ['openaa.com', 'app.openaa.com', 'www.openaa.com']
+const OPENAA_HOSTS = ['openaa.com', 'app.openaa.com', 'ny.openaa.com', 'www.openaa.com']
 
 function resolveOpenMode(url: string, mode: OpenMode): 'same' | 'new' {
   if (mode === 'same') return 'same'

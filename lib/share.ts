@@ -1,6 +1,8 @@
 'use client'
 
-export const OPENAA_SHARE_URL = 'https://openaa.com'
+import { SITE_URL } from './site'
+
+export const OPENAA_SHARE_URL = SITE_URL
 export const OPENAA_SHARE_TITLE = 'OpenAA 美国华人生活平台'
 
 type ShareNav = {

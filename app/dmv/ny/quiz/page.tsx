@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
+import { toAbsoluteUrl } from '@/lib/site'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -191,9 +192,10 @@ export default function DMVQuizPage() {
   if (mode === 'done') {
     const total = score.correct + score.wrong
     const rate = total === 0 ? 0 : Math.round((score.correct / total) * 100)
+    const practiceUrl = toAbsoluteUrl('/dmv/ny/practice')
 
     const handleShare = async () => {
-      const text = `我在 OpenAA DMV 中文笔试练习中答对了 ${score.correct}/${total} 题（正确率 ${rate}%）！\n快来一起刷题吧 🚗\n\nhttps://app.openaa.com/dmv/ny/practice`
+      const text = `我在 OpenAA DMV 中文笔试练习中答对了 ${score.correct}/${total} 题（正确率 ${rate}%）！\n快来一起刷题吧 🚗\n\n${practiceUrl}`
       if (typeof navigator !== 'undefined' && navigator.share) {
         try {
           await navigator.share({ title: 'OpenAA DMV 中文笔试练习', text })

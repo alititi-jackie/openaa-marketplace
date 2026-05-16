@@ -9,6 +9,7 @@ import BackToTopButton from '@/components/BackToTopButton'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
+import { toAbsoluteUrl } from '@/lib/site'
 import type { JobPosting, JobPostingType } from '@/types'
 
 const structuredData = {
@@ -16,13 +17,13 @@ const structuredData = {
   '@type': 'CollectionPage',
   name: 'OpenAA 招聘频道',
   alternateName: ['美国华人招聘', '纽约招聘', '找工作', '168招聘'],
-  url: 'https://app.openaa.com/jobs',
+  url: toAbsoluteUrl('/jobs'),
   description:
     'OpenAA 招聘频道为美国华人提供招聘求职信息，涵盖纽约招聘、兼职、全职、餐馆、司机、仓库、电工、装修等工作信息，帮助华人更方便找工作和发布招聘。',
   isPartOf: {
     '@type': 'WebSite',
     name: 'OpenAA',
-    url: 'https://app.openaa.com/',
+    url: toAbsoluteUrl('/'),
   },
 }
 

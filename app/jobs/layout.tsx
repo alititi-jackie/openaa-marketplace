@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import { toAbsoluteUrl } from '@/lib/site'
 
-const JOBS_CANONICAL = 'https://app.openaa.com/jobs'
+const JOBS_CANONICAL = toAbsoluteUrl('/jobs')
 
 export const metadata: Metadata = {
   title: 'OpenAA 招聘｜美国华人招聘｜纽约招聘｜找工作｜168招聘',

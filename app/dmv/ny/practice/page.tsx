@@ -6,6 +6,7 @@ import { BookMarked, Shuffle, ClipboardList, AlertCircle, FileText } from 'lucid
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
+import { toAbsoluteUrl } from '@/lib/site'
 const entryCards = [
   {
     title: '查看题库',
@@ -41,7 +42,7 @@ export default function PracticeHomePage() {
   const [shareToast, setShareToast] = useState('')
 
   const handleShare = async () => {
-    const url = 'https://app.openaa.com/dmv/ny/practice'
+    const url = toAbsoluteUrl('/dmv/ny/practice')
     const shareData = {
       title: 'OpenAA 纽约 DMV 中文笔试模拟',
       text: '支持中文 DMV 刷题、随机练习、模拟考试、错题练习。',

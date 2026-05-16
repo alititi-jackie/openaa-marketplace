@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import { toAbsoluteUrl } from '@/lib/site'
 
-const SERVICES_CANONICAL = 'https://app.openaa.com/services'
+const SERVICES_CANONICAL = toAbsoluteUrl('/services')
 
 export const metadata: Metadata = {
   title: 'OpenAA 本地服务｜美国华人服务｜纽约华人本地服务',
