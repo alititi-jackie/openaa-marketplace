@@ -17,7 +17,7 @@ import {
   TrafficCone,
 } from 'lucide-react'
 
-const ticketsLink = 'https://openaa.com/dmv/tickets/index.html'
+const ticketsLink = '/dmv/tickets'
 const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
 
 const dmvExamCards = [
