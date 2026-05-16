@@ -50,9 +50,25 @@ function toSortableTime(value: string | null | undefined): number {
 
 function isEffectivePinned(post: HousingPost, nowTime: number): boolean {
   if (!post.is_pinned) return false
-  if (post.status !== 'published') return false
+  // compatible with legacy status values in some environments
+  if (post.status !== 'published' && post.status !== 'active') return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
+}
+
+function normalizeTypeForQuery(t: HousingPostType): string[] {
+  // Backward/legacy compatibility:
+  // - current schema uses: renting | seeking
+  // - some environments may have: rent | renting | 出租 | 求租
+  if (t === 'seeking') return ['seeking', 'seek', '求租', '求购']
+  return ['renting', 'rent', '出租', '出售']
+}
+
+function normalizeTypeRow(t: unknown, fallback: HousingPostType): HousingPostType {
+  const v = typeof t === 'string' ? t.trim().toLowerCase() : ''
+  if (v === 'seeking' || v === 'seek' || v === '求租' || v === '求购') return 'seeking'
+  if (v === 'renting' || v === 'rent' || v === '出租' || v === '出售') return 'renting'
+  return fallback
 }
 
 export default function HousingPage() {
@@ -68,24 +84,37 @@ export default function HousingPage() {
     const baseQuery = supabase
       .from('housing_posts')
       .select('*, user:users(status)')
-      .eq('status', 'published')
+      // be tolerant: some envs may store "显示中" as active
+      .in('status', ['published', 'active'])
       .order('created_at', { ascending: false })
       .limit(50)
 
+    // prefer filtering by type, but tolerate legacy values via `.in`
     let query = baseQuery
-    query = query.eq('type', activeTab)
+    query = query.in('type', normalizeTypeForQuery(activeTab))
 
     const { data, error } = await query
     if (!error) {
-      setPosts((data || []).filter((post) => isPublicOwnerVisible((post as HousingPost).user)) as HousingPost[])
+      const visible = (data || []).filter((row) => isPublicOwnerVisible((row as HousingPost).user)) as HousingPost[]
+      // normalize legacy type values for UI rendering
+      setPosts(
+        visible.map((p) => ({
+          ...p,
+          type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
+        }))
+      )
       setLoading(false)
       return
     }
 
     // Fallback: ignore type filter (for older DB / env without the column)
     const { data: fallbackData } = await baseQuery
+    const visible = ((fallbackData || []) as HousingPost[]).filter((post) => isPublicOwnerVisible(post.user))
     setPosts(
-      ((fallbackData || []) as HousingPost[]).filter((post) => isPublicOwnerVisible(post.user))
+      visible.map((p) => ({
+        ...p,
+        type: normalizeTypeRow((p as { type?: unknown }).type, activeTab),
+      }))
     )
     setLoading(false)
   }, [activeTab])
