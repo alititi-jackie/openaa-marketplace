@@ -179,7 +179,7 @@ export default function ProfilePage() {
           >
             <div className="flex items-center gap-2">
               <span className="text-zinc-900 font-medium">🚀 我要发布</span>
-              <span className="text-[11px] text-zinc-400">二手 / 招聘 / 房屋 / 服务</span>
+              <span className="text-[11px] text-zinc-400">招聘 / 房屋 / 二手 / 服务</span>
             </div>
             {publishOpen ? (
               <ChevronUp size={18} className="text-zinc-400" />
@@ -192,23 +192,8 @@ export default function ProfilePage() {
             <div className="px-4 pb-4 pt-2 border-b border-zinc-100">
               <div className="grid grid-cols-2 gap-3">
                 <Link
-                  href="/secondhand/publish"
-                  className="rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center">
-                      <ShoppingBag size={18} className="text-amber-600" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-black text-zinc-900">发布二手</div>
-                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布商品</div>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
                   href="/jobs/publish"
-                  className="rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center">
@@ -230,8 +215,23 @@ export default function ProfilePage() {
                       <Home size={18} className="text-emerald-600" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-black text-zinc-900">发布房源</div>
+                      <div className="text-[13px] font-black text-zinc-900">发布房屋</div>
                       <div className="text-[11px] text-zinc-500 mt-0.5">去发布房源</div>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/secondhand/publish"
+                  className="text-left rounded-2xl p-3 bg-zinc-50 ring-1 ring-zinc-100 hover:bg-white hover:ring-zinc-200 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center">
+                      <ShoppingBag size={18} className="text-amber-600" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-black text-zinc-900">发布二手</div>
+                      <div className="text-[11px] text-zinc-500 mt-0.5">去发布商品</div>
                     </div>
                   </div>
                 </Link>
@@ -257,16 +257,8 @@ export default function ProfilePage() {
           {/* Menu order (2-column grid) */}
           <div className="grid grid-cols-2 border-b border-zinc-100">
             <Link
-              href="/profile/my-items"
-              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-r border-zinc-100"
-            >
-              <span className="text-zinc-900">🛍️ 我的商品</span>
-              <span className="text-zinc-300">›</span>
-            </Link>
-
-            <Link
               href="/profile/my-jobs"
-              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-r border-zinc-100"
             >
               <span className="text-zinc-900">💼 我的招聘</span>
               <span className="text-zinc-300">›</span>
@@ -274,9 +266,17 @@ export default function ProfilePage() {
 
             <Link
               href="/profile/my-housing"
-              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-t border-r border-zinc-100"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition"
             >
               <span className="text-zinc-900">🏠 我的房屋</span>
+              <span className="text-zinc-300">›</span>
+            </Link>
+
+            <Link
+              href="/profile/my-items"
+              className="flex items-center justify-between p-4 hover:bg-zinc-50 transition border-t border-r border-zinc-100"
+            >
+              <span className="text-zinc-900">🛍️ 我的二手</span>
               <span className="text-zinc-300">›</span>
             </Link>
 
@@ -322,7 +322,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 平台公告 */}
-      <div className="mx-auto max-w-[560px] px-4 pb-24">
+      <div className="mx-auto max-w-[560px] px-4 pb-24 space-y-3">
         <Link
           href={`/news?category=${encodeURIComponent('平台公告')}`}
           aria-label="查看平台公告和最新规则更新"
@@ -330,6 +330,14 @@ export default function ProfilePage() {
         >
           <p className="text-[14px] font-bold text-blue-700">平台公告</p>
           <p className="mt-1 text-[12px] text-blue-500">查看 OpenAA 最新规则与更新</p>
+        </Link>
+
+        <Link
+          href="https://openaa.com/about/"
+          aria-label="查看关于 OpenAA"
+          className="block bg-blue-50 border border-blue-100 rounded-2xl px-4 py-4 text-center hover:bg-blue-100 transition"
+        >
+          <p className="text-[14px] font-bold text-blue-700">关于 OpenAA</p>
         </Link>
       </div>
 
