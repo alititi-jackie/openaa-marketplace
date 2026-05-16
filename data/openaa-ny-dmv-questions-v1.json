@@ -33,7 +33,7 @@
       "id": 1,
       "category": "traffic-signs",
       "question": "看到这个标志时，驾驶员必须怎么做？",
-      "image": "https://img.openaa.com/dmv/app/signs/stop-sign.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/stop-sign.png",
       "options": [
         "减速后继续行驶",
         "完全停车，确认安全后再行驶",
@@ -54,7 +54,7 @@
       "id": 2,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/yield-sign.png",
+      "image": "https://img.openaa.com/dmv/yn/signs/yield-sign.png",
       "options": [
         "停车",
         "靠右",
@@ -75,7 +75,7 @@
       "id": 3,
       "category": "traffic-signs",
       "question": "这个标志提醒你什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/traffic-signal-ahead.png",
+      "image": "https://img.openaa.com/dmv/yn/signs/traffic-signal-ahead.png",
       "options": [
         "前方有交通信号灯",
         "前方铁路",
@@ -95,7 +95,7 @@
       "id": 4,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/no-left-turn.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/no-left-turn.png",
       "options": [
         "禁止左转",
         "禁止掉头",
@@ -115,7 +115,7 @@
       "id": 5,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/no-u-turn.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/no-u-turn.png",
       "options": [
         "禁止左转",
         "禁止掉头",
@@ -135,7 +135,7 @@
       "id": 6,
       "category": "traffic-signs",
       "question": "看到这个标志应怎样行驶？",
-      "image": "https://img.openaa.com/dmv/app/signs/keep-right.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/keep-right.png",
       "options": [
         "靠左",
         "靠右",
@@ -155,7 +155,7 @@
       "id": 7,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/do-not-enter.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/do-not-enter.png",
       "options": [
         "禁止驶入",
         "让路",
@@ -175,7 +175,7 @@
       "id": 8,
       "category": "traffic-signs",
       "question": "这个标志提醒你什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/slippery-when-wet.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/slippery-when-wet.png",
       "options": [
         "路面湿滑",
         "前方施工",
@@ -196,7 +196,7 @@
       "id": 9,
       "category": "traffic-signs",
       "question": "这个标志通常表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/railroad-crossing.png",
+      "image": "https://img.openaa.com/dmv/yn/signs/railroad-crossing.png",
       "options": [
         "铁路道口",
         "学校区域",
@@ -216,7 +216,7 @@
       "id": 10,
       "category": "traffic-signs",
       "question": "这个标志提醒驾驶员什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/school-crossing.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/school-crossing.png",
       "options": [
         "学校区域或学生过街",
         "前方医院",
@@ -236,7 +236,7 @@
       "id": 11,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/two-way-traffic.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/two-way-traffic.png",
       "options": [
         "双向交通",
         "单行道",
@@ -256,7 +256,7 @@
       "id": 12,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/merge-left.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/merge-left.png",
       "options": [
         "右车道结束，向左合并",
         "左转专用",
@@ -277,7 +277,7 @@
       "id": 13,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/divided-highway-ends.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/divided-highway-ends.png",
       "options": [
         "分隔公路开始",
         "分隔公路结束",
@@ -297,7 +297,7 @@
       "id": 14,
       "category": "traffic-signs",
       "question": "这个标志提醒什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/hill-ahead.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/hill-ahead.png",
       "options": [
         "前方下坡",
         "前方上坡",
@@ -317,7 +317,7 @@
       "id": 15,
       "category": "traffic-signs",
       "question": "这个标志通常表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/hospital-sign.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/hospital-sign.png",
       "options": [
         "医院或医疗服务方向",
         "学校区域",
@@ -337,7 +337,7 @@
       "id": 16,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/dmv/app/signs/merging-traffic-right.png",
+      "image": "https://img.openaa.com/dmv/ny/signs/merging-traffic-right.png",
       "options": [
         "右侧车辆汇入主路",
         "只能右转",
