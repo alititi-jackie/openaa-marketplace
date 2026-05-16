@@ -69,7 +69,6 @@ type HousingRow = {
   is_pinned?: boolean | null
   pinned_until?: string | null
   pinned_order?: number | null
-  is_active?: boolean | null
 }
 
 type UserStatusRow = {
@@ -79,12 +78,6 @@ type UserStatusRow = {
 
 function isVisiblePostStatus(status: unknown): boolean {
   return status === 'published' || status === 'active'
-}
-
-function isVisibleIsActive(value: unknown): boolean {
-  // Compatible: true or null/undefined means visible.
-  // Only filter out when explicitly false.
-  return value !== false
 }
 
 function isPinnedActive(row: HousingRow, nowTime: number): boolean {
@@ -110,7 +103,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('housing_posts')
     .select(
-      'id, user_id, type, title, description, price, location, room_type, contact, contact_name, phone, wechat, images, status, views, created_at, updated_at, is_pinned, pinned_until, pinned_order, is_active'
+      'id, user_id, type, title, description, price, location, room_type, contact, contact_name, phone, wechat, images, status, views, created_at, updated_at, is_pinned, pinned_until, pinned_order'
     )
     .in('status', ['published', 'active'])
     .order('created_at', { ascending: false })
@@ -146,11 +139,8 @@ export async function GET(request: NextRequest) {
 
   const rows = (data || []) as HousingRow[]
 
-  // is_active compatibility: keep true/null; only drop false
-  const activeRows = rows.filter((row) => isVisibleIsActive(row.is_active))
-
   // user status visibility
-  const userIds = Array.from(new Set(activeRows.map((r) => r.user_id).filter(Boolean)))
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id).filter(Boolean)))
   const userStatusMap = new Map<string, string | null>()
 
   if (userIds.length > 0) {
@@ -160,7 +150,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const visibleByUser = activeRows.filter((row) => {
+  const visibleByUser = rows.filter((row) => {
     const status = userStatusMap.get(row.user_id)
     // If user not found / null -> do NOT hide
     if (status === undefined || status === null) return true
