@@ -103,14 +103,13 @@ export async function GET(request: NextRequest) {
         .limit(5)
     ),
 
-    // Services: only status = 'active' AND is_active = true
+    // Services: status IN ('active', 'published'), exclude only explicit is_active = false
     runModuleQuery(
       'service_posts',
       supabase
         .from('service_posts')
-        .select('id, title, description, category, location, created_at, user:users(status)')
-        .eq('status', 'active')
-        .eq('is_active', true)
+        .select('id, title, description, category, location, created_at, is_active, user:users(status)')
+        .in('status', ['active', 'published'])
         .or(`${like('title')},${like('description')},${like('category')},${like('location')}`)
         .order('created_at', { ascending: false })
         .limit(5)
@@ -172,7 +171,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const item of servicesResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user))) {
+  for (const item of servicesResult.data.filter((row) => isPublicOwnerVisible((row as { user?: unknown }).user) && (row as { is_active?: boolean | null }).is_active !== false)) {
     const loc = item.location ? ` · ${item.location}` : ''
     results.push({
       type: 'service',
