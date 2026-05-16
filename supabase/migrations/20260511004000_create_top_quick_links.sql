@@ -51,7 +51,7 @@ from (
     ('二手', '/secondhand', 'same', 30),
     ('本地服务', '/services', 'same', 40),
     ('新闻', '/news', 'same', 50),
-    ('DMV', 'https://openaa.com/dmv', 'same', 60),
+    ('DMV', '/dmv', 'same', 60),
     ('导航', '/navigation', 'same', 70),
     ('反馈', '/feedback', 'same', 80)
 ) as v(title, url, open_mode, sort_order)
