@@ -30,10 +30,16 @@ function parseBudget(description: string): string | null {
   return null
 }
 
+function hasVisiblePrice(price: number | null | undefined): price is number {
+  return typeof price === 'number' && Number.isFinite(price) && price > 0
+}
+
 export default function SecondhandCard({ item }: Props) {
   const isBuying = item.type === 'buying'
   const budget = isBuying ? parseBudget(item.description) : null
-  const priceOrBudget = isBuying ? `预算：${budget || '面议'}` : formatPrice(item.price)
+  const priceOrBudget = isBuying
+    ? `预算：${budget || '面议'}`
+    : (hasVisiblePrice(item.price) ? formatPrice(item.price) : null)
   const isPinned = isEffectivePinned(item, Date.now())
 
   return (
@@ -55,7 +61,7 @@ export default function SecondhandCard({ item }: Props) {
           )}
         </div>
         <div className="p-3">
-          <p className="font-semibold text-lg text-[#1976d2]">{priceOrBudget}</p>
+          {priceOrBudget ? <p className="font-semibold text-lg text-[#1976d2]">{priceOrBudget}</p> : null}
           <h3 className="text-gray-900 font-medium line-clamp-2 mt-1">{item.title}</h3>
           <div className="flex items-center justify-between mt-2 gap-2">
             <div className="flex items-center gap-1.5 flex-wrap">

@@ -23,7 +23,7 @@ export interface SecondhandItem {
   user_id: string
   title: string
   description: string
-  price: number
+  price: number | null
   category: string
   images: string[]
   status: 'published' | 'hidden' | 'deleted' | 'unpublished'

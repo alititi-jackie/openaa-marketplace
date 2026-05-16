@@ -29,22 +29,47 @@ export default function EditProfilePage() {
     e.preventDefault()
     setSaving(true)
     setError('')
+    setSuccess(false)
 
-    if (form.username.trim().length < 4) {
+    const username = form.username.trim()
+    const bio = form.bio.trim()
+    const phone = form.phone.trim()
+
+    if (username.length < 4) {
       setError('昵称至少需要 4 个字符')
       setSaving(false)
       return
     }
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setSaving(false)
+      router.push('/auth/login')
+      return
+    }
 
-    await supabase.from('users').upsert({
-      id: user.id,
-      username: form.username,
-      bio: form.bio,
-      phone: form.phone,
-      updated_at: new Date().toISOString(),
+    const { data: updated, error: updateError } = await supabase
+      .from('users')
+      .update({
+        username,
+        bio,
+        phone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
+      .select('username, bio, phone')
+      .single()
+
+    if (updateError || !updated) {
+      setError('保存失败：未找到记录或无权限')
+      setSaving(false)
+      return
+    }
+
+    setForm({
+      username: updated.username || '',
+      bio: updated.bio || '',
+      phone: updated.phone || '',
     })
 
     setSaving(false)

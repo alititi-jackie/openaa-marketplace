@@ -45,9 +45,11 @@ function pickDefaultCategory() {
   return SECONDHAND_CATEGORIES[0]
 }
 
-function safeNumber(s: string) {
-  const n = parseFloat(s)
-  return Number.isFinite(n) ? n : 0
+function parseOptionalPrice(s: string): number | null {
+  const raw = s.trim()
+  if (!raw) return null
+  const n = parseFloat(raw)
+  return Number.isFinite(n) ? n : null
 }
 
 function getFileExtFromType(mimeType: string) {
@@ -251,11 +253,18 @@ export default function ItemForm({ initialType, editItem }: Props) {
       }
     }
 
-    const title = mode === 'buying' ? buying.want.trim() || '求购' : selling.title.trim() || '二手商品'
+    const sellingTitle = selling.title.trim()
+    if (mode === 'selling' && !sellingTitle) {
+      setError('请填写商品标题')
+      setLoading(false)
+      return
+    }
+
+    const title = mode === 'buying' ? buying.want.trim() || '求购' : sellingTitle
 
     const category = mode === 'buying' ? pickDefaultCategory() : selling.category?.trim() || pickDefaultCategory()
 
-    const price = mode === 'buying' ? 0 : safeNumber(selling.price)
+    const price = mode === 'buying' ? null : parseOptionalPrice(selling.price)
 
     const description =
       mode === 'buying'
@@ -554,11 +563,12 @@ export default function ItemForm({ initialType, editItem }: Props) {
       {mode === 'selling' ? (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">商品标题</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">商品标题 *</label>
             <input
               type="text"
               value={selling.title}
               onChange={(e) => setSelling((p) => ({ ...p, title: e.target.value }))}
+              required
               placeholder="例：iPad Pro 11 寸"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
             />
