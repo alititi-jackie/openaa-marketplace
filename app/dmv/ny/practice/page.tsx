@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { BookMarked, Shuffle, ClipboardList, AlertCircle, FileText } from 'lucide-react'
 import AppTopSection from '@/components/AppTopSection'
@@ -35,6 +38,28 @@ const entryCards = [
 ]
 
 export default function PracticeHomePage() {
+  const [shareToast, setShareToast] = useState('')
+
+  const handleShare = async () => {
+    const url = 'https://app.openaa.com/dmv/ny/practice'
+    const shareData = {
+      title: 'OpenAA 纽约 DMV 中文笔试模拟',
+      text: '支持中文 DMV 刷题、随机练习、模拟考试、错题练习。',
+      url,
+    }
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {}
+      setShareToast('链接已复制')
+      setTimeout(() => setShareToast(''), 2000)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
       <AppTopSection bannerPosition="dmv" />
@@ -43,10 +68,21 @@ export default function PracticeHomePage() {
         <DetailBackButton fallbackHref="/dmv" />
 
         <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
-          <h1 className="text-xl font-black text-zinc-900">纽约 DMV 中文笔试模拟</h1>
-          <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
-            查看题库、练习模式、模拟考试、错题练习，适合手机刷题学习。
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h1 className="text-xl font-black text-zinc-900">纽约 DMV 中文笔试模拟</h1>
+              <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
+                查看题库、练习模式、模拟考试、错题练习，适合手机刷题学习。
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="shrink-0 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-600 active:scale-[0.97]"
+            >
+              📤 分享
+            </button>
+          </div>
         </section>
 
         <section className="mt-4 grid grid-cols-2 gap-3">
@@ -76,6 +112,12 @@ export default function PracticeHomePage() {
           </div>
         </section>
       </div>
+
+      {shareToast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-xl bg-zinc-800 px-4 py-2 text-sm text-white z-50">
+          {shareToast}
+        </div>
+      )}
 
       <BackToTopButton />
     </div>

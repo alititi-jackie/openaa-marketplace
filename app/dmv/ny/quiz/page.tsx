@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, RotateCcw, Shuffle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
@@ -91,6 +91,7 @@ export default function DMVQuizPage() {
   const [score, setScore] = useState({ correct: 0, wrong: 0 })
 
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [shareToast, setShareToast] = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
@@ -191,6 +192,21 @@ export default function DMVQuizPage() {
     const total = score.correct + score.wrong
     const rate = total === 0 ? 0 : Math.round((score.correct / total) * 100)
 
+    const handleShare = async () => {
+      const text = `我在 OpenAA DMV 中文笔试练习中答对了 ${score.correct}/${total} 题（正确率 ${rate}%）！\n快来一起刷题吧 🚗\n\nhttps://app.openaa.com/dmv/ny/practice`
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        try {
+          await navigator.share({ title: 'OpenAA DMV 中文笔试练习', text })
+        } catch {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(text)
+        } catch {}
+        setShareToast('链接已复制')
+        setTimeout(() => setShareToast(''), 2000)
+      }
+    }
+
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
         <div className="px-4 pt-4">
@@ -230,6 +246,14 @@ export default function DMVQuizPage() {
                 去错题练习
               </Link>
             </div>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="mt-3 w-full rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-bold text-zinc-700"
+            >
+              📤 分享
+            </button>
           </div>
 
           {!isLoggedIn && (
@@ -246,7 +270,22 @@ export default function DMVQuizPage() {
               </Link>
             </div>
           )}
+
+          <div className="mt-6 flex justify-center pb-2">
+            <Link
+              href="/dmv/ny/practice"
+              className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+            >
+              退出练习
+            </Link>
+          </div>
         </div>
+
+        {shareToast && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-xl bg-zinc-800 px-4 py-2 text-sm text-white z-50">
+            {shareToast}
+          </div>
+        )}
       </div>
     )
   }
@@ -268,47 +307,35 @@ export default function DMVQuizPage() {
           </section>
 
           <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <p className="text-sm font-bold text-zinc-900">练习模式</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setOrder('random')}
-                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-colors ${order === 'random' ? 'bg-blue-600 text-white' : 'border border-zinc-200 bg-white text-zinc-700'}`}
-              >
-                <span className="inline-flex items-center gap-2 justify-center">
-                  <Shuffle size={16} />
-                  随机
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setOrder('sequential')}
-                className={`rounded-2xl px-4 py-3 text-sm font-bold transition-colors ${order === 'sequential' ? 'bg-blue-600 text-white' : 'border border-zinc-200 bg-white text-zinc-700'}`}
-              >
-                顺序
-              </button>
-            </div>
-          </section>
-
-          <section className="mt-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <p className="text-sm font-bold text-zinc-900">题数</p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {([
-                [10, '10题'],
-                [20, '20题'],
-                [30, '30题'],
-                [50, '50题'],
-                ['all', '全部'],
-              ] as const).map(([val, label]) => (
-                <button
-                  key={String(val)}
-                  type="button"
-                  onClick={() => setCount(val as CountOption)}
-                  className={`rounded-2xl px-3 py-2.5 text-sm font-bold transition-colors ${count === val ? 'bg-blue-600 text-white' : 'border border-zinc-200 bg-white text-zinc-700'}`}
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <p className="mb-1.5 text-xs font-semibold text-zinc-500">练习模式</p>
+                <select
+                  value={order}
+                  onChange={(e) => setOrder(e.target.value as OrderMode)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1976d2]"
                 >
-                  {label}
-                </button>
-              ))}
+                  <option value="random">随机练习</option>
+                  <option value="sequential">顺序练习</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <p className="mb-1.5 text-xs font-semibold text-zinc-500">题数</p>
+                <select
+                  value={String(count)}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setCount(v === 'all' ? 'all' : (Number(v) as CountOption))
+                  }}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1976d2]"
+                >
+                  <option value="10">10题</option>
+                  <option value="20">20题</option>
+                  <option value="30">30题</option>
+                  <option value="50">50题</option>
+                  <option value="all">全部题目</option>
+                </select>
+              </div>
             </div>
           </section>
 
@@ -327,6 +354,15 @@ export default function DMVQuizPage() {
             </p>
             <Link href="/dmv/ny/sign-test" className="mt-2 inline-block text-xs font-bold text-blue-700">
               去交通标志专项 →
+            </Link>
+          </div>
+
+          <div className="mt-6 flex justify-center pb-2">
+            <Link
+              href="/dmv/ny/practice"
+              className="rounded-2xl border border-red-100 bg-red-50 px-6 py-2.5 text-sm font-medium text-red-500"
+            >
+              退出练习
             </Link>
           </div>
         </div>
