@@ -48,10 +48,14 @@ function toSortableTime(value: string | null | undefined): number {
   return Number.isNaN(time) ? 0 : time
 }
 
+function isVisibleHousingStatus(status: string | null | undefined) {
+  return status === 'published' || status === 'active'
+}
+
 function isEffectivePinned(post: HousingPost, nowTime: number): boolean {
   if (!post.is_pinned) return false
   // compatible with legacy status values in some environments
-  if (post.status !== 'published' && post.status !== 'active') return false
+  if (!isVisibleHousingStatus(post.status)) return false
   if (!post.pinned_until) return true
   return toSortableTime(post.pinned_until) > nowTime
 }
