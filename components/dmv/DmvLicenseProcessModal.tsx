@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, X } from 'lucide-react'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
@@ -145,6 +145,8 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
   },
 ]
 
+const STEP_HEADER_SCROLL_OFFSET_PX = 12
+
 function StepBlock({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
@@ -171,12 +173,58 @@ export default function DmvLicenseProcessModal({
   onClose: () => void
 }) {
   const [expandedStep, setExpandedStep] = useState(initialStep)
+  const headerRef = useRef<HTMLDivElement | null>(null)
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null)
+  const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>(processSteps.map(() => null))
+  const scrollFrameRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (open) {
       setExpandedStep(initialStep)
     }
   }, [open, initialStep])
+
+  const handleToggleStep = (index: number) => {
+    setExpandedStep((prev) => {
+      if (prev === index) return -1
+      return index
+    })
+  }
+
+  useEffect(() => {
+    if (!open || expandedStep < 0) return
+
+    if (scrollFrameRef.current) {
+      cancelAnimationFrame(scrollFrameRef.current)
+      scrollFrameRef.current = null
+    }
+
+    scrollFrameRef.current = requestAnimationFrame(() => {
+      const scrollArea = scrollAreaRef.current
+      const header = headerRef.current
+      const stepButton = stepButtonRefs.current[expandedStep]
+      if (!scrollArea || !header || !stepButton) return
+
+      const scrollAreaRect = scrollArea.getBoundingClientRect()
+      const stepRect = stepButton.getBoundingClientRect()
+      const headerHeight = header.getBoundingClientRect().height
+      const minVisibleTop = scrollAreaRect.top + headerHeight + STEP_HEADER_SCROLL_OFFSET_PX
+
+      if (stepRect.top < minVisibleTop) {
+        scrollArea.scrollBy({
+          top: stepRect.top - minVisibleTop,
+          behavior: 'smooth',
+        })
+      }
+    })
+
+    return () => {
+      if (scrollFrameRef.current) {
+        cancelAnimationFrame(scrollFrameRef.current)
+        scrollFrameRef.current = null
+      }
+    }
+  }, [open, expandedStep])
 
   useEffect(() => {
     if (!open) return
@@ -192,6 +240,10 @@ export default function DmvLicenseProcessModal({
     window.addEventListener('keydown', handleEsc)
 
     return () => {
+      if (scrollFrameRef.current) {
+        cancelAnimationFrame(scrollFrameRef.current)
+        scrollFrameRef.current = null
+      }
       document.body.style.overflow = originalOverflow
       window.removeEventListener('keydown', handleEsc)
     }
@@ -213,35 +265,35 @@ export default function DmvLicenseProcessModal({
         aria-modal="true"
         className="absolute inset-x-0 bottom-0 flex max-h-[92vh] flex-col rounded-t-3xl bg-white shadow-2xl md:inset-x-1/2 md:bottom-auto md:top-1/2 md:max-h-[85vh] md:w-[calc(100%-2rem)] md:max-w-[720px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl"
       >
-        <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white px-4 py-3 md:px-5">
+        <div ref={headerRef} className="sticky top-0 z-10 border-b border-zinc-100 bg-white px-4 py-2.5 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="text-base font-bold text-zinc-900">纽约新手办驾照流程</h3>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-500">
+              <p className="mt-0.5 text-xs leading-relaxed text-zinc-500">
                 适合第一次在纽约申请 Learner Permit / Driver License 的华人参考
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="关闭流程详情弹窗"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200"
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <div className="mt-3">
-            <DmvShareButton
-              path="/dmv"
-              title="OpenAA 纽约 DMV 新手办驾照流程"
-              text="纽约新手办驾照流程（中文参考）：资料准备、Permit、笔试、练车、路考到领证。"
-              label="分享"
-              className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700 active:scale-[0.97]"
-            />
+            <div className="flex shrink-0 items-center gap-1.5">
+              <DmvShareButton
+                path="/dmv"
+                title="OpenAA 纽约 DMV 新手办驾照流程"
+                text="纽约新手办驾照流程（中文参考）：资料准备、Permit、笔试、练车、路考到领证。"
+                label="分享"
+                className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-600 active:scale-[0.97]"
+              />
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="关闭流程详情弹窗"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-24 pt-4 md:px-5">
+        <div ref={scrollAreaRef} className="min-h-0 flex-1 overflow-y-auto px-4 pb-24 pt-3 md:px-5">
           <div className="space-y-3">
             {processSteps.map((step, index) => {
               const isOpen = expandedStep === index
@@ -255,7 +307,10 @@ export default function DmvLicenseProcessModal({
                     className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left"
                     aria-expanded={isOpen}
                     aria-controls={panelId}
-                    onClick={() => setExpandedStep((prev) => (prev === index ? -1 : index))}
+                    onClick={() => handleToggleStep(index)}
+                    ref={(node) => {
+                      stepButtonRefs.current[index] = node
+                    }}
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
