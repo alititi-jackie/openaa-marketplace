@@ -24,6 +24,10 @@ function parseBudget(description: string): string | null {
 
 const AUTO_INTERVAL_MS = 3500
 
+function hasVisiblePrice(price: number | null | undefined): price is number {
+  return typeof price === 'number' && Number.isFinite(price) && price > 0
+}
+
 export default function SecondhandDetailPage() {
   const { id } = useParams()
   const [item, setItem] = useState<SecondhandItem | null>(null)
@@ -128,6 +132,7 @@ export default function SecondhandDetailPage() {
 
   const isBuying = item.type === 'buying'
   const budget = isBuying ? parseBudget(item.description) : null
+  const sellingPrice = hasVisiblePrice(item.price) ? formatPrice(item.price) : null
   const hasContactInfo = Boolean((item.contact_name || '').trim() || (item.phone || '').trim() || (item.wechat || '').trim())
 
   const currentImage = imageCount > 0 ? images[activeIndex] : ''
@@ -245,9 +250,11 @@ export default function SecondhandDetailPage() {
         )}
 
         <div className="p-6">
-          <p className="text-2xl font-bold text-[#1976d2]">
-            {isBuying ? `预算：${budget || '面议'}` : formatPrice(item.price)}
-          </p>
+          {isBuying ? (
+            <p className="text-2xl font-bold text-[#1976d2]">{`预算：${budget || '面议'}`}</p>
+          ) : sellingPrice ? (
+            <p className="text-2xl font-bold text-[#1976d2]">{sellingPrice}</p>
+          ) : null}
           <h1 className="text-xl font-semibold text-gray-900 mt-2">{item.title}</h1>
 
           <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
