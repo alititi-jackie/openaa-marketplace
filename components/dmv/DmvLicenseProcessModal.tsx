@@ -30,12 +30,13 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
       notes: [
         '中国护照、绿卡、工卡、社安卡、美国银行卡/银行账单、水电费账单、租房合同、保险/学校/政府信件等，可能可作为不同类型证明。',
         '但是否可用、占几分，以官方 Document Guide / ID-44 为准。',
+        '不同身份类型（游客、工卡、绿卡、公民等）要求可能不同，请以 DMV 官方要求为准。',
         '资料不够不要直接预约去考试，容易白跑。',
         '最省事方式：找驾校或熟悉 DMV 的人帮你先检查资料；想 DIY 自己办理，再按步骤继续。',
       ],
       links: [
-        { label: 'DMV Document Guide', href: 'https://dmv.ny.gov/more-info/dmv-document-guide', external: true },
         { label: 'ID-44 文件清单', href: 'https://dmv.ny.gov/forms/id44.pdf', external: true },
+        { label: 'DMV Document Guide', href: 'https://dmv.ny.gov/more-info/dmv-document-guide', external: true },
       ],
     },
   },
@@ -55,8 +56,8 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
         '非美国公民：MV-44 中涉及 voter registration / 选民登记要认真看，不要误勾。',
       ],
       links: [
+        { label: '预约考试时间', href: 'https://dmv.ny.gov/driver-license/get-learner-permit', external: true },
         { label: '下载中文 MV-44', href: 'https://dmv.ny.gov/forms/mv44ch.pdf', external: true },
-        { label: '查 DMV 办公室 / 预约', href: 'https://dmv.ny.gov/contact-us/office-locations', external: true },
       ],
     },
   },
@@ -70,15 +71,14 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
         '通常流程：视力测试、交材料、拍照、缴费、笔试。',
         '通过后一般有临时 Learner Permit，正式文件可能邮寄。',
         '纽约 Class D 笔试规则：20 题，至少对 14 题，并且 4 道交通标志题至少对 2 道。',
+        '纽约 DMV 笔试支持中文，考试时可选择中文。',
       ],
       notes: [
         '费用以官方/现场为准；付款方式以官方/办公室为准。',
         '建议提前在 OpenAA 做中文题库练习和模拟。',
       ],
       links: [
-        { label: '开始中文题库练习', href: '/dmv/ny/questions' },
-        { label: '练习模式', href: '/dmv/ny/quiz' },
-        { label: '模拟考试', href: '/dmv/ny/mock-test' },
+        { label: '练习试题', href: '/dmv/ny/practice' },
         { label: 'DMV 费用说明', href: 'https://dmv.ny.gov/driver-license/fees-refunds', external: true },
       ],
     },
@@ -116,10 +116,11 @@ const processSteps: Array<{ title: string; content: StepSection }> = [
       ],
       notes: [
         '成功后确认日期时间地点，并安排考试车辆。',
+        '路考需要符合要求的考试车辆，并需有合法驾驶员陪同。',
       ],
       links: [
-        { label: '预约路考', href: 'https://dmv.ny.gov/driver-license/schedule-and-take-a-road-test', external: true },
         { label: '5 小时课程说明', href: 'https://dmv.ny.gov/driver-license/the-driver-pre-licensing-course', external: true },
+        { label: '预约路考', href: 'https://dmv.ny.gov/driver-license/schedule-and-take-a-road-test', external: true },
       ],
     },
   },
@@ -270,7 +271,7 @@ export default function DmvLicenseProcessModal({
             <div className="min-w-0">
               <h3 className="text-base font-bold text-zinc-900">纽约新手办驾照流程</h3>
               <p className="mt-0.5 text-xs leading-relaxed text-zinc-500">
-                适合第一次在纽约申请 Learner Permit / Driver License 的华人参考
+                纽约 DMV 新手中文办理参考
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -336,7 +337,7 @@ export default function DmvLicenseProcessModal({
                                 href={item.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
+                                className="inline-flex min-h-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
                               >
                                 {item.label}
                               </a>
@@ -344,7 +345,7 @@ export default function DmvLicenseProcessModal({
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
+                                className="inline-flex min-h-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
                               >
                                 {item.label}
                               </Link>
