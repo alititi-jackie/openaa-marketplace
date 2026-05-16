@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { SITE_URL, toAbsoluteUrl } from './site'
 
 export async function getCurrentUser() {
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -26,27 +27,19 @@ export async function signInWithEmail(email: string, password: string) {
 }
 
 export async function signUpWithEmail(email: string, password: string, username: string) {
-  const redirectBaseUrl =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.openaa.com'
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { username },
-      emailRedirectTo: `${redirectBaseUrl}/auth/confirmed`,
+      emailRedirectTo: toAbsoluteUrl('/auth/confirmed'),
     },
   })
   return { data, error }
 }
 
 export async function signInWithGoogle(redirectPath?: string) {
-  const redirectBaseUrl =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.openaa.com'
-  const redirectUrl = new URL('/auth/callback', redirectBaseUrl)
+  const redirectUrl = new URL('/auth/callback', SITE_URL)
 
   if (redirectPath) {
     redirectUrl.searchParams.set('redirect', redirectPath)

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import { toAbsoluteUrl } from '@/lib/site'
 
-const NAVIGATION_CANONICAL = 'https://app.openaa.com/navigation'
+const NAVIGATION_CANONICAL = toAbsoluteUrl('/navigation')
 
 export const metadata: Metadata = {
   title: 'OpenAA 导航｜美国华人导航｜华人常用网站｜实用网址导航',

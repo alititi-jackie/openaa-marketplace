@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { toAbsoluteUrl } from '@/lib/site'
 
 // Next.js will serve this at /robots.txt
 export default function robots(): MetadataRoute.Robots {
@@ -25,6 +26,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     // keep sitemap discoverable (but ensure sitemap.ts only outputs public pages)
-    sitemap: 'https://app.openaa.com/sitemap.xml',
+    sitemap: toAbsoluteUrl('/sitemap.xml'),
   }
 }

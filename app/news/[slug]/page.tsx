@@ -9,9 +9,10 @@ import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import NewsTipCard from '@/components/NewsTipCard'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
+import { SITE_URL } from '@/lib/site'
 import type { NewsPost } from '@/types'
 
-const NEWS_SITE_URL = 'https://app.openaa.com'
+const NEWS_SITE_URL = SITE_URL
 
 type NewsNavPost = Pick<NewsPost, 'id' | 'slug' | 'title' | 'published_at' | 'created_at' | 'category'>
 type NewsRelatedPost = Pick<

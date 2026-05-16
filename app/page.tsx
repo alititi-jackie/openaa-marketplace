@@ -4,8 +4,9 @@ import GridMenu from '@/components/GridMenu'
 import LatestPostsSection from '@/components/LatestPostsSection'
 import InfoCardsSection from '@/components/InfoCardsSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import { toAbsoluteUrl } from '@/lib/site'
 
-const HOME_CANONICAL = 'https://app.openaa.com/'
+const HOME_CANONICAL = toAbsoluteUrl('/')
 
 export const metadata: Metadata = {
   title: 'OpenAA｜美国华人生活入口｜华人招聘、房屋、二手、DMV、本地服务',

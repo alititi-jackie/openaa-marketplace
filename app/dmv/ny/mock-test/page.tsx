@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, CheckCircle, XCircle } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
+import { toAbsoluteUrl } from '@/lib/site'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -334,9 +335,10 @@ export default function MockTestPage() {
 
   const handleMockShare = async () => {
     const timeStr = formatTime(examSeconds)
+    const practiceUrl = toAbsoluteUrl('/dmv/ny/practice')
     const text = passed
-      ? `我刚刚通过了 OpenAA DMV 模拟考试 🎉\n正确：${correctCount}/20\n交通标志：${signCorrect}/${signQuestions.length}\n用时：${timeStr}\n\nhttps://app.openaa.com/dmv/ny/practice`
-      : `我正在练习 OpenAA DMV 中文模拟考试 🚗\n正确：${correctCount}/20\n继续加油！\n\nhttps://app.openaa.com/dmv/ny/practice`
+      ? `我刚刚通过了 OpenAA DMV 模拟考试 🎉\n正确：${correctCount}/20\n交通标志：${signCorrect}/${signQuestions.length}\n用时：${timeStr}\n\n${practiceUrl}`
+      : `我正在练习 OpenAA DMV 中文模拟考试 🚗\n正确：${correctCount}/20\n继续加油！\n\n${practiceUrl}`
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({ title: 'OpenAA DMV 模拟考试', text })

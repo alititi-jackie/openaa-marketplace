@@ -21,7 +21,7 @@ const DEFAULT_QUICK_NAV_ITEMS: QuickNavItem[] = [
   { id: 'secondhand', title: '二手', url: '/secondhand', sort_order: 30, open_mode: 'same' },
   { id: 'services', title: '本地服务', url: '/services', sort_order: 40, open_mode: 'same' },
   { id: 'news', title: '新闻', url: '/news', sort_order: 50, open_mode: 'same' },
-  { id: 'dmv', title: 'DMV', url: 'https://openaa.com/dmv', sort_order: 60, open_mode: 'same' },
+  { id: 'dmv', title: 'DMV', url: '/dmv', sort_order: 60, open_mode: 'same' },
   { id: 'navigation', title: '导航', url: '/navigation', sort_order: 70, open_mode: 'same' },
   { id: 'feedback', title: '反馈', url: '/feedback', sort_order: 80, open_mode: 'same' },
 ]
