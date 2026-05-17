@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { getSiteUrl } from '@/lib/site'
 
@@ -8,7 +9,7 @@ type ShareButtonProps = {
   title: string
   text: string
   className?: string
-  label?: string
+  label?: ReactNode
 }
 
 const defaultClassName =

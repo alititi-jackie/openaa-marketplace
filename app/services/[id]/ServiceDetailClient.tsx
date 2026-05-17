@@ -6,6 +6,7 @@ import PostSafetyNotice from '@/components/PostSafetyNotice'
 import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailShareCard from '@/components/DetailShareCard'
 import ShareButton from '@/components/ShareButton'
 import type { ServicePost } from '@/types'
 
@@ -166,6 +167,13 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
           <p className="text-sm text-blue-700">{post.price_note}</p>
         </div>
       ) : null}
+
+      <DetailShareCard
+        path={`/services/${post.id}`}
+        title={post.title}
+        text={`${post.category} · ${post.location}`}
+        className="mt-0 mb-4"
+      />
 
       {/* Contact */}
       {(post.contact_name || post.phone || post.wechat) ? (

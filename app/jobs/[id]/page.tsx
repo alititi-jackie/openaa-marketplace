@@ -9,6 +9,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import DetailShareCard from '@/components/DetailShareCard'
 import ShareButton from '@/components/ShareButton'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting } from '@/types'
@@ -92,6 +93,12 @@ export default function JobDetailPage() {
         <div className="mt-6 pt-4 border-t border-gray-100">
           <h2 className="font-semibold text-gray-900 mb-3">职位描述</h2>
           <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">{job.description}</p>
+
+          <DetailShareCard
+            path={`/jobs/${String(id)}`}
+            title={job.title}
+            text={`${job.job_type} · ${formatJobLocation(job.location)}${salary ? ` · ${salary}` : ''}`}
+          />
 
           <PostSafetyNotice variant="contact" />
         </div>

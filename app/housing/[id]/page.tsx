@@ -10,6 +10,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import DetailShareCard from '@/components/DetailShareCard'
 import ShareButton from '@/components/ShareButton'
 import { isPublicUserStatusVisible } from '@/lib/publicVisibility'
 import type { HousingPost } from '@/types'
@@ -315,6 +316,14 @@ export default function HousingDetailPage() {
               <PostSafetyNotice variant="contact" />
             </div>
           ) : null}
+
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <DetailShareCard
+              path={`/housing/${String(id)}`}
+              title={post.title}
+              text={`${post.type === 'seeking' ? '求租' : '出租'} · ${post.location || ''}${hasPrice ? ` · $${rawPrice}/月` : ''}`}
+            />
+          </div>
 
           {/* Publisher */}
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
