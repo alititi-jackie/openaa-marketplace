@@ -230,11 +230,13 @@ function LinkRow({
   token,
   onUpdated,
   onDeleted,
+  onRefetch,
 }: {
   link: NavLink
   token: string
   onUpdated: (updated: NavLink) => void
   onDeleted: (id: string) => void
+  onRefetch: () => void
 }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<LinkFormState>(linkToFormState(link))
@@ -306,7 +308,7 @@ function LinkRow({
   }
 
   async function handleDelete() {
-    if (!confirm(`确认隐藏"${link.title}"吗？`)) return
+    if (!confirm(`确认永久删除"${link.title}"吗？此操作不可恢复。`)) return
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/navigation/links/${link.id}`, {
@@ -323,6 +325,7 @@ function LinkRow({
         return
       }
       onDeleted(link.id)
+      onRefetch()
     } catch {
       setMsg('网络错误，请稍后重试')
     } finally {
@@ -705,6 +708,7 @@ function CategoryLinksSection({
   links,
   token,
   onLinksChange,
+  onRefetch,
   sectionId,
   sectionRef,
 }: {
@@ -712,6 +716,7 @@ function CategoryLinksSection({
   links: NavLink[]
   token: string
   onLinksChange: (categoryId: string, updatedLinks: NavLink[]) => void
+  onRefetch: () => void
   sectionId?: string
   sectionRef?: (node: HTMLDivElement | null) => void
 }) {
@@ -779,6 +784,7 @@ function CategoryLinksSection({
               token={token}
               onUpdated={handleUpdated}
               onDeleted={handleDeleted}
+              onRefetch={onRefetch}
             />
           ))
         )}
@@ -1033,6 +1039,7 @@ export default function AdminNavigationPage() {
                     links={linksByCategory[cat.id] ?? []}
                     token={token}
                     onLinksChange={handleLinksChange}
+                    onRefetch={() => void fetchData(token)}
                     sectionId={`admin-navigation-category-${cat.slug}`}
                     sectionRef={(node) => {
                       if (node) {
