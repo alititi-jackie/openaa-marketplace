@@ -8,6 +8,7 @@ interface Props {
   activeCategory: string
   onChange?: (category: string) => void
   getHref?: (category: string) => string
+  getLabel?: (category: string) => string
   className?: string
 }
 
@@ -40,23 +41,25 @@ export default function HorizontalCategoryTabs({
   activeCategory,
   onChange,
   getHref,
+  getLabel,
   className,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const first = categories[0]
   const rest = categories.slice(1)
   const containerClass = `sticky top-14 z-40 mb-2 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-100 ${className ?? ''}`.trim()
+  const resolveLabel = (category: string) => getLabel?.(category) ?? category
 
   return (
     <div className={containerClass}>
       <div className="flex items-center gap-2 px-4 py-2">
         {getHref ? (
           <Link href={getHref(first)} aria-current={activeCategory === first ? 'page' : undefined}>
-            <BaseTab label={first} active={activeCategory === first} />
+            <BaseTab label={resolveLabel(first)} active={activeCategory === first} />
           </Link>
         ) : (
           <button type="button" onClick={() => onChange?.(first)}>
-            <BaseTab label={first} active={activeCategory === first} />
+            <BaseTab label={resolveLabel(first)} active={activeCategory === first} />
           </button>
         )}
 
@@ -87,13 +90,13 @@ export default function HorizontalCategoryTabs({
                 if (getHref) {
                   return (
                     <Link key={cat} href={getHref(cat)} aria-current={active ? 'page' : undefined}>
-                      <BaseTab label={cat} active={active} />
+                      <BaseTab label={resolveLabel(cat)} active={active} />
                     </Link>
                   )
                 }
                 return (
                   <button key={cat} type="button" onClick={() => onChange?.(cat)}>
-                    <BaseTab label={cat} active={active} />
+                    <BaseTab label={resolveLabel(cat)} active={active} />
                   </button>
                 )
               })}
