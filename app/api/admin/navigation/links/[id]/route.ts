@@ -121,13 +121,16 @@ export async function DELETE(
 
   const { id } = await params
 
-  // Soft delete: set is_active = false
   const supabase = getServiceClient()
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('navigation_links')
-    .update({ is_active: false })
+    .delete()
     .eq('id', id)
+    .select('id')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: '未找到对应记录，删除失败' }, { status: 404 })
+  }
   return NextResponse.json({ success: true })
 }

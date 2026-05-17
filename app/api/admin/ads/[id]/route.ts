@@ -164,8 +164,11 @@ export async function DELETE(
 
   const { id } = await params
   const supabase = getServiceClient()
-  const { error } = await supabase.from('ads').delete().eq('id', id)
+  const { data, error } = await supabase.from('ads').delete().eq('id', id).select('id')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: '未找到对应记录，删除失败' }, { status: 404 })
+  }
   return NextResponse.json({ success: true })
 }
