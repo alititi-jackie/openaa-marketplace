@@ -299,20 +299,19 @@ export default function PracticePage() {
             )}
           </div>
 
-          <HorizontalCategoryTabs
-            categories={CATEGORY_ORDER}
-            activeCategory={category}
-            onChange={setCategory}
-            getLabel={getCategoryLabel}
-            className="mt-3"
-          />
+          <p className="mt-1.5 text-xs text-zinc-400">
+            共 {filtered.length} 题 {category !== ALL_CATEGORY_VALUE && `· ${getCategoryLabel(category)}`}
+            {!showAnswer && ' · 点击选项可以直接答题'}
+          </p>
         </div>
-
-        <p className="mt-1.5 text-xs text-zinc-400">
-          共 {filtered.length} 题 {category !== ALL_CATEGORY_VALUE && `· ${getCategoryLabel(category)}`}
-          {!showAnswer && ' · 点击选项可以直接答题'}
-        </p>
       </div>
+
+      <HorizontalCategoryTabs
+        categories={CATEGORY_ORDER}
+        activeCategory={category}
+        onChange={setCategory}
+        getLabel={getCategoryLabel}
+      />
 
       {/* Question List */}
       <div className="space-y-3 px-4 pt-4">
