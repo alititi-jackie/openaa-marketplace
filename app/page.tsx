@@ -8,6 +8,8 @@ import { getSiteUrl } from '@/lib/site'
 
 const HOME_CANONICAL = getSiteUrl('/')
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'OpenAA｜美国华人生活入口｜华人招聘、房屋、二手、DMV、本地服务',
   description:
