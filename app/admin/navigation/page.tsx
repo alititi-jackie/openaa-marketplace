@@ -7,7 +7,7 @@ import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import { getFriendlySiteName, normalizeNavigationUrl } from '@/lib/user-navigation'
 import { useAutoMessage } from '@/hooks/useAutoMessage'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
 type OpenMode = 'auto' | 'same' | 'new'
 
@@ -223,7 +223,7 @@ function CategoryRow({
   )
 }
 
-// ─── LinkRow ──────────────────────────────────────────────────────────────────
+// ─── LinkRow ─────────────────────────────────────────────────────────────────
 
 function LinkRow({
   link,
@@ -475,7 +475,7 @@ function LinkRow({
   )
 }
 
-// ─── AddLinkForm ──────────────────────────────────────────────────────────────
+// ─── AddLinkForm ─────────────────────────────────────────────────────────────
 
 function AddLinkForm({
   categoryId,
@@ -647,7 +647,7 @@ function AdminCategoryTabs({
     }`
 
   return (
-    <div className="mb-4 rounded-xl border border-zinc-200 bg-white/95 p-2">
+    <div className="sticky top-14 z-40 mb-4 rounded-xl border border-zinc-200 bg-white/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -701,7 +701,7 @@ function AdminCategoryTabs({
   )
 }
 
-// ─── CategoryLinksSection ─────────────────────────────────────────────────────
+// ─── CategoryLinksSection ────────────────────────────────────────────────────
 
 function CategoryLinksSection({
   category,
@@ -742,7 +742,7 @@ function CategoryLinksSection({
   }
 
   return (
-    <div id={sectionId} ref={sectionRef} data-category-slug={category.slug} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 scroll-mt-24">
+    <div id={sectionId} ref={sectionRef} data-category-slug={category.slug} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 scroll-mt-32">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-zinc-900">{category.name}</h3>
@@ -847,7 +847,6 @@ export default function AdminNavigationPage() {
       const links = (linkJson as { data: NavLink[] }).data ?? []
 
       setCategories(cats)
-      // Build grouped links in a single O(n) pass
       const grouped: Record<string, NavLink[]> = {}
       for (const cat of cats) grouped[cat.id] = []
       for (const link of links) {
@@ -932,7 +931,7 @@ export default function AdminNavigationPage() {
       },
       {
         root: null,
-        rootMargin: '-96px 0px -65% 0px',
+        rootMargin: '-128px 0px -65% 0px',
         threshold: [0, 0.2, 0.4],
       }
     )
@@ -951,7 +950,7 @@ export default function AdminNavigationPage() {
       },
       {
         root: null,
-        rootMargin: '-96px 0px -85% 0px',
+        rootMargin: '-128px 0px -85% 0px',
         threshold: [0, 1],
       }
     )
@@ -1003,7 +1002,6 @@ export default function AdminNavigationPage() {
           <p className="text-sm text-zinc-500">加载中...</p>
         ) : (
           <div className="space-y-10">
-            {/* Section A: Category management */}
             <section>
               <h2 className="mb-4 text-lg font-bold text-zinc-900 border-b border-zinc-200 pb-2">
                 分类管理
@@ -1020,12 +1018,11 @@ export default function AdminNavigationPage() {
               </div>
             </section>
 
-            {/* Section B: Link management */}
             <section>
               <h2 className="mb-4 text-lg font-bold text-zinc-900 border-b border-zinc-200 pb-2">
                 网址管理
               </h2>
-              <div ref={linkManagementTopRef} className="scroll-mt-24" />
+              <div ref={linkManagementTopRef} className="scroll-mt-32" />
               <AdminCategoryTabs
                 categories={categories}
                 activeSlug={activeCategorySlug}
