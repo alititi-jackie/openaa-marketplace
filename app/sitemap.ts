@@ -49,5 +49,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       priority: 0.64,
     },
+    {
+      url: `${BASE_URL}/dmv/ny/practice`,
+      lastModified: now,
+      priority: 0.64,
+    },
+    {
+      url: `${BASE_URL}/dmv/ny/questions`,
+      lastModified: now,
+      priority: 0.64,
+    },
+    {
+      url: `${BASE_URL}/dmv/ny/mock-test`,
+      lastModified: now,
+      priority: 0.64,
+    },
+    {
+      url: `${BASE_URL}/dmv/ny/sign-test`,
+      lastModified: now,
+      priority: 0.64,
+    },
+    {
+      url: `${BASE_URL}/dmv/tickets`,
+      lastModified: now,
+      priority: 0.64,
+    },
   ]
 }
