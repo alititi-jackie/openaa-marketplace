@@ -93,7 +93,7 @@ const localServices = ['驾校', '汽车保险', '翻译公证', '罚单律师',
 
 const pageTitle = '2026纽约 DMV 中文驾照指南 | Permit笔试模拟・罚单查询・驾照流程 - OpenAA'
 const pageDescription =
-  '提供纽约州 NY DMV 中文驾照学习服务，包括 Permit 笔试模拟考试、交通标志练习、纽约 DMV 流程教程、罚单查询、新手考驾照指南等。适合纽约华人、新移民、留学生免费使用。'
+  '提供纽约州 NY DMV 中文驾照学习服务，包括 Permit 笔试模拟考试、交通标志练习、纽约 DMV 流程教程、罚单查询、新手考驾照指南等。适合纽约华人、新移民与留学生。'
 
 const dmvFaq = [
   {
@@ -202,26 +202,6 @@ export default function DMVPage() {
           <p className="mt-2 text-sm text-zinc-600">为美国华人整理常用 DMV 工具、官方入口和中文说明</p>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-bold text-zinc-900">纽约华人 DMV 中文学习平台</h2>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-            这里集中提供 NY DMV 学习入口：Permit 笔试练习、Practice Test、Road Test 流程说明、DMV 教程与 tickets 查询，帮助纽约华人、新移民与留学生更快上手。
-          </p>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-700">
-            <li>Permit 中文练习与模拟考试</li>
-            <li>交通标志 Road Signs 专项训练</li>
-            <li>DMV 教程与新手办证流程</li>
-            <li>停车罚单 / 超速罚单 / 红灯罚单查询</li>
-          </ul>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">中文练习</Link>
-            <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">模拟考试</Link>
-            <Link href="/dmv/ny/sign-test" className="rounded-full bg-orange-50 px-3 py-1.5 font-medium text-orange-700">交通标志</Link>
-            <Link href="/news?category=DMV教程" className="rounded-full bg-zinc-100 px-3 py-1.5 font-medium text-zinc-700">DMV 教程</Link>
-            <Link href="/dmv/tickets" className="rounded-full bg-amber-50 px-3 py-1.5 font-medium text-amber-700">罚单查询</Link>
-          </div>
-        </section>
-
         <section className="mt-4">
           <h2 className="text-base font-bold text-zinc-900">DMV 快捷工具</h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -270,6 +250,26 @@ export default function DMVPage() {
                 </Link>
               )
             })}
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">纽约华人 DMV 中文学习平台</h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+            这里集中提供 NY DMV 学习入口：Permit 笔试练习、Practice Test、Road Test 流程说明、DMV 教程与 tickets 查询，帮助纽约华人、新移民与留学生更快上手。
+          </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-700">
+            <li>Permit 中文练习与模拟考试</li>
+            <li>交通标志 Road Signs 专项训练</li>
+            <li>DMV 教程与新手办证流程</li>
+            <li>停车罚单 / 超速罚单 / 红灯罚单查询</li>
+          </ul>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">中文练习</Link>
+            <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">模拟考试</Link>
+            <Link href="/dmv/ny/sign-test" className="rounded-full bg-orange-50 px-3 py-1.5 font-medium text-orange-700">交通标志</Link>
+            <Link href="/news?category=DMV教程" className="rounded-full bg-zinc-100 px-3 py-1.5 font-medium text-zinc-700">DMV 教程</Link>
+            <Link href="/dmv/tickets" className="rounded-full bg-amber-50 px-3 py-1.5 font-medium text-amber-700">罚单查询</Link>
           </div>
         </section>
 
