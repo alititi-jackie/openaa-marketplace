@@ -94,12 +94,6 @@ export default function JobDetailPage() {
           <h2 className="font-semibold text-gray-900 mb-3">职位描述</h2>
           <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">{job.description}</p>
 
-          <DetailShareCard
-            path={`/jobs/${String(id)}`}
-            title={job.title}
-            text={`${job.job_type} · ${formatJobLocation(job.location)}${salary ? ` · ${salary}` : ''}`}
-          />
-
           <PostSafetyNotice variant="contact" />
         </div>
 
@@ -113,6 +107,12 @@ export default function JobDetailPage() {
             />
           </div>
         ) : null}
+
+        <DetailShareCard
+          path={`/jobs/${String(id)}`}
+          title={job.title}
+          text={`${job.job_type} · ${formatJobLocation(job.location)}${salary ? ` · ${salary}` : ''}`}
+        />
 
         <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">

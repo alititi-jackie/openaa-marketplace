@@ -276,12 +276,6 @@ export default function SecondhandDetailPage() {
             <h2 className="font-semibold text-gray-900 mb-2">商品描述</h2>
             <p className="text-gray-600 whitespace-pre-wrap">{item.description}</p>
 
-            <DetailShareCard
-              path={`/secondhand/${String(id)}`}
-              title={item.title}
-              text={`${item.category}${isBuying ? ` · 预算：${budget || '面议'}` : sellingPrice ? ` · ${sellingPrice}` : ''}`}
-            />
-
             {/* Contact notice */}
             <PostSafetyNotice variant="contact" />
           </div>
@@ -296,6 +290,12 @@ export default function SecondhandDetailPage() {
               />
             </div>
           ) : null}
+
+          <DetailShareCard
+            path={`/secondhand/${String(id)}`}
+            title={item.title}
+            text={`${item.category}${isBuying ? ` · 预算：${budget || '面议'}` : sellingPrice ? ` · ${sellingPrice}` : ''}`}
+          />
 
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#1976d2] flex items-center justify-center text-white font-bold">
