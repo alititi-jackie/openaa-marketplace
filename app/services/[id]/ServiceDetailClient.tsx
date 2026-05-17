@@ -168,13 +168,6 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
         </div>
       ) : null}
 
-      <DetailShareCard
-        path={`/services/${post.id}`}
-        title={post.title}
-        text={`${post.category} · ${post.location}`}
-        className="mb-4"
-      />
-
       {/* Contact */}
       {(post.contact_name || post.phone || post.wechat) ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
@@ -207,6 +200,13 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
           </div>
         </div>
       ) : null}
+
+      <DetailShareCard
+        path={`/services/${post.id}`}
+        title={post.title}
+        text={`${post.category} · ${post.location}`}
+        className="mb-4"
+      />
 
       {/* Safety notice */}
       <PostSafetyNotice />
