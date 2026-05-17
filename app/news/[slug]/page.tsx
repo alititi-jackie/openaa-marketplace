@@ -9,6 +9,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import NewsTipCard from '@/components/NewsTipCard'
+import DetailShareCard from '@/components/DetailShareCard'
 import ShareButton from '@/components/ShareButton'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
 import { getSiteUrl } from '@/lib/site'
@@ -214,6 +215,13 @@ export default async function NewsDetailPage({
             <p key={`${post.id}-${index}`}>{paragraph}</p>
           ))}
         </article>
+
+        <DetailShareCard
+          path={`/news/${post.slug}`}
+          title={post.title}
+          text={post.summary || post.title}
+          className="mt-6"
+        />
 
         <NewsTipCard />
 

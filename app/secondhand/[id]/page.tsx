@@ -8,6 +8,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import DetailShareCard from '@/components/DetailShareCard'
 import ShareButton from '@/components/ShareButton'
 import { supabase } from '@/lib/supabase'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
@@ -274,6 +275,12 @@ export default function SecondhandDetailPage() {
           <div className="mt-4 pt-4 border-t border-gray-100">
             <h2 className="font-semibold text-gray-900 mb-2">商品描述</h2>
             <p className="text-gray-600 whitespace-pre-wrap">{item.description}</p>
+
+            <DetailShareCard
+              path={`/secondhand/${String(id)}`}
+              title={item.title}
+              text={`${item.category}${isBuying ? ` · 预算：${budget || '面议'}` : sellingPrice ? ` · ${sellingPrice}` : ''}`}
+            />
 
             {/* Contact notice */}
             <PostSafetyNotice variant="contact" />
