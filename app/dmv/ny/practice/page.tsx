@@ -42,7 +42,7 @@ const entryCards = [
 
 const pageTitle = '2026纽约驾照笔试中文练习 | NY DMV Permit 免费模拟考试 - OpenAA'
 const pageDescription =
-  '免费提供最新 2026 纽约州 NY DMV 中文 Permit 笔试练习，包含交通标志、道路规则、随机练习、顺序练习、错题练习与模拟考试。帮助纽约华人、新移民一次通过 DMV Permit 考试。'
+  '免费提供最新 2026 纽约州 NY DMV 中文 Permit 笔试练习，包含交通标志、道路规则、随机练习、顺序练习、错题练习与模拟考试。帮助纽约华人、新移民与留学生高效备考。'
 
 const practiceFaq = [
   {
@@ -96,7 +96,7 @@ export default function PracticeHomePage() {
             <div>
               <h1 className="text-xl font-black text-zinc-900">2026 纽约 DMV Permit 中文练习系统</h1>
               <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
-                纽约 DMV Permit 笔试共 20 题，至少答对 14 题才能通过，其中交通标志题至少答对 2 题。OpenAA 提供免费的纽约 DMV 中文练习系统，适合纽约华人、新移民、留学生学习。
+                纽约 DMV Permit 笔试共 20 题，至少答对 14 题才能通过，其中交通标志题至少答对 2 题。OpenAA 提供免费的纽约 DMV 中文练习系统，适合纽约华人、新移民与留学生使用。
               </p>
             </div>
             <DmvShareButton
@@ -106,6 +106,8 @@ export default function PracticeHomePage() {
             />
           </div>
         </section>
+
+        <DmvPracticeEntryCards cards={entryCards} />
 
         <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
           <h2 className="text-base font-bold text-zinc-900">纽约 DMV 中文练习包含什么？</h2>
@@ -123,8 +125,6 @@ export default function PracticeHomePage() {
             <Link href="/dmv/ny/sign-test" className="rounded-full bg-orange-50 px-3 py-1.5 font-medium text-orange-700">交通标志专项</Link>
           </div>
         </section>
-
-        <DmvPracticeEntryCards cards={entryCards} />
 
         <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
           <div className="flex items-start gap-2">
