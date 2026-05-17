@@ -33,6 +33,28 @@ const questionBank = questionsData as QuestionBank
 const questions = questionBank.questions
 
 const WRONG_QUESTIONS_KEY = 'openaa_dmv_wrong_question_ids'
+const ALL_CATEGORY_VALUE = '全部'
+
+const CATEGORY_LABELS: Record<string, string> = {
+  [ALL_CATEGORY_VALUE]: '全部',
+  'traffic-signs': '交通标志',
+  'traffic-control': '交通管制',
+  'right-of-way': '路权与让行',
+  turns: '转弯',
+  'passing-lanes': '超车与车道',
+  parking: '停车',
+  'speed-weather': '速度与天气',
+  highway: '高速公路',
+  'alcohol-drugs': '酒精与药物',
+  safety: '安全驾驶',
+  'sharing-road': '共享道路',
+  law: '交通法规',
+  'road-signs-general': '道路标志综合',
+}
+
+function getCategoryLabel(category: string) {
+  return CATEGORY_LABELS[category] ?? category
+}
 
 function saveWrongQuestion(id: string) {
   try {
@@ -92,7 +114,7 @@ function QuestionCard({ q, showAnswer, index }: QuestionCardProps) {
           {index + 1}
         </span>
         <span className="rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-zinc-500">
-          {q.category}
+          {getCategoryLabel(q.category)}
         </span>
         {q.difficulty === 'hard' && (
           <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-500">难</span>
@@ -171,11 +193,11 @@ function QuestionCard({ q, showAnswer, index }: QuestionCardProps) {
   )
 }
 
-const ALL_CATEGORIES = ['全部', ...Array.from(new Set(questions.map((q) => q.category)))]
+const ALL_CATEGORIES = [ALL_CATEGORY_VALUE, ...Array.from(new Set(questions.map((q) => q.category)))]
 
 export default function PracticePage() {
   const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('全部')
+  const [category, setCategory] = useState(ALL_CATEGORY_VALUE)
   const [showAnswer, setShowAnswer] = useState(false)
   const [showLoginBanner, setShowLoginBanner] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -189,7 +211,7 @@ export default function PracticePage() {
 
   const filtered = useMemo(() => {
     let list = questions
-    if (category !== '全部') {
+    if (category !== ALL_CATEGORY_VALUE) {
       list = list.filter((q) => q.category === category)
     }
     if (search.trim()) {
@@ -269,11 +291,11 @@ export default function PracticePage() {
               onClick={() => setCategoryOpen((v) => !v)}
               className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700"
             >
-              <span className="max-w-[60px] truncate">{category}</span>
+              <span className="max-w-[88px] truncate">{getCategoryLabel(category)}</span>
               <ChevronDown size={12} />
             </button>
             {categoryOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-36 rounded-xl border border-zinc-100 bg-white shadow-lg">
+              <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-xl border border-zinc-100 bg-white shadow-lg">
                 {ALL_CATEGORIES.map((cat) => (
                   <button
                     key={cat}
@@ -284,7 +306,7 @@ export default function PracticePage() {
                     }}
                     className={`w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-xl last:rounded-b-xl ${cat === category ? 'bg-blue-50 text-blue-700 font-medium' : 'text-zinc-700 hover:bg-zinc-50'}`}
                   >
-                    {cat}
+                    {getCategoryLabel(cat)}
                   </button>
                 ))}
               </div>
@@ -293,7 +315,7 @@ export default function PracticePage() {
         </div>
 
         <p className="mt-1.5 text-xs text-zinc-400">
-          共 {filtered.length} 题 {category !== '全部' && `· ${category}`}
+          共 {filtered.length} 题 {category !== ALL_CATEGORY_VALUE && `· ${getCategoryLabel(category)}`}
           {!showAnswer && ' · 点击选项可以直接答题'}
         </p>
       </div>
