@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
-import { Search, X, Eye, EyeOff, ChevronDown } from 'lucide-react'
+import { Search, X, Eye, EyeOff } from 'lucide-react'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
@@ -51,6 +51,23 @@ const CATEGORY_LABELS: Record<string, string> = {
   law: '交通法规',
   'road-signs-general': '道路标志综合',
 }
+
+const CATEGORY_ORDER = [
+  ALL_CATEGORY_VALUE,
+  'traffic-signs',
+  'traffic-control',
+  'right-of-way',
+  'turns',
+  'passing-lanes',
+  'parking',
+  'speed-weather',
+  'highway',
+  'alcohol-drugs',
+  'safety',
+  'sharing-road',
+  'law',
+  'road-signs-general',
+]
 
 function getCategoryLabel(category: string) {
   return CATEGORY_LABELS[category] ?? category
@@ -193,7 +210,9 @@ function QuestionCard({ q, showAnswer, index }: QuestionCardProps) {
   )
 }
 
-const ALL_CATEGORIES = [ALL_CATEGORY_VALUE, ...Array.from(new Set(questions.map((q) => q.category)))]
+const ALL_CATEGORIES = CATEGORY_ORDER.filter(
+  (category) => category === ALL_CATEGORY_VALUE || questions.some((q) => q.category === category),
+)
 
 export default function PracticePage() {
   const [search, setSearch] = useState('')
@@ -201,7 +220,6 @@ export default function PracticePage() {
   const [showAnswer, setShowAnswer] = useState(false)
   const [showLoginBanner, setShowLoginBanner] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [categoryOpen, setCategoryOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -263,8 +281,8 @@ export default function PracticePage() {
         </div>
 
         {/* Search */}
-        <div className="mt-2 flex gap-2">
-          <div className="relative flex-1">
+        <div className="mt-2">
+          <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
@@ -284,33 +302,22 @@ export default function PracticePage() {
             )}
           </div>
 
-          {/* Category dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setCategoryOpen((v) => !v)}
-              className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700"
-            >
-              <span className="max-w-[88px] truncate">{getCategoryLabel(category)}</span>
-              <ChevronDown size={12} />
-            </button>
-            {categoryOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-xl border border-zinc-100 bg-white shadow-lg">
-                {ALL_CATEGORIES.map((cat) => (
+          <div className="mt-3 -mx-4 overflow-x-auto px-4 scrollbar-hide">
+            <div className="flex w-max gap-2 pb-1">
+              {ALL_CATEGORIES.map((cat) => {
+                const active = cat === category
+                return (
                   <button
                     key={cat}
                     type="button"
-                    onClick={() => {
-                      setCategory(cat)
-                      setCategoryOpen(false)
-                    }}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-xl last:rounded-b-xl ${cat === category ? 'bg-blue-50 text-blue-700 font-medium' : 'text-zinc-700 hover:bg-zinc-50'}`}
+                    onClick={() => setCategory(cat)}
+                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${active ? 'border-blue-600 bg-blue-600 text-white' : 'border-zinc-200 bg-white text-zinc-600 active:bg-blue-50 active:border-blue-200'}`}
                   >
                     {getCategoryLabel(cat)}
                   </button>
-                ))}
-              </div>
-            )}
+                )
+              })}
+            </div>
           </div>
         </div>
 
