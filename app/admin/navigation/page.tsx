@@ -1039,7 +1039,7 @@ export default function AdminNavigationPage() {
                     links={linksByCategory[cat.id] ?? []}
                     token={token}
                     onLinksChange={handleLinksChange}
-                    onRefetch={() => void fetchData(token)}
+                    onRefetch={() => fetchData(token)}
                     sectionId={`admin-navigation-category-${cat.slug}`}
                     sectionRef={(node) => {
                       if (node) {
