@@ -8,6 +8,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import ShareButton from '@/components/ShareButton'
 import { supabase } from '@/lib/supabase'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import { formatPrice, formatDate } from '@/lib/utils'
@@ -140,7 +141,14 @@ export default function SecondhandDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
-      <DetailBackButton fallbackHref="/secondhand" />
+      <div className="flex items-center justify-between">
+        <DetailBackButton fallbackHref="/secondhand" />
+        <ShareButton
+          path={`/secondhand/${String(id)}`}
+          title={item.title}
+          text={`${item.category}${isBuying ? ` · 预算：${budget || '面议'}` : sellingPrice ? ` · ${sellingPrice}` : ''}`}
+        />
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {imageCount > 0 ? (

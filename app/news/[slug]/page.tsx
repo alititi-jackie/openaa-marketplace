@@ -9,6 +9,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import NewsTipCard from '@/components/NewsTipCard'
+import ShareButton from '@/components/ShareButton'
 import { NEWS_DEFAULT_SEO_DESCRIPTION } from '@/lib/news'
 import { getSiteUrl } from '@/lib/site'
 import type { NewsPost } from '@/types'
@@ -186,7 +187,14 @@ export default async function NewsDetailPage({
         <Suspense fallback={null}>
           <AdminReturnButton />
         </Suspense>
-        <DetailBackButton fallbackHref="/news" label="← 返回" />
+        <div className="flex items-center justify-between">
+          <DetailBackButton fallbackHref="/news" label="← 返回" />
+          <ShareButton
+            path={`/news/${post.slug}`}
+            title={post.title}
+            text={post.summary || post.title}
+          />
+        </div>
 
         <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
           {post.category}

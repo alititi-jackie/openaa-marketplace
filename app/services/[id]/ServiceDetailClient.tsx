@@ -6,6 +6,7 @@ import PostSafetyNotice from '@/components/PostSafetyNotice'
 import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
+import ShareButton from '@/components/ShareButton'
 import type { ServicePost } from '@/types'
 
 function formatDate(s: string | null) {
@@ -79,7 +80,14 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
     <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
       {/* Back button */}
-      <DetailBackButton fallbackHref="/services" />
+      <div className="flex items-center justify-between">
+        <DetailBackButton fallbackHref="/services" />
+        <ShareButton
+          path={`/services/${post.id}`}
+          title={post.title}
+          text={`${post.category} · ${post.location}`}
+        />
+      </div>
 
       {/* Image carousel */}
       {hasImages && (
