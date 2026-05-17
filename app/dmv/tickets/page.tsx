@@ -16,16 +16,19 @@ export const metadata: Metadata = buildDmvMetadata({
 
 const faqItems = [
   {
-    question: '纽约 DMV Permit 要多少题及格？',
-    answer: '纽约 DMV Permit 笔试共 20 题，至少答对 14 题，且交通标志题至少答对 2 题。',
+    question: '纽约停车罚单怎么查询？',
+    answer:
+      '纽约市停车罚单可通过 NYC Finance CityPay 查询，支持按罚单号（Ticket Number）或车牌号（Plate Number）查找与缴费。',
   },
   {
-    question: '纽约 DMV 可以考中文吗？',
-    answer: '可以，纽约 DMV Permit 笔试支持简体中文。',
+    question: '红灯/超速摄像头罚单在哪里查？',
+    answer:
+      '纽约市红灯与超速摄像头罚单也可在 NYC Finance CityPay 入口查询和处理，进入后按提示选择对应票种。',
   },
   {
-    question: '纽约 Permit 通过后多久能预约路考？',
-    answer: '通过 Permit 后需先满足练车要求，再预约 Road Test。',
+    question: '交通违规（Moving Violation）应该去哪里处理？',
+    answer:
+      '涉及交通违规（如闯红灯、超速等出庭类罚单）通常通过 NY DMV TVB 系统处理，具体以罚单上的法院或 TVB 指引为准。',
   },
 ]
 

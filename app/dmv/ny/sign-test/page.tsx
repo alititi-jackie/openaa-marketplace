@@ -265,7 +265,7 @@ export default function SignTestPage() {
 
       <div className="px-4 pt-4">
         <div className="mb-3 text-center">
-          <h1 className="text-base font-bold text-zinc-900">交通标志专项练习</h1>
+          <h2 className="text-base font-bold text-zinc-900">交通标志专项练习</h2>
           <p className="text-xs text-zinc-500 mt-0.5">纽约州常见交通标志 · 随机排列</p>
         </div>
 
