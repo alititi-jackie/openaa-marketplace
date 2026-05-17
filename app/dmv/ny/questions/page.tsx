@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Search, X, Eye, EyeOff } from 'lucide-react'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
+import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import { supabase } from '@/lib/supabase'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
@@ -67,7 +68,7 @@ const CATEGORY_ORDER = [
   'sharing-road',
   'law',
   'road-signs-general',
-]
+] as const
 
 function getCategoryLabel(category: string) {
   return CATEGORY_LABELS[category] ?? category
@@ -210,13 +211,9 @@ function QuestionCard({ q, showAnswer, index }: QuestionCardProps) {
   )
 }
 
-const ALL_CATEGORIES = CATEGORY_ORDER.filter(
-  (category) => category === ALL_CATEGORY_VALUE || questions.some((q) => q.category === category),
-)
-
 export default function PracticePage() {
   const [search, setSearch] = useState('')
-  const [category, setCategory] = useState(ALL_CATEGORY_VALUE)
+  const [category, setCategory] = useState<string>(ALL_CATEGORY_VALUE)
   const [showAnswer, setShowAnswer] = useState(false)
   const [showLoginBanner, setShowLoginBanner] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -302,23 +299,13 @@ export default function PracticePage() {
             )}
           </div>
 
-          <div className="mt-3 -mx-4 overflow-x-auto px-4 scrollbar-hide">
-            <div className="flex w-max gap-2 pb-1">
-              {ALL_CATEGORIES.map((cat) => {
-                const active = cat === category
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(cat)}
-                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${active ? 'border-blue-600 bg-blue-600 text-white' : 'border-zinc-200 bg-white text-zinc-600 active:bg-blue-50 active:border-blue-200'}`}
-                  >
-                    {getCategoryLabel(cat)}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+          <HorizontalCategoryTabs
+            categories={CATEGORY_ORDER}
+            activeCategory={category}
+            onChange={setCategory}
+            getLabel={getCategoryLabel}
+            className="mt-3"
+          />
         </div>
 
         <p className="mt-1.5 text-xs text-zinc-400">
