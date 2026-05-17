@@ -172,7 +172,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
         path={`/services/${post.id}`}
         title={post.title}
         text={`${post.category} · ${post.location}`}
-        className="mt-0 mb-4"
+        className="mb-4"
       />
 
       {/* Contact */}

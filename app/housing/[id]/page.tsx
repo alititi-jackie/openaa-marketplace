@@ -317,13 +317,11 @@ export default function HousingDetailPage() {
             </div>
           ) : null}
 
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <DetailShareCard
-              path={`/housing/${String(id)}`}
-              title={post.title}
-              text={`${post.type === 'seeking' ? '求租' : '出租'} · ${post.location || ''}${hasPrice ? ` · $${rawPrice}/月` : ''}`}
-            />
-          </div>
+          <DetailShareCard
+            path={`/housing/${String(id)}`}
+            title={post.title}
+            text={`${post.type === 'seeking' ? '求租' : '出租'} · ${post.location || ''}${hasPrice ? ` · $${rawPrice}/月` : ''}`}
+          />
 
           {/* Publisher */}
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
