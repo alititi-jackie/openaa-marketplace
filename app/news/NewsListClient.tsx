@@ -1,16 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import BackToTopButton from '@/components/BackToTopButton'
-import { fetchPublishedNewsPosts } from '@/lib/newsPosts'
-import { supabase } from '@/lib/supabase'
-import { NEWS_FILTER_CATEGORIES, NEWS_PAGE_SIZE, normalizeNewsFilterCategory } from '@/lib/news'
+import { NEWS_FILTER_CATEGORIES } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
 function formatDate(value: string | null) {
@@ -39,26 +36,14 @@ function isEffectivePinned(post: NewsPost, nowTime: number): boolean {
   return toSortableTime(post.pinned_until) > nowTime
 }
 
-export default function NewsListClient() {
-  const searchParams = useSearchParams()
-  const [posts, setPosts] = useState<NewsPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const category = normalizeNewsFilterCategory(searchParams.get('category'))
+interface NewsListClientProps {
+  initialPosts: NewsPost[]
+  initialCategory: string
+}
 
-  const fetchPosts = useCallback(async (currentCategory: string) => {
-    setLoading(true)
-    const merged = await fetchPublishedNewsPosts(supabase, {
-      category: currentCategory === '全部' ? undefined : currentCategory,
-      limit: NEWS_PAGE_SIZE,
-    })
-    setPosts(merged)
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchPosts(category)
-  }, [category, fetchPosts])
-
+export default function NewsListClient({ initialPosts, initialCategory }: NewsListClientProps) {
+  const posts = initialPosts
+  const category = initialCategory
   const featured = posts[0]
   const normalList = useMemo(() => posts.slice(1), [posts])
   const nowTime = Date.now()
@@ -81,9 +66,7 @@ export default function NewsListClient() {
       />
 
       <div className="px-4 pt-2 space-y-4">
-        {loading ? (
-          <div className="py-16 text-center text-sm text-gray-400">加载中...</div>
-        ) : posts.length === 0 ? (
+        {posts.length === 0 ? (
           <div className="rounded-2xl border border-zinc-100 bg-zinc-50 py-14 text-center">
             <p className="text-base font-semibold text-zinc-700">暂无新闻资讯</p>
             <p className="mt-2 text-sm text-zinc-500">更多内容正在整理中，请稍后查看。</p>

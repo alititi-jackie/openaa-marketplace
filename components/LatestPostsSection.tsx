@@ -1,9 +1,5 @@
-'use client'
-
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, ChevronRight, Clock } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import { formatJobLocation } from '@/lib/utils'
 import {
@@ -12,6 +8,7 @@ import {
   NEWS_CATEGORY_BY_SECTION_KEY,
   type HomeLatestSection,
 } from '@/lib/homeSections'
+import { getPublicSupabaseServerClient, getServiceSupabaseServerClient } from '@/lib/serverSupabase'
 
 type LatestJob = {
   id: string | number
@@ -122,220 +119,238 @@ function asValidSections(rows: unknown): HomeLatestSection[] {
     .sort((a, b) => a.display_order - b.display_order)
 }
 
-export default function LatestPostsSection() {
-  const [sections, setSections] = useState<HomeLatestSection[]>(DEFAULT_HOME_LATEST_SECTIONS)
-  const [jobs, setJobs] = useState<LatestJob[]>([])
-  const [items, setItems] = useState<LatestSecondhand[]>([])
-  const [housings, setHousings] = useState<LatestHousing[]>([])
-  const [services, setServices] = useState<LatestService[]>([])
-  const [news, setNews] = useState<LatestNews[]>([])
+async function getHomeLatestSections() {
+  const supabase = getServiceSupabaseServerClient()
+  if (!supabase) return DEFAULT_HOME_LATEST_SECTIONS
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      let activeSections = DEFAULT_HOME_LATEST_SECTIONS
-      try {
-        const res = await fetch('/api/home-sections', { cache: 'no-store' })
-        if (res.ok) {
-          const json = (await res.json()) as { data?: unknown }
-          const apiSections = asValidSections(json.data)
-          if (apiSections.length > 0) activeSections = apiSections
-        }
-      } catch {
-        activeSections = DEFAULT_HOME_LATEST_SECTIONS
-      }
+  const { data, error } = await supabase
+    .from('home_latest_sections')
+    .select('section_key, section_name, section_type, parent_key, is_visible, display_order, limit_count')
+    .eq('is_visible', true)
+    .order('display_order', { ascending: true })
+    .order('section_key', { ascending: true })
 
-      setSections(activeSections)
-      const sectionMap = new Map(activeSections.map((section) => [section.section_key, section]))
-      const nowIso = new Date().toISOString()
-      const nowTime = Date.now()
+  if (error) {
+    console.error('Failed to load homepage latest sections:', error)
+    return DEFAULT_HOME_LATEST_SECTIONS
+  }
 
-      const mainLimit = (key: string, fallback: number) => {
-        const value = sectionMap.get(key)?.limit_count
-        return typeof value === 'number' && value > 0 ? Math.min(30, value) : fallback
-      }
+  const sections = asValidSections(data)
+  return sections.length > 0 ? sections : DEFAULT_HOME_LATEST_SECTIONS
+}
 
-      async function fetchPinnedFirst<T extends { id: string | number }>(
-        pinnedQuery: PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
-        normalQuery: PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
-        limit: number
-      ) {
-        const [pinnedRes, normalRes] = await Promise.all([pinnedQuery, normalQuery])
-        if (pinnedRes.error && normalRes.error) return [] as T[]
-        const merged: T[] = []
-        const seen = new Set<string>()
-        for (const row of [...(pinnedRes.data ?? []), ...(normalRes.data ?? [])]) {
-          const key = String(row.id)
-          if (seen.has(key)) continue
-          seen.add(key)
-          merged.push(row)
-          if (merged.length >= limit) break
-        }
-        return merged.slice(0, limit)
-      }
+async function fetchPinnedFirst<T extends { id: string | number }>(
+  pinnedQuery: PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+  normalQuery: PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+  limit: number
+) {
+  const [pinnedRes, normalRes] = await Promise.all([pinnedQuery, normalQuery])
+  if (pinnedRes.error && normalRes.error) return [] as T[]
 
-      const [
-        jobsData,
-        housingsData,
-        secondhandData,
-        servicesData,
-      ] = await Promise.all([
-        sectionMap.get('latest_jobs')?.is_visible
-          ? fetchPinnedFirst(
-              supabase
-                .from('job_postings')
-                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .eq('is_pinned', true)
-                .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
-                .order('pinned_order', { ascending: true })
-                .order('created_at', { ascending: false })
-                .limit(30),
-              supabase
-                .from('job_postings')
-                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .order('created_at', { ascending: false })
-                .limit(30),
-              mainLimit('latest_jobs', 6)
-            )
-          : Promise.resolve([]),
-        sectionMap.get('latest_housing')?.is_visible
-          ? fetchPinnedFirst(
-              supabase
-                .from('housing_posts')
-                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .eq('is_pinned', true)
-                .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
-                .order('pinned_order', { ascending: true })
-                .order('created_at', { ascending: false })
-                .limit(30),
-              supabase
-                .from('housing_posts')
-                .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .order('created_at', { ascending: false })
-                .limit(30),
-              mainLimit('latest_housing', 6)
-            )
-          : Promise.resolve([]),
-        sectionMap.get('latest_secondhand')?.is_visible
-          ? fetchPinnedFirst(
-              supabase
-                .from('secondhand_items')
-                .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .eq('is_pinned', true)
-                .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
-                .order('pinned_order', { ascending: true })
-                .order('created_at', { ascending: false })
-                .limit(30),
-              supabase
-                .from('secondhand_items')
-                .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'published')
-                .order('created_at', { ascending: false })
-                .limit(30),
-              mainLimit('latest_secondhand', 6)
-            )
-          : Promise.resolve([]),
-        sectionMap.get('latest_services')?.is_visible
-          ? fetchPinnedFirst(
-              supabase
-                .from('service_posts')
-                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'active')
-                .eq('is_active', true)
-                .eq('is_pinned', true)
-                .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
-                .order('pinned_order', { ascending: true })
-                .order('created_at', { ascending: false })
-                .limit(30),
-              supabase
-                .from('service_posts')
-                .select('id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)')
-                .eq('status', 'active')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false })
-                .limit(30),
-              mainLimit('latest_services', 6)
-            )
-          : Promise.resolve([]),
-      ])
+  const merged: T[] = []
+  const seen = new Set<string>()
 
-      const latestNewsVisible = sectionMap.get('latest_news')?.is_visible === true
-      const latestNewsLimit = mainLimit('latest_news', 15)
-      const newsCategorySections = activeSections
-        .filter(
-          (section) =>
-            section.section_type === 'news_category' &&
-            section.parent_key === 'latest_news' &&
-            section.is_visible
-        )
-        .sort((a, b) => a.display_order - b.display_order)
+  for (const row of [...(pinnedRes.data ?? []), ...(normalRes.data ?? [])]) {
+    const key = String(row.id)
+    if (seen.has(key)) continue
+    seen.add(key)
+    merged.push(row)
+    if (merged.length >= limit) break
+  }
 
-      const newsByCategory = latestNewsVisible
-        ? await Promise.all(
-            newsCategorySections.map(async (categorySection) => {
-              const category = NEWS_CATEGORY_BY_SECTION_KEY[categorySection.section_key]
-              if (!category) return [] as LatestNews[]
-              return fetchPinnedFirst(
-                supabase
-                  .from('news_posts')
-                  .select(
-                    'id, slug, title, category, summary, content, created_at, published_at, is_pinned, pinned_until'
-                  )
-                  .eq('is_published', true)
-                  .eq('category', category)
-                  .eq('is_pinned', true)
-                  .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
-                  .order('pinned_order', { ascending: true })
-                  .order('published_at', { ascending: false, nullsFirst: false })
-                  .order('created_at', { ascending: false })
-                  .limit(30),
-                supabase
-                  .from('news_posts')
-                  .select(
-                    'id, slug, title, category, summary, content, created_at, published_at, is_pinned, pinned_until'
-                  )
-                  .eq('is_published', true)
-                  .eq('category', category)
-                  .order('published_at', { ascending: false, nullsFirst: false })
-                  .order('created_at', { ascending: false })
-                  .limit(30),
-                categorySection.limit_count
-              )
-            })
-          )
-        : []
+  return merged.slice(0, limit)
+}
 
-      const pinnedNews: LatestNews[] = []
-      const normalNews: LatestNews[] = []
-      const seenNewsIds = new Set<string>()
-      for (const list of newsByCategory) {
-        for (const row of list) {
-          if (!row.slug) continue
-          const key = String(row.id)
-          if (seenNewsIds.has(key)) continue
-          seenNewsIds.add(key)
-          if (isPinnedActive(row, nowTime)) {
-            pinnedNews.push(row)
-          } else {
-            normalNews.push(row)
-          }
-        }
-      }
-      const mergedNews = [...pinnedNews, ...normalNews]
+async function getLatestPostsData() {
+  const sections = await getHomeLatestSections()
+  const supabase = getPublicSupabaseServerClient()
 
-      setJobs(((jobsData as LatestJob[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
-      setItems(((secondhandData as LatestSecondhand[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
-      setHousings(((housingsData as LatestHousing[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
-      setServices(((servicesData as LatestService[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)))
-      setNews(mergedNews.slice(0, latestNewsLimit))
+  if (!supabase) {
+    return {
+      sections,
+      jobs: [] as LatestJob[],
+      items: [] as LatestSecondhand[],
+      housings: [] as LatestHousing[],
+      services: [] as LatestService[],
+      news: [] as LatestNews[],
     }
+  }
 
-    fetchAll()
-  }, [])
+  const sectionMap = new Map(sections.map((section) => [section.section_key, section]))
+  const nowIso = new Date().toISOString()
+  const nowTime = Date.now()
+
+  const mainLimit = (key: string, fallback: number) => {
+    const value = sectionMap.get(key)?.limit_count
+    return typeof value === 'number' && value > 0 ? Math.min(30, value) : fallback
+  }
+
+  const [jobsData, housingsData, secondhandData, servicesData] = await Promise.all([
+    sectionMap.get('latest_jobs')?.is_visible
+      ? fetchPinnedFirst(
+          supabase
+            .from('job_postings')
+            .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .eq('is_pinned', true)
+            .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
+            .order('pinned_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(30),
+          supabase
+            .from('job_postings')
+            .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .limit(30),
+          mainLimit('latest_jobs', 6)
+        )
+      : Promise.resolve([]),
+    sectionMap.get('latest_housing')?.is_visible
+      ? fetchPinnedFirst(
+          supabase
+            .from('housing_posts')
+            .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .eq('is_pinned', true)
+            .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
+            .order('pinned_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(30),
+          supabase
+            .from('housing_posts')
+            .select('id, title, location, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .limit(30),
+          mainLimit('latest_housing', 6)
+        )
+      : Promise.resolve([]),
+    sectionMap.get('latest_secondhand')?.is_visible
+      ? fetchPinnedFirst(
+          supabase
+            .from('secondhand_items')
+            .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .eq('is_pinned', true)
+            .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
+            .order('pinned_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(30),
+          supabase
+            .from('secondhand_items')
+            .select('id, title, category, created_at, is_pinned, pinned_until, user:users(status)')
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .limit(30),
+          mainLimit('latest_secondhand', 6)
+        )
+      : Promise.resolve([]),
+    sectionMap.get('latest_services')?.is_visible
+      ? fetchPinnedFirst(
+          supabase
+            .from('service_posts')
+            .select(
+              'id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)'
+            )
+            .eq('status', 'active')
+            .eq('is_active', true)
+            .eq('is_pinned', true)
+            .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
+            .order('pinned_order', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(30),
+          supabase
+            .from('service_posts')
+            .select(
+              'id, title, category, location, description, images, created_at, is_pinned, pinned_until, user:users(status)'
+            )
+            .eq('status', 'active')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(30),
+          mainLimit('latest_services', 6)
+        )
+      : Promise.resolve([]),
+  ])
+
+  const latestNewsVisible = sectionMap.get('latest_news')?.is_visible === true
+  const latestNewsLimit = mainLimit('latest_news', 15)
+  const newsCategorySections = sections
+    .filter(
+      (section) =>
+        section.section_type === 'news_category' &&
+        section.parent_key === 'latest_news' &&
+        section.is_visible
+    )
+    .sort((a, b) => a.display_order - b.display_order)
+
+  const newsByCategory = latestNewsVisible
+    ? await Promise.all(
+        newsCategorySections.map(async (categorySection) => {
+          const category = NEWS_CATEGORY_BY_SECTION_KEY[categorySection.section_key]
+          if (!category) return [] as LatestNews[]
+
+          return fetchPinnedFirst(
+            supabase
+              .from('news_posts')
+              .select(
+                'id, slug, title, category, summary, content, created_at, published_at, is_pinned, pinned_until'
+              )
+              .eq('is_published', true)
+              .eq('category', category)
+              .eq('is_pinned', true)
+              .or(`pinned_until.is.null,pinned_until.gt.${nowIso}`)
+              .order('pinned_order', { ascending: true })
+              .order('published_at', { ascending: false, nullsFirst: false })
+              .order('created_at', { ascending: false })
+              .limit(30),
+            supabase
+              .from('news_posts')
+              .select(
+                'id, slug, title, category, summary, content, created_at, published_at, is_pinned, pinned_until'
+              )
+              .eq('is_published', true)
+              .eq('category', category)
+              .order('published_at', { ascending: false, nullsFirst: false })
+              .order('created_at', { ascending: false })
+              .limit(30),
+            categorySection.limit_count
+          )
+        })
+      )
+    : []
+
+  const pinnedNews: LatestNews[] = []
+  const normalNews: LatestNews[] = []
+  const seenNewsIds = new Set<string>()
+
+  for (const list of newsByCategory) {
+    for (const row of list) {
+      if (!row.slug) continue
+      const key = String(row.id)
+      if (seenNewsIds.has(key)) continue
+      seenNewsIds.add(key)
+      if (isPinnedActive(row, nowTime)) {
+        pinnedNews.push(row)
+      } else {
+        normalNews.push(row)
+      }
+    }
+  }
+
+  return {
+    sections,
+    jobs: ((jobsData as LatestJob[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)),
+    items: ((secondhandData as LatestSecondhand[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)),
+    housings: ((housingsData as LatestHousing[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)),
+    services: ((servicesData as LatestService[]) ?? []).filter((row) => isPublicOwnerVisible(row.user)),
+    news: [...pinnedNews, ...normalNews].slice(0, latestNewsLimit),
+  }
+}
+
+export default async function LatestPostsSection() {
+  const { sections, jobs, items, housings, services, news } = await getLatestPostsData()
 
   const visibleMainSections = sections
     .filter((section) => section.section_type === 'main' && section.is_visible)
