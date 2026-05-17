@@ -256,7 +256,7 @@
       "id": 12,
       "category": "traffic-signs",
       "question": "这个标志表示什么？",
-      "image": "https://img.openaa.com/img/dmv/ny/signs/merge-left.png",
+      "image": "https://img.openaa.com/img/dmv/ny/signs/signsmerge-left.png",
       "options": [
         "右车道结束，向左合并",
         "左转专用",
