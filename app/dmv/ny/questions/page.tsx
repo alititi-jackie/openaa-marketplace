@@ -7,6 +7,7 @@ import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import { supabase } from '@/lib/supabase'
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -69,6 +70,24 @@ const CATEGORY_ORDER = [
   'law',
   'road-signs-general',
 ] as const
+
+const pageTitle = '纽约 DMV 中文题库 2026 | Permit 真题练习与答案解析 - OpenAA'
+const pageDescription =
+  '提供纽约 DMV Permit 中文题库与答案解析，支持查看全部 DMV 真题、交通标志、道路规则与中文解释，适合纽约华人 DMV 笔试学习。'
+const questionsFaq = [
+  {
+    question: '纽约 DMV Permit 要多少题及格？',
+    answer: '考试共 20 题，至少答对 14 题，且交通标志题至少答对 2 题。',
+  },
+  {
+    question: '题库有答案解析吗？',
+    answer: '有，题库支持查看答案和中文解析，方便理解道路规则与交通标志。',
+  },
+  {
+    question: '看完题库后下一步做什么？',
+    answer: '建议先去 Practice 练习，再做 Mock Test 模拟考试检验通过率。',
+  },
+]
 
 function getCategoryLabel(category: string) {
   return CATEGORY_LABELS[category] ?? category
@@ -255,11 +274,47 @@ export default function PracticePage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [handleScrollEnd])
 
+  const webPageJsonLd = buildWebPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/dmv/ny/questions',
+  })
+  const faqJsonLd = buildFaqSchema(questionsFaq)
+  const breadcrumbJsonLd = buildBreadcrumbSchema([
+    { name: '首页', path: '/' },
+    { name: 'DMV', path: '/dmv' },
+    { name: '纽约练习', path: '/dmv/ny/practice' },
+    { name: '题库', path: '/dmv/ny/questions' },
+  ])
+
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="px-4 pt-4">
         <DetailBackButton fallbackHref="/dmv/ny/practice" />
       </div>
+
+      <section className="mx-4 mb-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+        <h1 className="text-lg font-black text-zinc-900">纽约 DMV 中文题库与答案解析</h1>
+        <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+          本页提供 NY DMV Permit 全量中文题库，覆盖交通标志、道路规则和常见易错点，支持按分类学习与答案解析，适合纽约华人系统备考。
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+          <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">开始练习</Link>
+          <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">开始模拟考试</Link>
+        </div>
+      </section>
 
       {/* Header */}
       <div className="sticky top-14 z-40 border-b border-zinc-100 bg-white px-4 py-3 shadow-sm">
@@ -358,6 +413,18 @@ export default function PracticePage() {
           退出练习
         </Link>
       </div>
+
+      <section className="mx-4 mt-2 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+        <h2 className="text-base font-bold text-zinc-900">常见问题 FAQ</h2>
+        <div className="mt-3 space-y-3">
+          {questionsFaq.map((item) => (
+            <div key={item.question} className="rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+              <h3 className="text-sm font-semibold text-zinc-900">{item.question}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-zinc-600">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <BackToTopButton />
     </div>

@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowRight, RotateCcw } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -64,6 +65,24 @@ function shuffle<T>(arr: T[]): T[] {
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim() !== ''
 }
+
+const pageTitle = '纽约交通标志考试中文题库 | NY DMV Road Signs Test - OpenAA'
+const pageDescription =
+  '纽约 DMV 中文交通标志专项练习，包含真实纽约 Permit 常见交通标志、路牌识别、标志考试模拟与中文解释。'
+const signFaq = [
+  {
+    question: '为什么要单独练 Road Signs？',
+    answer: '交通标志是 Permit 考试关键部分，正式考试要求标志题至少答对 2 题。',
+  },
+  {
+    question: '纽约 DMV 可以考中文吗？',
+    answer: '可以，Permit 笔试支持简体中文，先练标志题能有效提升通过率。',
+  },
+  {
+    question: '交通标志练完后下一步是什么？',
+    answer: '建议回到总练习和 Mock Test，按完整 20 题考试节奏复习。',
+  },
+]
 
 export default function SignTestPage() {
   // Prefer image-based detection: in the new question bank, sign questions are picture questions.
@@ -129,10 +148,40 @@ export default function SignTestPage() {
     setScore({ correct: 0, wrong: 0 })
   }, [signQuestions])
 
+  const webPageJsonLd = buildWebPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/dmv/ny/sign-test',
+  })
+  const faqJsonLd = buildFaqSchema(signFaq)
+  const breadcrumbJsonLd = buildBreadcrumbSchema([
+    { name: '首页', path: '/' },
+    { name: 'DMV', path: '/dmv' },
+    { name: '纽约练习', path: '/dmv/ny/practice' },
+    { name: '交通标志', path: '/dmv/ny/sign-test' },
+  ])
+  const schemaScripts = (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+    </>
+  )
+
   // Guards moved AFTER all hooks to keep hook order stable.
   if (signQuestions.length === 0 || questions.length === 0) {
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
+        {schemaScripts}
         <div className="px-4 pt-4">
           <DetailBackButton fallbackHref="/dmv/ny/practice" />
         </div>
@@ -154,6 +203,7 @@ export default function SignTestPage() {
   if (!q) {
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
+        {schemaScripts}
         <div className="px-4 pt-4">
           <DetailBackButton fallbackHref="/dmv/ny/practice" />
         </div>
@@ -177,9 +227,21 @@ export default function SignTestPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      {schemaScripts}
       <div className="px-4 pt-4">
         <DetailBackButton fallbackHref="/dmv/ny/practice" />
       </div>
+
+      <section className="mx-4 mb-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+        <h1 className="text-lg font-black text-zinc-900">纽约 DMV Road Signs 交通标志专项练习</h1>
+        <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+          Road Signs 是 NY DMV Permit 笔试的核心部分，本页帮助你集中训练常见标志识别与中文解释，提升正式考试通过率。
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+          <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">返回总练习</Link>
+          <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">去模拟考试</Link>
+        </div>
+      </section>
 
       {/* Progress */}
       <div className="sticky top-14 z-40 bg-white shadow-sm">
@@ -328,6 +390,18 @@ export default function SignTestPage() {
             退出练习
           </Link>
         </div>
+
+        <section className="mt-2 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">常见问题 FAQ</h2>
+          <div className="mt-3 space-y-3">
+            {signFaq.map((item) => (
+              <div key={item.question} className="rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+                <h3 className="text-sm font-semibold text-zinc-900">{item.question}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-600">{item.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, XCircle } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
 import { supabase } from '@/lib/supabase'
 import { toAbsoluteUrl } from '@/lib/site'
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
 import questionsData from '@/data/openaa-ny-dmv-questions-v1.json'
 
 interface Question {
@@ -71,6 +72,24 @@ function formatTime(seconds: number): string {
   return `${m}分${s}秒`
 }
 
+const pageTitle = '纽约 DMV 模拟考试中文 2026 | 免费 NY Permit Practice Test - OpenAA'
+const pageDescription =
+  '模拟真实纽约 DMV Permit 考试流程，20 题中文模拟考试，支持成绩统计、错题分析、交通标志专项练习，帮助快速熟悉纽约 DMV 理论考试。'
+const mockFaq = [
+  {
+    question: '纽约 DMV Permit 要多少题及格？',
+    answer: '模拟标准与正式考试一致：20 题至少答对 14 题，且交通标志题至少答对 2 题。',
+  },
+  {
+    question: '纽约 DMV 可以考中文吗？',
+    answer: '可以，纽约 DMV Permit 笔试支持简体中文。',
+  },
+  {
+    question: '纽约 Permit 通过后多久能预约 Road Test？',
+    answer: '通过 Permit 并满足练车要求后，可在官方系统预约 Road Test。',
+  },
+]
+
 export default function MockTestPage() {
   const [phase, setPhase] = useState<Phase>('intro')
   const [questions, setQuestions] = useState<Question[]>([])
@@ -127,18 +146,48 @@ export default function MockTestPage() {
     setPhase('result')
   }, [questions, answers])
 
+  const webPageJsonLd = buildWebPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/dmv/ny/mock-test',
+  })
+  const faqJsonLd = buildFaqSchema(mockFaq)
+  const breadcrumbJsonLd = buildBreadcrumbSchema([
+    { name: '首页', path: '/' },
+    { name: 'DMV', path: '/dmv' },
+    { name: '纽约练习', path: '/dmv/ny/practice' },
+    { name: '模拟考试', path: '/dmv/ny/mock-test' },
+  ])
+  const schemaScripts = (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+    </>
+  )
+
   if (phase === 'intro') {
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
+        {schemaScripts}
         <div className="px-4 pt-4">
           <DetailBackButton fallbackHref="/dmv/ny/practice" />
-          <h1 className="mb-4 text-base font-bold text-zinc-900">模拟考试</h1>
+          <h1 className="mb-4 text-base font-bold text-zinc-900">纽约 DMV 模拟考试</h1>
 
           <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-5 shadow-sm">
             <div className="text-4xl mb-3">📝</div>
             <h2 className="text-xl font-black text-zinc-900">纽约 DMV 模拟考试</h2>
             <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
-              按照纽约州 DMV 官方规则进行模拟考试，帮助你了解真实考试的题型和难度。
+              这是接近真实 NY DMV Permit 的 Practice Test 场景：20 题考试、14 题及格、交通标志至少答对 2 题。适合纽约华人、新移民、留学生考前冲刺。
             </p>
 
             <div className="mt-4 space-y-2">
@@ -165,6 +214,32 @@ export default function MockTestPage() {
             </button>
           </div>
 
+          <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <h2 className="text-base font-bold text-zinc-900">如何使用模拟考试提升通过率？</h2>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-700">
+              <li>先做 Practice Test 巩固 Permit 基础</li>
+              <li>再做本页模拟考试检验速度与正确率</li>
+              <li>最后回到错题和 Road Signs 专项复习</li>
+            </ul>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">返回练习页</Link>
+              <Link href="/dmv/ny/questions" className="rounded-full bg-zinc-100 px-3 py-1.5 font-medium text-zinc-700">查看题库</Link>
+              <Link href="/dmv/ny/sign-test" className="rounded-full bg-orange-50 px-3 py-1.5 font-medium text-orange-700">交通标志专项</Link>
+            </div>
+          </section>
+
+          <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <h2 className="text-base font-bold text-zinc-900">常见问题 FAQ</h2>
+            <div className="mt-3 space-y-3">
+              {mockFaq.map((item) => (
+                <div key={item.question} className="rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+                  <h3 className="text-sm font-semibold text-zinc-900">{item.question}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-600">{item.answer}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <div className="mt-6 flex justify-center pb-2">
             <Link
               href="/dmv/ny/practice"
@@ -186,6 +261,7 @@ export default function MockTestPage() {
 
     return (
       <div className="min-h-screen bg-zinc-50 pb-28">
+        {schemaScripts}
         {/* Progress bar */}
         <div className="sticky top-14 z-40 bg-white shadow-sm">
           <div className="flex h-1.5 w-full bg-zinc-100">
@@ -354,6 +430,7 @@ export default function MockTestPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      {schemaScripts}
       <div className="px-4 pt-4">
         <DetailBackButton fallbackHref="/dmv/ny/practice" />
         <h1 className="mb-4 text-base font-bold text-zinc-900">考试结果</h1>

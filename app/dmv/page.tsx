@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { fetchPublishedNewsPosts } from '@/lib/newsPosts'
 import { supabase } from '@/lib/supabase'
+import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
 
 const ticketsLink = '/dmv/tickets'
 const questionCount = Array.isArray(questionsData) ? questionsData.length : 0
@@ -90,6 +91,25 @@ const officialLinks = [
 
 const localServices = ['驾校', '汽车保险', '翻译公证', '罚单律师', '修车服务', '二手车买卖']
 
+const pageTitle = '2026纽约 DMV 中文驾照指南 | Permit笔试模拟・罚单查询・驾照流程 - OpenAA'
+const pageDescription =
+  '提供纽约州 NY DMV 中文驾照学习服务，包括 Permit 笔试模拟考试、交通标志练习、纽约 DMV 流程教程、罚单查询、新手考驾照指南等。适合纽约华人、新移民、留学生免费使用。'
+
+const dmvFaq = [
+  {
+    question: '纽约 DMV Permit 要多少题及格？',
+    answer: '纽约 DMV Permit 笔试共 20 题，至少答对 14 题，且交通标志题至少答对 2 题。',
+  },
+  {
+    question: '纽约 DMV 可以考中文吗？',
+    answer: '可以，纽约 DMV Permit 笔试支持简体中文。',
+  },
+  {
+    question: '纽约 Permit 通过后多久能预约路考？',
+    answer: '通过 Permit 后需先满足练车要求，再预约 Road Test。',
+  },
+]
+
 type DmvGuidePost = {
   id: string
   slug: string
@@ -140,8 +160,31 @@ export default function DMVPage() {
     setIsProcessModalOpen(true)
   }
 
+  const webPageJsonLd = buildWebPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/dmv',
+  })
+  const faqJsonLd = buildFaqSchema(dmvFaq)
+  const breadcrumbJsonLd = buildBreadcrumbSchema([
+    { name: '首页', path: '/' },
+    { name: 'DMV', path: '/dmv' },
+  ])
+
   return (
     <div className="min-h-screen bg-zinc-50 pb-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <AppTopSection bannerPosition="dmv" />
       <div className="px-4 pt-4">
         <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
@@ -157,6 +200,26 @@ export default function DMVPage() {
             />
           </div>
           <p className="mt-2 text-sm text-zinc-600">为美国华人整理常用 DMV 工具、官方入口和中文说明</p>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">纽约华人 DMV 中文学习平台</h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+            这里集中提供 NY DMV 学习入口：Permit 笔试练习、Practice Test、Road Test 流程说明、DMV 教程与 tickets 查询，帮助纽约华人、新移民与留学生更快上手。
+          </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-700">
+            <li>Permit 中文练习与模拟考试</li>
+            <li>交通标志 Road Signs 专项训练</li>
+            <li>DMV 教程与新手办证流程</li>
+            <li>停车罚单 / 超速罚单 / 红灯罚单查询</li>
+          </ul>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">中文练习</Link>
+            <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">模拟考试</Link>
+            <Link href="/dmv/ny/sign-test" className="rounded-full bg-orange-50 px-3 py-1.5 font-medium text-orange-700">交通标志</Link>
+            <Link href="/news?category=DMV教程" className="rounded-full bg-zinc-100 px-3 py-1.5 font-medium text-zinc-700">DMV 教程</Link>
+            <Link href="/dmv/tickets" className="rounded-full bg-amber-50 px-3 py-1.5 font-medium text-amber-700">罚单查询</Link>
+          </div>
         </section>
 
         <section className="mt-4">
@@ -327,6 +390,18 @@ export default function DMVPage() {
               <p>DMV 规则、费用、预约和罚单信息以官方页面为准。</p>
               <p>涉及法律、罚单争议、保险等问题，请咨询专业人士或官方机构。</p>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-bold text-zinc-900">常见问题 FAQ</h2>
+          <div className="mt-3 space-y-3">
+            {dmvFaq.map((item) => (
+              <div key={item.question} className="rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+                <h3 className="text-sm font-semibold text-zinc-900">{item.question}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-600">{item.answer}</p>
+              </div>
+            ))}
           </div>
         </section>
       </div>
