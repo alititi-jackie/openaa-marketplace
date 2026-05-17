@@ -669,32 +669,20 @@ const PREPARE_DOCS: Record<TicketType, string[]> = {
 
 const FAQ = [
   {
+    q: '纽约 DMV Permit 要多少题及格？',
+    a: '纽约 DMV Permit 笔试共 20 题，至少答对 14 题，且交通标志题至少答对 2 题。',
+  },
+  {
+    q: '纽约 DMV 可以考中文吗？',
+    a: '可以，纽约 DMV Permit 笔试支持简体中文。',
+  },
+  {
+    q: '纽约 Permit 通过后多久能预约路考？',
+    a: '通过 Permit 后需先满足练车要求，再预约 Road Test。',
+  },
+  {
     q: '美国停车罚单怎么查询？',
     a: '美国停车罚单通常由发出罚单的城市或县财政局、停车管理部门管理。您需要前往该城市官方网站，输入罚单号或车牌号进行查询。纽约市可通过 NYC Finance CityPay 系统查询。OpenAA 不直接查询罚单，仅提供官方入口导航。',
-  },
-  {
-    q: '闯红灯拍照罚单在哪里查？',
-    a: '闯红灯拍照罚单（Red Light Camera Ticket）一般由城市交通部门或 DMV 系统管理。纽约市可通过 NYC Finance CityPay 查询。其他城市请前往该城市官方停车/交通违规查询网站。OpenAA 仅提供入口导航，不直接查询罚单。',
-  },
-  {
-    q: '超速拍照罚单怎么处理？',
-    a: '超速拍照罚单（Speed Camera Ticket）通常为 civil penalty，需在规定期限内缴费或申诉。纽约市可通过 NYC Finance CityPay 处理。逾期可能产生额外费用。请尽快登录收到罚单上注明的官方网站处理。',
-  },
-  {
-    q: '罚单逾期有什么影响？',
-    a: '罚单逾期通常会产生额外滞纳金，严重时可能导致 DMV 暂停车辆注册或驾照、车辆被贴 boot 或拖走、信用记录受影响。请尽快登录官方网站处理逾期罚单。具体规定以各州或城市官方页面为准。',
-  },
-  {
-    q: 'OpenAA 会保存我的车牌号吗？',
-    a: '不会。您在 OpenAA 罚单查询页面输入的车牌号仅在本页面本地显示，用于帮助您确认信息。OpenAA 不保存、不上传、也不将车牌号传递给任何第三方或官方网站。',
-  },
-  {
-    q: '如果找不到罚单怎么办？',
-    a: '如果在官方系统中找不到罚单，可能是罚单尚未录入系统（通常需要 3-5 个工作日）、罚单号或车牌号输入有误、或罚单由不同机构管辖。建议直接联系发出罚单的机构或查看罚单上的联系信息。',
-  },
-  {
-    q: '可以在 OpenAA 直接缴罚单吗？',
-    a: 'OpenAA 不提供罚单缴费服务，也不处理任何付款。OpenAA 仅整理官方查询入口和中文说明。所有罚单的查询、申诉和缴费请在对应官方政府、法院或机构网站上完成。',
   },
 ]
 
@@ -910,9 +898,17 @@ export default function TicketsClient() {
         <p className="mt-2 text-sm text-zinc-600">
           输入车牌所属州并选择罚单类型，OpenAA 会帮你找到对应的<strong>官方</strong>查询入口。
         </p>
+        <p className="mt-2 text-sm text-zinc-600">
+          本页重点整理纽约停车罚单、超速罚单、红灯摄像头罚单查询路径；如果你正在准备 NY DMV Permit，可先回到练习区完成 Practice Test 与 Road Test 相关学习。
+        </p>
         <p className="mt-1 text-xs text-zinc-400">
           OpenAA 不保存车牌号，也不直接查询罚单数据。
         </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+          <Link href="/dmv" className="rounded-full bg-zinc-100 px-3 py-1.5 font-medium text-zinc-700">返回 DMV 学习区</Link>
+          <Link href="/dmv/ny/practice" className="rounded-full bg-blue-50 px-3 py-1.5 font-medium text-blue-700">Permit 练习</Link>
+          <Link href="/dmv/ny/mock-test" className="rounded-full bg-green-50 px-3 py-1.5 font-medium text-green-700">模拟考试</Link>
+        </div>
       </section>
 
       {/* Query form */}
