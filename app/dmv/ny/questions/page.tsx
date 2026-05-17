@@ -319,7 +319,7 @@ export default function PracticePage() {
       {/* Header */}
       <div className="sticky top-14 z-40 border-b border-zinc-100 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <h1 className="text-base font-bold text-zinc-900">查看题库</h1>
+          <h2 className="text-base font-bold text-zinc-900">查看题库</h2>
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"

@@ -185,7 +185,7 @@ export default function MockTestPage() {
 
           <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-5 shadow-sm">
             <div className="text-4xl mb-3">📝</div>
-            <h2 className="text-xl font-black text-zinc-900">纽约 DMV 模拟考试</h2>
+            <h2 className="text-xl font-black text-zinc-900">模拟考试说明</h2>
             <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
               这是接近真实 NY DMV Permit 的 Practice Test 场景：20 题考试、14 题及格、交通标志至少答对 2 题。适合纽约华人、新移民、留学生考前冲刺。
             </p>
