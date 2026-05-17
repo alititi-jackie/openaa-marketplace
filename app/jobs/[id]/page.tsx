@@ -9,6 +9,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import ShareButton from '@/components/ShareButton'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { JobPosting } from '@/types'
 
@@ -47,7 +48,14 @@ export default function JobDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
-      <DetailBackButton fallbackHref="/jobs" />
+      <div className="flex items-center justify-between">
+        <DetailBackButton fallbackHref="/jobs" />
+        <ShareButton
+          path={`/jobs/${String(id)}`}
+          title={job.title}
+          text={`${job.job_type} · ${formatJobLocation(job.location)}${salary ? ` · ${salary}` : ''}`}
+        />
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <div className="flex items-start justify-between">

@@ -10,6 +10,7 @@ import AdminReturnButton from '@/components/AdminReturnButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import BackToTopButton from '@/components/BackToTopButton'
 import ContactInfoCard from '@/components/ContactInfoCard'
+import ShareButton from '@/components/ShareButton'
 import { isPublicUserStatusVisible } from '@/lib/publicVisibility'
 import type { HousingPost } from '@/types'
 
@@ -164,7 +165,14 @@ export default function HousingDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
-      <DetailBackButton fallbackHref="/housing" />
+      <div className="flex items-center justify-between">
+        <DetailBackButton fallbackHref="/housing" />
+        <ShareButton
+          path={`/housing/${String(id)}`}
+          title={post.title}
+          text={`${post.type === 'seeking' ? '求租' : '出租'} · ${post.location || ''}${hasPrice ? ` · $${rawPrice}/月` : ''}`}
+        />
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {/* Only render image area when there is at least one valid image */}
