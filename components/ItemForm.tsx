@@ -8,7 +8,7 @@ import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { compressImageFile, getCompressImageErrorMessage } from '@/lib/compressImage'
-import { validateContactFields } from '@/lib/contactValidation'
+import { validateContactFields, CONTACT_MISSING_MESSAGE } from '@/lib/contactValidation'
 import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
 import type { SecondhandItemType, SecondhandItem } from '@/types'
 
@@ -653,6 +653,17 @@ export default function ItemForm({ initialType, editItem }: Props) {
             {error && (
               <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
                 {error}
+                {error === CONTACT_MISSING_MESSAGE && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setError('')}
+                      className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+                    >
+                      返回修改
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {isDailyLimitError && (
@@ -774,6 +785,17 @@ export default function ItemForm({ initialType, editItem }: Props) {
             {error && (
               <div className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600">
                 {error}
+                {error === CONTACT_MISSING_MESSAGE && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setError('')}
+                      className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+                    >
+                      返回修改
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {isDailyLimitError && (
