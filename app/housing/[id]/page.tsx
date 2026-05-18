@@ -169,7 +169,7 @@ export default function HousingDetailPage() {
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
       <div className="flex items-center justify-between">
-        <DetailBackButton fallbackHref="/housing" />
+        <DetailBackButton fallbackHref="/housing" inToolbar />
         <ShareButton
           path={`/housing/${String(id)}`}
           title={post.title}

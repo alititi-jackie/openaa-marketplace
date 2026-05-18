@@ -151,7 +151,7 @@ export default function DmvPageClient({ questionCount, dmvGuides }: DmvPageClien
       <AppTopSection bannerPosition="dmv" />
       <div className="px-4 pt-4">
         <div className="flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" />
+          <DetailBackButton fallbackHref="/" inToolbar />
           <ShareButton
             path="/dmv"
             title={pageTitle}

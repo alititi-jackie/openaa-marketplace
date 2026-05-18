@@ -82,7 +82,7 @@ export default function ServiceDetailClient({ post }: { post: ServicePost | null
       <AdminReturnButton />
       {/* Back button */}
       <div className="flex items-center justify-between">
-        <DetailBackButton fallbackHref="/services" />
+        <DetailBackButton fallbackHref="/services" inToolbar />
         <ShareButton
           path={`/services/${post.id}`}
           title={post.title}
