@@ -297,6 +297,15 @@ export default function HousingDetailPage() {
             <span>🕒 {formatDate(post.created_at)}</span>
           </div>
 
+          {post.description ? (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <h2 className="font-semibold text-gray-900 mb-2">房屋描述</h2>
+              <p className="text-gray-600 whitespace-pre-wrap">{post.description}</p>
+
+              <PostSafetyNotice variant="contact" />
+            </div>
+          ) : null}
+
           {hasContactInfo ? (
             <div className="mt-4 pt-4 border-t border-gray-100">
               <ContactInfoCard
@@ -305,15 +314,6 @@ export default function HousingDetailPage() {
                 phone={post.phone}
                 wechat={post.wechat}
               />
-            </div>
-          ) : null}
-
-          {post.description ? (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <h2 className="font-semibold text-gray-900 mb-2">房屋描述</h2>
-              <p className="text-gray-600 whitespace-pre-wrap">{post.description}</p>
-
-              <PostSafetyNotice variant="contact" />
             </div>
           ) : null}
 
