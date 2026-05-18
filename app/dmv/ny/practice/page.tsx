@@ -5,6 +5,7 @@ import { BookMarked, Shuffle, ClipboardList, AlertCircle, FileText } from 'lucid
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
+import DetailShareCard from '@/components/DetailShareCard'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
 import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
 import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
@@ -108,6 +109,12 @@ export default function PracticeHomePage() {
         </section>
 
         <DmvPracticeEntryCards cards={entryCards} />
+
+        <DetailShareCard
+          path="/dmv/ny/practice"
+          title="OpenAA 纽约 DMV 中文笔试模拟"
+          text="支持中文 DMV 刷题、随机练习、模拟考试、错题练习。"
+        />
 
         <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
           <h2 className="text-base font-bold text-zinc-900">纽约 DMV 中文练习包含什么？</h2>
