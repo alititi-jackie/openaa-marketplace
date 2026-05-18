@@ -34,6 +34,7 @@ export default function SecondhandDetailPage() {
   const { id } = useParams()
   const [item, setItem] = useState<SecondhandItem | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showContactInfo, setShowContactInfo] = useState(false)
 
   // Carousel state
   const [activeIndex, setActiveIndex] = useState(0)
@@ -45,6 +46,7 @@ export default function SecondhandDetailPage() {
 
   useEffect(() => {
     const fetchItem = async () => {
+      setShowContactInfo(false)
       const { data } = await supabase
         .from('secondhand_items')
         .select('*, user:users(username, avatar_url)')
@@ -282,12 +284,22 @@ export default function SecondhandDetailPage() {
 
           {hasContactInfo ? (
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <ContactInfoCard
-                title="联系卖家"
-                contactName={item.contact_name}
-                phone={item.phone}
-                wechat={item.wechat}
-              />
+              {showContactInfo ? (
+                <ContactInfoCard
+                  title="联系卖家"
+                  contactName={item.contact_name}
+                  phone={item.phone}
+                  wechat={item.wechat}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowContactInfo(true)}
+                  className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 text-center text-base font-medium text-gray-700"
+                >
+                  查看联系方式
+                </button>
+              )}
             </div>
           ) : null}
 
