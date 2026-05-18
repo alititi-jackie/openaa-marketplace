@@ -57,7 +57,7 @@ export default function NewsListClient({ initialPosts, initialCategory }: NewsLi
 
       <div className="px-4 pt-4">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/news" title="OpenAA 新闻资讯" text="美国华人生活资讯、平台公告、新手指南与实用教程。" />
         </div>
 

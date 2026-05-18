@@ -139,7 +139,7 @@ export default function JobsPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/jobs" title="OpenAA 招聘频道" text="纽约招聘、求职、兼职全职与行业岗位信息。" />
         </div>
 
