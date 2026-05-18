@@ -41,6 +41,7 @@ export interface SecondhandItem {
 }
 
 export type JobPostingType = 'hiring' | 'seeking'
+export type JobSalaryUnit = '/小时' | '/月薪' | '/年薪'
 
 export interface JobPosting {
   id: number
@@ -59,8 +60,9 @@ export interface JobPosting {
   title: string
   company: string
   description: string
-  salary_min: number
-  salary_max: number
+  salary_min: number | null
+  salary_max: number | null
+  salary_unit?: JobSalaryUnit | null
   location: string
   job_type: string
   category: string
@@ -126,6 +128,7 @@ export interface UnifiedPost {
   /** salary range for job postings */
   salary_min: number | null
   salary_max: number | null
+  salary_unit?: JobSalaryUnit | null
   images: string[] | null
   created_at: string
   updated_at: string

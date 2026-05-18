@@ -20,7 +20,7 @@ function isEffectivePinned(job: JobPosting, nowTime: number): boolean {
 }
 
 export default function JobCard({ job }: Props) {
-  const salary = formatSalary(job.salary_min, job.salary_max)
+  const salary = formatSalary(job.salary_min, job.salary_max, job.salary_unit)
   const companyName = job.company?.trim() || ''
   const isPinned = isEffectivePinned(job, Date.now())
   return (
@@ -38,9 +38,7 @@ export default function JobCard({ job }: Props) {
           </span>
         </div>
 
-        {salary ? (
-          <p className="text-green-600 font-semibold mt-2">{salary}</p>
-        ) : null}
+        <p className="text-green-600 font-semibold mt-2">{salary}</p>
 
         <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
           {isPinned ? (
