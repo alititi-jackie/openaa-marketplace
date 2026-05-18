@@ -7,7 +7,7 @@ import type { ServicePost } from '@/types'
 function getSupabaseClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
 
@@ -20,11 +20,16 @@ export async function generateMetadata({
   const supabase = getSupabaseClient()
   const { data } = await supabase
     .from('service_posts')
-    .select('title, location, category, user:users(status)')
+    .select('title, location, category, is_active, user:users(status)')
     .eq('id', id)
-    .single()
+    .in('status', ['active', 'published'])
+    .maybeSingle()
 
-  if (!data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
+  if (
+    !data ||
+    !isPublicOwnerVisible((data as { user?: unknown }).user) ||
+    (data as { is_active?: boolean | null }).is_active === false
+  ) {
     return {
       title: '本地服务详情 | OpenAA',
       description: 'OpenAA 华人本地服务信息',
@@ -48,9 +53,14 @@ export default async function ServiceDetailPage({
     .from('service_posts')
     .select('*, user:users(status)')
     .eq('id', id)
-    .single()
+    .in('status', ['active', 'published'])
+    .maybeSingle()
 
-  if (!data || !isPublicOwnerVisible((data as { user?: unknown }).user)) {
+  if (
+    !data ||
+    !isPublicOwnerVisible((data as { user?: unknown }).user) ||
+    (data as { is_active?: boolean | null }).is_active === false
+  ) {
     return <ServiceDetailClient post={null} />
   }
 
