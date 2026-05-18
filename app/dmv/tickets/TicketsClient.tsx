@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useRef, useState } from 'react'
 import {
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   ChevronDown,
   ChevronUp,
@@ -12,6 +11,8 @@ import {
   Info,
   Shield,
 } from 'lucide-react'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -882,14 +883,14 @@ export default function TicketsClient() {
 
   return (
     <div className="px-4 pt-4">
-      {/* Back button */}
-      <Link
-        href="/dmv"
-        className="inline-flex items-center gap-1.5 text-sm text-blue-600 mb-4"
-      >
-        <ArrowLeft size={15} />
-        返回 DMV 首页
-      </Link>
+      <div className="mb-6 flex items-center justify-between">
+        <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar />
+        <ShareButton
+          path="/dmv/tickets"
+          title="纽约罚单查询指南 - OpenAA"
+          text="纽约停车罚单、超速罚单、红灯罚单查询教程与官方入口。"
+        />
+      </div>
 
       {/* Title + description */}
       <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm mb-4">

@@ -89,8 +89,8 @@ export default function PracticeHomePage() {
       <AppTopSection bannerPosition="dmv" />
 
       <div className="px-4 pt-4">
-        <div className="flex items-center justify-between">
-          <DetailBackButton fallbackHref="/dmv" inToolbar />
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar />
           <ShareButton
             path="/dmv/ny/practice"
             title={pageTitle}

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import type { HousingPost, HousingPostType } from '@/types'
 
@@ -167,6 +169,11 @@ export default function HousingPage() {
       <AppTopSection bannerPosition="housing" />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/housing" title="OpenAA 房屋租售频道" text="纽约房屋租售、求租求购信息频道。" />
+        </div>
+
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
           <Link
