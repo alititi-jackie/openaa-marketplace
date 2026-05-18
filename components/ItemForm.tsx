@@ -725,17 +725,6 @@ export default function ItemForm({ initialType, editItem }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
-            <input
-              type="text"
-              value={buying.contact}
-              onChange={(e) => setBuying((p) => ({ ...p, contact: e.target.value }))}
-              placeholder="例：微信 / 电话 / 邮箱"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-            />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">信息内容 *</label>
             <textarea
               value={buying.description}
