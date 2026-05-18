@@ -42,7 +42,7 @@ export default function JobDetailPage() {
   if (loading) return <div className="flex justify-center py-20 text-gray-500">加载中...</div>
   if (!job) return <div className="flex justify-center py-20 text-gray-500">职位不存在</div>
 
-  const salary = formatSalary(job.salary_min, job.salary_max)
+  const salary = formatSalary(job.salary_min, job.salary_max, job.salary_unit)
   const companyName = job.company?.trim() || ''
   const hasContactInfo = Boolean((job.contact_name || '').trim() || (job.phone || '').trim() || (job.wechat || '').trim())
 
@@ -72,12 +72,10 @@ export default function JobDetailPage() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          {salary ? (
-            <div className="bg-green-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">薪资范围</p>
-              <p className="font-semibold text-green-600">{salary}</p>
-            </div>
-          ) : null}
+          <div className="bg-green-50 rounded-lg p-3">
+            <p className="text-xs text-gray-500">薪资</p>
+            <p className="font-semibold text-green-600">{salary}</p>
+          </div>
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">工作地点</p>
             <p className="font-semibold text-gray-900">📍 {formatJobLocation(job.location)}</p>

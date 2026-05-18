@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
+import { formatSalary } from '@/lib/utils'
 import type { UnifiedPost } from '@/types'
 import { clearAdminToken, getAdminToken, setAdminToken } from '@/lib/adminToken'
 import BackToTopButton from '@/components/BackToTopButton'
@@ -113,12 +114,7 @@ function typeLabel(post: UnifiedPost): string | null {
 
 function formatPrice(post: UnifiedPost): string | null {
   if (post.module === 'jobs') {
-    const min = post.salary_min
-    const max = post.salary_max
-    if (!min && !max) return null
-    if (min && max && min > 0 && max > 0) return `$${min}–$${max}`
-    if (min && min > 0) return `$${min}+`
-    return null
+    return formatSalary(post.salary_min, post.salary_max, post.salary_unit)
   }
   const v = post.price_value
   if (v == null || v <= 0) return null

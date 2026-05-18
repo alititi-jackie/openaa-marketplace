@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { formatSalary } from '@/lib/utils'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import type { JobPosting } from '@/types'
@@ -31,14 +32,7 @@ function jobTypeBadgeClass(t?: string) {
 }
 
 function displaySalary(job: JobPosting) {
-  const min = Number(job.salary_min ?? 0)
-  const max = Number(job.salary_max ?? 0)
-
-  if (!Number.isFinite(min) || !Number.isFinite(max) || (min <= 0 && max <= 0)) return '薪资面议'
-  if (min > 0 && max <= 0) return `$${min}+`
-  if (max > 0 && min <= 0) return `≤ $${max}`
-  if (min === max) return `$${min}`
-  return `$${min} - $${max}`
+  return formatSalary(job.salary_min, job.salary_max, job.salary_unit)
 }
 
 export default function MyJobsPage() {
