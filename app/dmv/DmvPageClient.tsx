@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailShareCard from '@/components/DetailShareCard'
 import DmvShareButton from '@/components/dmv/DmvShareButton'
 import DmvLicenseProcessModal from '@/components/dmv/DmvLicenseProcessModal'
 import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
@@ -208,6 +209,12 @@ export default function DmvPageClient({ questionCount, dmvGuides }: DmvPageClien
             })}
           </div>
         </section>
+
+        <DetailShareCard
+          path="/dmv"
+          title="OpenAA DMV 工具中心"
+          text="纽约 DMV 笔试、罚单查询、驾照申请与车辆服务入口。"
+        />
 
         <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
           <h2 className="text-base font-bold text-zinc-900">纽约华人 DMV 中文学习平台</h2>
