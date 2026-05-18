@@ -8,6 +8,9 @@ export interface ContactValidationResult {
   message?: string
 }
 
+/** The error message shown when both phone and wechat are empty. */
+export const CONTACT_MISSING_MESSAGE = '请至少填写联系电话或微信，方便用户联系你。'
+
 /**
  * Extracts only the digit characters from a phone string.
  */
@@ -38,7 +41,7 @@ export function validateContactFields(
   const w = wechat.trim()
 
   if (!p && !w) {
-    return { ok: false, message: '请至少填写联系电话或微信，方便用户联系你。' }
+    return { ok: false, message: CONTACT_MISSING_MESSAGE }
   }
 
   if (p) {
