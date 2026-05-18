@@ -171,7 +171,7 @@ export default function HousingPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/housing" title="OpenAA 房屋租售频道" text="纽约房屋租售、求租求购信息频道。" />
         </div>
 

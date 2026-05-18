@@ -157,7 +157,7 @@ export default function ServicesListClient() {
 
       <div className="px-4 pt-4">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/services" title="OpenAA 本地服务" text="纽约华人常用本地服务信息与商家入口。" />
         </div>
 

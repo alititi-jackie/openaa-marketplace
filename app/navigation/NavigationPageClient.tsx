@@ -241,7 +241,7 @@ export default function NavigationPageClient({
 
       <div className="mx-auto w-full max-w-[860px] px-4 pt-4">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/navigation" title="OpenAA 生活导航" text="在美华人常用网站入口与生活服务导航。" />
         </div>
       </div>

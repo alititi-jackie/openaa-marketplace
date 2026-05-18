@@ -131,7 +131,7 @@ export default function SecondhandPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar forceHref />
           <ShareButton path="/secondhand" title="OpenAA 二手交易频道" text="纽约二手交易、求购信息与本地闲置发布。" />
         </div>
 
