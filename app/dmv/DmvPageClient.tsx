@@ -179,7 +179,7 @@ export default function DmvPageClient({ questionCount, dmvGuides }: DmvPageClien
                     onClick={handleScrollToPractice}
                     className="rounded-2xl border border-zinc-100 bg-white p-3 text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
-                    <div className="flex items-center justify-between gap-2 mb-6">
+                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                           <Icon size={16} />
