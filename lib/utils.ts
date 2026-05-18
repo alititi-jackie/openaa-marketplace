@@ -32,12 +32,21 @@ export function normalizeSalaryUnit(unit?: string | null): JobSalaryUnit {
 }
 
 export function formatSalary(
-  min: number | null | undefined,
-  max?: number | null | undefined,
+  min: number | string | null | undefined,
+  max?: number | string | null | undefined,
   unit?: string | null
 ): string {
-  const minVal = typeof min === 'number' && Number.isFinite(min) && min > 0 ? min : 0
-  const maxVal = typeof max === 'number' && Number.isFinite(max) && max > 0 ? max : 0
+  const parseSalaryValue = (value: number | string | null | undefined): number => {
+    if (typeof value === 'number') return Number.isFinite(value) && value > 0 ? value : 0
+    if (typeof value === 'string') {
+      const parsed = Number(value)
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+    }
+    return 0
+  }
+
+  const minVal = parseSalaryValue(min)
+  const maxVal = parseSalaryValue(max)
   const salary = minVal > 0 ? minVal : maxVal > 0 ? maxVal : 0
 
   if (salary <= 0) return '薪资电议'
