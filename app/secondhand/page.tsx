@@ -10,6 +10,7 @@ import DetailBackButton from '@/components/DetailBackButton'
 import ShareButton from '@/components/ShareButton'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import ChannelSeoSection from '@/components/ChannelSeoSection'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
 import type { SecondhandItem, SecondhandItemType } from '@/types'
@@ -210,6 +211,16 @@ export default function SecondhandPage() {
             ))}
           </div>
         )}
+
+        <ChannelSeoSection
+          title="纽约华人二手交易频道使用说明"
+          paragraphs={[
+            'OpenAA 二手频道聚焦纽约二手与本地闲置流通，覆盖华人二手交易、家具家电转让、母婴用品、搬家清仓与长期求购等需求。相比零散群聊信息，这里把二手买卖集中到统一页面，搜索引擎也能通过完整正文更好识别频道主题，即使图片加载较慢，核心内容依然可读。',
+            '适合使用的人群包括准备搬家的家庭、预算有限的留学生、刚入住新房需要补齐家具家电的租客，以及想快速处理闲置物品的卖家。你可以先在“出售商品”和“求购信息”之间切换，再按分类和地区筛选。比如在法拉盛短租到期前，需要快速出手桌椅和小家电，就可以优先发布本地区信息，减少跨区沟通成本。',
+            'OpenAA 在频道里提供的是贴近真实交易流程的功能：发布内容清晰、浏览列表直观、发布时间可追踪。很多华人用户会先看最近两三天的帖子，再结合区域判断是否方便自取；买家也可以通过关键词直接查找“沙发”“冰箱”“婴儿床”等高频品类，提升配对效率。这样无论你是处理闲置还是补齐生活用品，都能更快找到匹配对象。',
+          ]}
+          highlights={['适合用户：纽约华人家庭、留学生、搬家换房人群', '核心功能：出售/求购切换、分类筛选、地区筛选、快速查看最新发布', '典型场景：法拉盛和皇后区本地自取交易、家具家电集中转让与补货']}
+        />
       </div>
       <BackToTopButton />
     </div>
