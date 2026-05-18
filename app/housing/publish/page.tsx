@@ -446,16 +446,19 @@ function HousingPublishClient() {
   }
 
   const isDailyLimitError = error.includes('今天发布的信息已达到平台限制')
+  const isContactMissingError = error === CONTACT_MISSING_MESSAGE
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">{editId ? '编辑房屋信息' : '发布房源'}</h1>
 
-      {error && <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>}
+      {error && !isContactMissingError && (
+        <div className="bg-red-50 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>
+      )}
 
       {loadingEdit ? (
         <div className="flex justify-center py-20 text-gray-500">加载中...</div>
-      ) : error ? null : (
+      ) : error && !isContactMissingError ? null : (
         <>
           {/* Mode switch */}
           <div className="mb-4">
