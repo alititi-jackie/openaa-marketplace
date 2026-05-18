@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import ServiceDetailClient from './ServiceDetailClient'
-import { isPublicOwnerVisible } from '@/lib/publicVisibility'
+import { getPublicServiceById } from '@/lib/services/publicServices'
 import type { ServicePost } from '@/types'
 
 function getSupabaseClient() {
@@ -18,18 +18,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const supabase = getSupabaseClient()
-  const { data } = await supabase
-    .from('service_posts')
-    .select('title, location, category, is_active, user:users(status)')
-    .eq('id', id)
-    .in('status', ['active', 'published'])
-    .maybeSingle()
+  const { data } = await getPublicServiceById(supabase, id)
 
-  if (
-    !data ||
-    !isPublicOwnerVisible((data as { user?: unknown }).user) ||
-    (data as { is_active?: boolean | null }).is_active === false
-  ) {
+  if (!data) {
     return {
       title: '本地服务详情 | OpenAA',
       description: 'OpenAA 华人本地服务信息',
@@ -49,22 +40,11 @@ export default async function ServiceDetailPage({
 }) {
   const { id } = await params
   const supabase = getSupabaseClient()
-  const { data } = await supabase
-    .from('service_posts')
-    .select('*, user:users(status)')
-    .eq('id', id)
-    .in('status', ['active', 'published'])
-    .maybeSingle()
+  const { data } = await getPublicServiceById(supabase, id)
 
-  if (
-    !data ||
-    !isPublicOwnerVisible((data as { user?: unknown }).user) ||
-    (data as { is_active?: boolean | null }).is_active === false
-  ) {
+  if (!data) {
     return <ServiceDetailClient post={null} />
   }
 
-  const post = { ...(data as ServicePost & { user?: unknown }) }
-  delete post.user
-  return <ServiceDetailClient post={post} />
+  return <ServiceDetailClient post={data as ServicePost} />
 }
