@@ -5,7 +5,9 @@ import Link from 'next/link'
 import AppTopSection from '@/components/AppTopSection'
 import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
+import ShareButton from '@/components/ShareButton'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -152,12 +154,19 @@ export default function ServicesListClient() {
     <div className="min-h-screen bg-white pb-24">
       <AppTopSection bannerPosition="services" />
 
-      {/* Header */}
-      <div className="px-4 pt-5 pb-3">
-        <h1 className="text-xl font-black text-gray-900">本地服务</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          找纽约华人常用服务：装修维修、搬家保洁、汽车驾校、律师会计、电脑手机等。
-        </p>
+      <div className="px-4 pt-4">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/services" title="OpenAA 本地服务" text="纽约华人常用本地服务信息与商家入口。" />
+        </div>
+
+        {/* Header */}
+        <div className="pb-3">
+          <h1 className="text-xl font-black text-gray-900">本地服务</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            找纽约华人常用服务：装修维修、搬家保洁、汽车驾校、律师会计、电脑手机等。
+          </p>
+        </div>
       </div>
 
       {/* Search */}

@@ -150,8 +150,8 @@ export default function DmvPageClient({ questionCount, dmvGuides }: DmvPageClien
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <AppTopSection bannerPosition="dmv" />
       <div className="px-4 pt-4">
-        <div className="flex items-center justify-between">
-          <DetailBackButton fallbackHref="/" inToolbar />
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
           <ShareButton
             path="/dmv"
             title={pageTitle}

@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import SecondhandCard from '@/components/SecondhandCard'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 import { SECONDHAND_CATEGORIES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { LOCATION_OPTIONS } from '@/lib/locationOptions'
@@ -127,6 +129,11 @@ export default function SecondhandPage() {
       <AppTopSection bannerPosition="secondhand" />
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/secondhand" title="OpenAA 二手交易频道" text="纽约二手交易、求购信息与本地闲置发布。" />
+        </div>
+
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
           <Link

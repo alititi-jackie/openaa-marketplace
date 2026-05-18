@@ -7,6 +7,8 @@ import HorizontalCategoryTabs from '@/components/HorizontalCategoryTabs'
 import NewsCover from '@/components/NewsCover'
 import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 import { NEWS_FILTER_CATEGORIES } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
@@ -52,11 +54,18 @@ export default function NewsListClient({ initialPosts, initialCategory }: NewsLi
     <div className="min-h-screen bg-white pb-24">
       <AppTopSection bannerPosition="news" showQuickGrid={false} />
 
-      <div className="px-4 pt-5 pb-3">
-        <h1 className="text-xl font-black text-gray-900">新闻资讯</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          美国华人生活资讯、平台公告、新手指南与实用教程
-        </p>
+      <div className="px-4 pt-4">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/news" title="OpenAA 新闻资讯" text="美国华人生活资讯、平台公告、新手指南与实用教程。" />
+        </div>
+
+        <div className="pb-3">
+          <h1 className="text-xl font-black text-gray-900">新闻资讯</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            美国华人生活资讯、平台公告、新手指南与实用教程
+          </p>
+        </div>
       </div>
 
       <HorizontalCategoryTabs

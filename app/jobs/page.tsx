@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import AppTopSection from '@/components/AppTopSection'
 import JobCard from '@/components/JobCard'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
@@ -135,6 +137,11 @@ export default function JobsPage() {
       <AppTopSection bannerPosition="jobs" />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/jobs" title="OpenAA 招聘频道" text="纽约招聘、求职、兼职全职与行业岗位信息。" />
+        </div>
+
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
           <Link

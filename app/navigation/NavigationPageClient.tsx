@@ -5,6 +5,8 @@ import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
+import DetailBackButton from '@/components/DetailBackButton'
+import ShareButton from '@/components/ShareButton'
 
 type OpenMode = 'auto' | 'same' | 'new'
 
@@ -236,7 +238,14 @@ export default function NavigationPageClient({
     <div className="min-h-screen bg-zinc-50">
       <AppTopSection bannerPosition="navigation" />
 
-      <div className="mx-auto mb-4 w-full max-w-[860px] px-4 pt-4">
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-4">
+        <div className="mb-6 flex items-center justify-between">
+          <DetailBackButton fallbackHref="/" label="← 返回首页" inToolbar />
+          <ShareButton path="/navigation" title="OpenAA 生活导航" text="在美华人常用网站入口与生活服务导航。" />
+        </div>
+      </div>
+
+      <div className="mx-auto mb-4 w-full max-w-[860px] px-4 pt-0">
         <Link
           href="/navigation/my"
           className="block rounded-3xl bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-4 shadow-[0_10px_35px_rgba(0,0,0,0.06)] ring-1 ring-blue-100 transition hover:-translate-y-0.5 hover:shadow-[0_14px_38px_rgba(0,0,0,0.08)]"
