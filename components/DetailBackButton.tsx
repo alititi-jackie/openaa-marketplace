@@ -6,12 +6,18 @@ interface DetailBackButtonProps {
   fallbackHref: string
   label?: string
   inToolbar?: boolean
+  forceHref?: boolean
 }
 
-export default function DetailBackButton({ fallbackHref, label = '← 返回', inToolbar = false }: DetailBackButtonProps) {
+export default function DetailBackButton({ fallbackHref, label = '← 返回', inToolbar = false, forceHref = false }: DetailBackButtonProps) {
   const router = useRouter()
 
   const handleBack = () => {
+    if (forceHref) {
+      router.push(fallbackHref)
+      return
+    }
+
     // Use document.referrer as a more reliable signal that there is a previous page to return to.
     // window.history.length > 2 ensures we're not on the first page of a new session.
     const hasPriorPage =

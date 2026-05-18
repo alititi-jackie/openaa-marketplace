@@ -91,7 +91,7 @@ export default function PracticeHomePage() {
 
       <div className="px-4 pt-4">
         <div className="mb-6 flex items-center justify-between">
-          <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar />
+          <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar forceHref />
           <ShareButton
             path="/dmv/ny/practice"
             title={pageTitle}
