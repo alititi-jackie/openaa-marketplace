@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import DetailBackButton from '@/components/DetailBackButton'
 import ShareButton from '@/components/ShareButton'
+import DetailShareCard from '@/components/DetailShareCard'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -884,7 +885,7 @@ export default function TicketsClient() {
   return (
     <div className="px-4 pt-4">
       <div className="mb-6 flex items-center justify-between">
-        <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar />
+        <DetailBackButton fallbackHref="/dmv" label="← 返回 DMV 首页" inToolbar forceHref />
         <ShareButton
           path="/dmv/tickets"
           title="纽约罚单查询指南 - OpenAA"
@@ -996,6 +997,12 @@ export default function TicketsClient() {
           </button>
         </form>
       </section>
+
+      <DetailShareCard
+        path="/dmv/tickets"
+        title="纽约罚单查询指南 - OpenAA"
+        text="纽约停车罚单、超速罚单、红灯罚单查询教程与官方入口。"
+      />
 
       {/* Result card */}
       {result && (
