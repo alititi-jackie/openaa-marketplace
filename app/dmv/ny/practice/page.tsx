@@ -5,8 +5,7 @@ import { BookMarked, Shuffle, ClipboardList, AlertCircle, FileText } from 'lucid
 import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
-import DetailShareCard from '@/components/DetailShareCard'
-import DmvShareButton from '@/components/dmv/DmvShareButton'
+import ShareButton from '@/components/ShareButton'
 import DmvPracticeEntryCards from '@/components/dmv/DmvPracticeEntryCards'
 import { buildBreadcrumbSchema, buildFaqSchema, buildWebPageSchema } from '@/lib/seo'
 
@@ -90,31 +89,25 @@ export default function PracticeHomePage() {
       <AppTopSection bannerPosition="dmv" />
 
       <div className="px-4 pt-4">
-        <DetailBackButton fallbackHref="/dmv" />
+        <div className="flex items-center justify-between">
+          <DetailBackButton fallbackHref="/dmv" />
+          <ShareButton
+            path="/dmv/ny/practice"
+            title={pageTitle}
+            text="支持中文 DMV 刷题、随机练习、模拟考试、错题练习。"
+          />
+        </div>
 
         <section className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h1 className="text-xl font-black text-zinc-900">2026 纽约 DMV Permit 中文练习系统</h1>
-              <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
-                纽约 DMV Permit 笔试共 20 题，至少答对 14 题才能通过，其中交通标志题至少答对 2 题。OpenAA 提供免费的纽约 DMV 中文练习系统，适合纽约华人、新移民与留学生使用。
-              </p>
-            </div>
-            <DmvShareButton
-              path="/dmv/ny/practice"
-              title="OpenAA 纽约 DMV 中文笔试模拟"
-              text="支持中文 DMV 刷题、随机练习、模拟考试、错题练习。"
-            />
+          <div>
+            <h1 className="text-xl font-black text-zinc-900">2026 纽约 DMV Permit 中文练习系统</h1>
+            <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
+              纽约 DMV Permit 笔试共 20 题，至少答对 14 题才能通过，其中交通标志题至少答对 2 题。OpenAA 提供免费的纽约 DMV 中文练习系统，适合纽约华人、新移民与留学生使用。
+            </p>
           </div>
         </section>
 
         <DmvPracticeEntryCards cards={entryCards} />
-
-        <DetailShareCard
-          path="/dmv/ny/practice"
-          title="OpenAA 纽约 DMV 中文笔试模拟"
-          text="支持中文 DMV 刷题、随机练习、模拟考试、错题练习。"
-        />
 
         <section className="mt-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
           <h2 className="text-base font-bold text-zinc-900">纽约 DMV 中文练习包含什么？</h2>
