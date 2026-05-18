@@ -239,7 +239,7 @@ export default function DMVQuizPage() {
                 className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white"
               >
                 <RotateCcw size={16} />
-                重新练习
+                再来一次
               </button>
               <Link
                 href="/dmv/ny/wrong-questions"
