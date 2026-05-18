@@ -110,7 +110,7 @@ export default function JobDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowContactInfo(true)}
-                className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 text-center text-base font-medium text-gray-700"
+                className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 text-center text-base font-medium text-blue-600"
               >
                 查看联系方式
               </button>
