@@ -361,7 +361,7 @@ export default function SignTestPage() {
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white"
               >
                 <RotateCcw size={16} />
-                重新练习（随机排列）
+                再来一次（随机排列）
               </button>
               <Link
                 href="/dmv/ny/mock-test"
