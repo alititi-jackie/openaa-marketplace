@@ -9,11 +9,13 @@ import { checkDailyPostLimit } from '@/lib/checkDailyPostLimit'
 import { DEFAULT_LOCATION, LOCATION_OPTIONS } from '@/lib/locationOptions'
 import { validateContactFields } from '@/lib/contactValidation'
 import { assertUserCanPostOrEdit, BANNED_ACCOUNT_MESSAGE } from '@/lib/accountStatus'
-import type { JobPosting, JobPostingType } from '@/types'
+import type { JobPosting, JobPostingType, JobSalaryUnit } from '@/types'
 
 type PublishMode = JobPostingType
 
 const JOB_LOCATIONS = LOCATION_OPTIONS
+const SALARY_UNITS: JobSalaryUnit[] = ['/小时', '/月薪', '/年薪']
+const DEFAULT_SALARY_UNIT: JobSalaryUnit = '/小时'
 
 type JobLocation = (typeof JOB_LOCATIONS)[number]
 
@@ -21,8 +23,8 @@ interface HiringFormData {
   title: string
   company: string
   description: string
-  salary_min: string
-  salary_max: string
+  salary: string
+  salary_unit: JobSalaryUnit
   location: JobLocation
   job_type: string
   category: string
@@ -61,13 +63,19 @@ function buildSeekingDescription(seeking: SeekingFormData) {
   ].join('\n')
 }
 
-function safeNumber(s: string): number {
-  const n = parseFloat((s || '').trim())
-  return Number.isFinite(n) ? n : 0
+function safeNumberOrNull(s: string): number | null {
+  const raw = (s || '').trim()
+  if (!raw) return null
+  const n = parseFloat(raw)
+  return Number.isFinite(n) && n > 0 ? n : null
 }
 
 function normalizeLocation(v: unknown): JobLocation {
   return JOB_LOCATIONS.includes(v as JobLocation) ? (v as JobLocation) : DEFAULT_LOCATION
+}
+
+function normalizeSalaryUnit(v: unknown): JobSalaryUnit {
+  return SALARY_UNITS.includes(v as JobSalaryUnit) ? (v as JobSalaryUnit) : DEFAULT_SALARY_UNIT
 }
 
 export default function JobForm({ initialType = 'hiring', editJob = null }: Props) {
@@ -89,8 +97,8 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     title: '',
     company: '',
     description: '',
-    salary_min: '',
-    salary_max: '',
+    salary: '',
+    salary_unit: DEFAULT_SALARY_UNIT,
     location: DEFAULT_LOCATION,
     job_type: defaultJobType,
     category: defaultCategory,
@@ -128,12 +136,13 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
     setMode(t)
 
     if (t === 'hiring') {
+      const salaryValue = editJob.salary_min != null && Number(editJob.salary_min) > 0 ? String(editJob.salary_min) : ''
       setHiring({
         title: editJob.title ?? '',
         company: editJob.company ?? '',
         description: editJob.description ?? '',
-        salary_min: String(editJob.salary_min ?? 0),
-        salary_max: String(editJob.salary_max ?? 0),
+        salary: salaryValue,
+        salary_unit: normalizeSalaryUnit(editJob.salary_unit),
         location: normalizeLocation(editJob.location),
         job_type: editJob.job_type ?? defaultJobType,
         category: editJob.category ?? defaultCategory,
@@ -187,6 +196,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
       }
     }
 
+    const salaryValue = safeNumberOrNull(hiring.salary)
+    const normalizedSalaryUnit = normalizeSalaryUnit(hiring.salary_unit)
+
     // DB NOT NULL safe defaults (per requirements)
     const payload =
       mode === 'hiring'
@@ -195,8 +207,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             title: hiring.title.trim() || '招聘信息',
             company: hiring.company.trim() || '匿名发布',
             description: hiring.description.trim(),
-            salary_min: safeNumber(hiring.salary_min),
-            salary_max: safeNumber(hiring.salary_max),
+            salary_min: salaryValue,
+            salary_max: salaryValue,
+            salary_unit: normalizedSalaryUnit,
             // Keep optional UX: always DB-safe value
             location: hiring.location || DEFAULT_LOCATION,
             job_type: hiring.job_type?.trim() || defaultJobType,
@@ -214,8 +227,9 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             title: seeking.desired_role.trim() || '求职',
             company: '个人求职',
             description: isEditing ? seeking.bio.trim() : buildSeekingDescription(seeking),
-            salary_min: 0,
-            salary_max: 0,
+            salary_min: null,
+            salary_max: null,
+            salary_unit: DEFAULT_SALARY_UNIT,
             // Keep optional UX: always DB-safe value
             location: seeking.region || DEFAULT_LOCATION,
             job_type: defaultJobType,
@@ -401,30 +415,33 @@ export default function JobForm({ initialType = 'hiring', editJob = null }: Prop
             <p className="mt-1 text-xs text-gray-400">默认：纽约 New York</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最低薪资（USD）</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">薪资（USD）</label>
               <input
                 type="number"
-                name="salary_min"
-                value={hiring.salary_min}
+                name="salary"
+                value={hiring.salary}
                 onChange={handleHiringChange}
                 min="0"
-                placeholder="不填默认：0"
+                placeholder="不填则显示：薪资电议"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">最高薪资（USD）</label>
-              <input
-                type="number"
-                name="salary_max"
-                value={hiring.salary_max}
+              <label className="block text-sm font-medium text-gray-700 mb-1">薪资单位</label>
+              <select
+                name="salary_unit"
+                value={hiring.salary_unit}
                 onChange={handleHiringChange}
-                min="0"
-                placeholder="不填默认：0"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1976d2] focus:border-transparent"
-              />
+              >
+                {SALARY_UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
