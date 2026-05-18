@@ -8,6 +8,7 @@ import JobCard from '@/components/JobCard'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import ShareButton from '@/components/ShareButton'
+import ChannelSeoSection from '@/components/ChannelSeoSection'
 import { JOB_CATEGORIES, JOB_TYPES } from '@/lib/constants'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import { isPublicOwnerVisible } from '@/lib/publicVisibility'
@@ -231,12 +232,15 @@ export default function JobsPage() {
           </div>
         )}
 
-        {/* Lightweight SEO copy (near bottom) */}
-        <section className="mt-8">
-          <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-4 text-[12.5px] leading-relaxed text-zinc-600">
-            OpenAA 招聘频道为美国华人和美华人提供招聘求职信息，涵盖纽约招聘、兼职、全职、餐馆、司机、仓库、电工、装修等工作信息，帮助华人更方便找工作和发布招聘。
-          </div>
-        </section>
+        <ChannelSeoSection
+          title="纽约华人招聘与求职频道说明"
+          paragraphs={[
+            'OpenAA 招聘频道面向纽约和周边华人社区，覆盖纽约华人招聘、法拉盛找工作、兼职、全职、餐馆招聘、仓库配送、门店销售等常见岗位。很多用户在工作空档用手机快速浏览信息，先看区域、工时和薪资，再决定是否联系，因此页面底部保留了完整文字介绍，方便搜索引擎与用户同时理解频道主题。',
+            '如果你是刚到美国的新移民、留学生家属，或者正在从一份工作转向另一份工作，这里适合用来做第一轮筛选。你可以先按招聘岗位或求职人才切换，再结合关键词和地区过滤，把法拉盛、皇后区、布鲁克林等常见华人生活圈的机会先收拢出来。无论是找餐馆后厨、前台、兼职帮工，还是寻找全职稳定岗位，都能在同一页面持续对比。',
+            'OpenAA 提供的是更贴近日常使用场景的入口：招聘方能快速发布职位并补充公司信息，华人求职者可以直接查看最近发布内容，减少在多个群里反复翻记录的时间。比如你白天上班只能晚上找工，回家后仍可按行业和区域快速定位岗位；如果你在法拉盛临时想找周末兼职，也可以直接通过“兼职”关键词筛选，提高沟通效率。',
+          ]}
+          highlights={['适合用户：纽约华人求职者、招聘商家、新移民与留学生家庭', '核心功能：招聘/求职切换、关键词搜索、地区筛选、按发布时间查看', '使用建议：先锁定区域与岗位类型，再联系发布者确认工时、薪资与到岗时间']}
+        />
       </div>
 
       <BackToTopButton />

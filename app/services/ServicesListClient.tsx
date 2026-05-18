@@ -8,6 +8,7 @@ import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import RegionFilter, { ALL_REGIONS } from '@/components/RegionFilter'
 import ShareButton from '@/components/ShareButton'
+import ChannelSeoSection from '@/components/ChannelSeoSection'
 import type { ServicePost } from '@/types'
 
 export const SERVICE_CATEGORIES = [
@@ -207,6 +208,19 @@ export default function ServicesListClient() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="px-4">
+        <ChannelSeoSection
+          className="mt-8"
+          title="纽约华人服务频道介绍"
+          paragraphs={[
+            'OpenAA 本地服务频道聚焦纽约华人服务需求，覆盖搬家、装修、水电、家政、律师、会计、汽车维修等高频项目。很多用户搜索“纽约华人服务”时，希望先看到可执行的信息而不是分散广告，因此页面底部加入了完整正文，帮助搜索引擎和访客快速理解频道定位。',
+            '本频道适合正在搬家换房、准备装修、需要临时上门维修、寻找长期家庭服务或咨询专业机构的用户。你可以先按分类筛选，再结合地区查看服务范围。比如在法拉盛需要当天上门水电检修，或在皇后区寻找可靠家政与会计服务，都可以先看近期发布与服务说明，再决定联系顺序。',
+            'OpenAA 提供的是“按生活场景组织”的服务入口：信息展示更直观，支持关键词和区域过滤，减少在多个社群反复询问的时间。真实使用中，很多华人家庭会先筛出两到三家候选，再比较响应速度、报价说明和可服务时段；商家也能更精准触达本地有明确需求的客户，提高沟通效率。',
+          ]}
+          highlights={['适合用户：纽约华人家庭、新移民、需要本地上门服务或专业咨询的人群', '核心服务：搬家运输、装修维修、水电家政、律师会计、汽车与设备支持', '使用建议：先按分类和地区筛选，再联系确认报价、档期与服务边界']}
+        />
       </div>
 
       {/* Floating publish button */}

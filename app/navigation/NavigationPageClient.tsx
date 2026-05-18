@@ -7,6 +7,7 @@ import AppTopSection from '@/components/AppTopSection'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import ShareButton from '@/components/ShareButton'
+import ChannelSeoSection from '@/components/ChannelSeoSection'
 
 type OpenMode = 'auto' | 'same' | 'new'
 
@@ -282,12 +283,15 @@ export default function NavigationPageClient({
         )}
 
         {categoriesWithLinks.length > 0 ? (
-          <div className="mt-8 rounded-3xl bg-white p-5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] ring-1 ring-black/5">
-            <h3 className="text-[13px] font-black text-zinc-900">关于本页</h3>
-            <p className="mt-2 text-[12.5px] leading-relaxed text-zinc-600">
-              OpenAA 美国华人生活导航整理在美华人常用网站入口，包括 DMV、USCIS、IRS、银行开户、招聘求职、房屋生活、二手交易、AI工具和新闻资讯等，帮助用户快速找到可靠资源。
-            </p>
-          </div>
+          <ChannelSeoSection
+            title="纽约华人导航频道说明"
+            paragraphs={[
+              'OpenAA 导航频道面向纽约华人日常上网与办事需求，集中整理纽约华人导航常用入口，包括 DMV、银行、移民、税务、招聘、房屋、二手与生活服务网站。为了提升搜索引擎识别效果，页面底部提供了更完整的正文说明，即使外部站点图标或数据加载较慢，核心主题仍可被稳定抓取。',
+              '这个频道适合刚到美国需要快速建立“常用网站清单”的新移民，也适合已经在纽约生活但希望减少重复搜索的用户。你可以按分类查看并保存自己的常用入口，例如先把 DMV、USCIS、银行与保险相关页面加入“我的导航”，再逐步补齐工作、租房和家庭生活所需资源。',
+              'OpenAA 的帮助在于把分散的网址整合成有结构的导航页面，并保留中文分类语义，降低信息检索门槛。真实使用场景中，很多法拉盛与皇后区用户会在办事前先打开导航页，快速跳转到官方或常用平台，避免每次临时搜索导致链接混乱；家庭成员之间也能共享一套更清晰的办事路径。',
+            ]}
+            highlights={['适合用户：纽约华人家庭、新移民、需要高频访问办事网站的用户', '核心功能：分类导航、站点说明、我的导航收藏、常用入口快速跳转', '典型入口：DMV、银行、移民、税务、生活服务与本地资讯']}
+          />
         ) : null}
       </div>
       <BackToTopButton />

@@ -9,6 +9,7 @@ import OpenAAAttractCard from '@/components/OpenAAAttractCard'
 import BackToTopButton from '@/components/BackToTopButton'
 import DetailBackButton from '@/components/DetailBackButton'
 import ShareButton from '@/components/ShareButton'
+import ChannelSeoSection from '@/components/ChannelSeoSection'
 import { NEWS_FILTER_CATEGORIES } from '@/lib/news'
 import type { NewsPost } from '@/types'
 
@@ -147,6 +148,16 @@ export default function NewsListClient({ initialPosts, initialCategory }: NewsLi
         )}
 
         <OpenAAAttractCard />
+
+        <ChannelSeoSection
+          title="纽约华人新闻与生活信息频道"
+          paragraphs={[
+            'OpenAA 新闻频道主要服务纽约华人日常信息获取需求，内容覆盖纽约华人新闻、本地新闻、DMV 教程、生活指南和平台更新。相比仅靠短标题列表，这里在页面底部补充了完整正文，帮助搜索引擎在网络较慢或封面图未加载完成时，也能准确识别频道主题与内容方向。',
+            '适合阅读的人群包括刚来纽约的新移民、需要快速了解本地政策变化的家庭、以及关注办证和生活效率的上班族。你可以通过分类标签查看不同主题：想学办证流程可以看 DMV 教程，想了解社区变化可以看本地新闻，想减少踩坑可以重点看生活指南。这样不需要在多个平台来回切换，就能先形成清晰判断。',
+            'OpenAA 提供的帮助是把“看得懂、用得上”的信息放在同一入口。真实场景中，很多用户会在通勤或午休时快速浏览当天更新，先收藏和自己相关的文章，晚上再按步骤处理事项，比如准备 DMV 材料、对比租房区域、或整理家庭办事清单。通过持续阅读频道内容，用户可以更快适应纽约节奏，也更容易找到下一步行动路径。',
+          ]}
+          highlights={['适合用户：纽约华人家庭、新移民、关注本地办事与生活信息的人群', '核心内容：本地新闻、DMV 教程、生活指南、平台公告与实用更新', '阅读建议：先按分类筛选主题，再根据文章步骤逐项执行']}
+        />
       </div>
       <BackToTopButton />
     </div>
