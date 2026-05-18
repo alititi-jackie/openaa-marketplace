@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     .or(`start_date.is.null,start_date.lte.${now}`)
     .or(`end_date.is.null,end_date.gte.${now}`)
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(10)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ data })
