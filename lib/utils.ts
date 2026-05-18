@@ -1,4 +1,8 @@
 import { DEFAULT_LOCATION } from './locationOptions'
+import type { JobSalaryUnit } from '@/types'
+
+const DEFAULT_SALARY_UNIT: JobSalaryUnit = '/小时'
+const SALARY_UNITS: JobSalaryUnit[] = ['/小时', '/月薪', '/年薪']
 
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -23,15 +27,22 @@ export function formatDate(dateString: string): string {
   return `${Math.floor(diffDays / 365)}年前`
 }
 
-export function formatSalary(min: number, max: number): string | null {
-  const minVal = min > 0 ? min : 0
-  const maxVal = max > 0 ? max : 0
-  if (minVal === 0 && maxVal === 0) return null
-  const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(0)}k` : `${n}`)
-  if (maxVal > 0 && minVal === 0) return `≤ $${fmt(maxVal)}`
-  if (minVal > 0 && maxVal === 0) return `$${fmt(minVal)}+`
-  if (minVal === maxVal) return `$${fmt(minVal)}`
-  return `$${fmt(minVal)} - $${fmt(maxVal)}/年`
+export function normalizeSalaryUnit(unit?: string | null): JobSalaryUnit {
+  return SALARY_UNITS.includes(unit as JobSalaryUnit) ? (unit as JobSalaryUnit) : DEFAULT_SALARY_UNIT
+}
+
+export function formatSalary(
+  min: number | null | undefined,
+  max?: number | null | undefined,
+  unit?: string | null
+): string {
+  const minVal = typeof min === 'number' && Number.isFinite(min) && min > 0 ? min : 0
+  const maxVal = typeof max === 'number' && Number.isFinite(max) && max > 0 ? max : 0
+  const salary = minVal > 0 ? minVal : maxVal > 0 ? maxVal : 0
+
+  if (salary <= 0) return '薪资电议'
+
+  return `${salary} ${normalizeSalaryUnit(unit)}`
 }
 
 export function truncate(str: string, maxLength: number): string {
