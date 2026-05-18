@@ -43,6 +43,7 @@ export default function HousingDetailPage() {
   const [post, setPost] = useState<HousingPost | null>(null)
   const [publisher, setPublisher] = useState<PublisherInfo>({ username: '匿名用户', avatar_url: null })
   const [loading, setLoading] = useState(true)
+  const [showContactInfo, setShowContactInfo] = useState(false)
 
   // Carousel state
   const [activeIndex, setActiveIndex] = useState(0)
@@ -55,6 +56,7 @@ export default function HousingDetailPage() {
   useEffect(() => {
     const fetchPost = async () => {
       setLoading(true)
+      setShowContactInfo(false)
       setPost(null)
       setPublisher({ username: '匿名用户', avatar_url: null })
 
@@ -308,12 +310,22 @@ export default function HousingDetailPage() {
 
           {hasContactInfo ? (
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <ContactInfoCard
-                title="联系发布者"
-                contactName={post.contact_name}
-                phone={post.phone}
-                wechat={post.wechat}
-              />
+              {showContactInfo ? (
+                <ContactInfoCard
+                  title="联系发布者"
+                  contactName={post.contact_name}
+                  phone={post.phone}
+                  wechat={post.wechat}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowContactInfo(true)}
+                  className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 text-center text-base font-medium text-gray-700"
+                >
+                  查看联系方式
+                </button>
+              )}
             </div>
           ) : null}
 

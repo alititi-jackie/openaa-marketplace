@@ -18,9 +18,11 @@ export default function JobDetailPage() {
   const { id } = useParams()
   const [job, setJob] = useState<JobPosting | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showContactInfo, setShowContactInfo] = useState(false)
 
   useEffect(() => {
     const fetchJob = async () => {
+      setShowContactInfo(false)
       const { data } = await supabase
         .from('job_postings')
         .select('*, user:users(username, avatar_url)')
@@ -97,12 +99,22 @@ export default function JobDetailPage() {
 
         {hasContactInfo ? (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <ContactInfoCard
-              title="联系招聘方"
-              contactName={job.contact_name}
-              phone={job.phone}
-              wechat={job.wechat}
-            />
+            {showContactInfo ? (
+              <ContactInfoCard
+                title="联系招聘方"
+                contactName={job.contact_name}
+                phone={job.phone}
+                wechat={job.wechat}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowContactInfo(true)}
+                className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 text-center text-base font-medium text-gray-700"
+              >
+                查看联系方式
+              </button>
+            )}
           </div>
         ) : null}
 
