@@ -482,7 +482,7 @@ export default function MyNavigationClient() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-24">
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-3 pb-24">
         <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-5 text-center text-sm text-zinc-400">
           加载中...
         </div>
@@ -492,7 +492,7 @@ export default function MyNavigationClient() {
 
   if (!userReady) {
     return (
-      <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-24">
+      <div className="mx-auto w-full max-w-[860px] px-4 pt-3 pb-24">
         <div className="rounded-3xl bg-white ring-1 ring-black/5 shadow-[0_10px_35px_rgba(0,0,0,0.06)] p-5">
           <h1 className="text-[18px] font-black text-zinc-900">设置我的导航</h1>
           <p className="mt-2 text-[13px] leading-6 text-zinc-600">
@@ -519,7 +519,7 @@ export default function MyNavigationClient() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[860px] px-4 pt-6 pb-24">
+    <div className="mx-auto w-full max-w-[860px] px-4 pt-3 pb-24">
       <div className="space-y-5">
         {message ? (
           <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-[13px] text-blue-700">
