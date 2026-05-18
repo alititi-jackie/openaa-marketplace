@@ -52,7 +52,7 @@ export default function JobDetailPage() {
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
       <div className="flex items-center justify-between">
-        <DetailBackButton fallbackHref="/jobs" />
+        <DetailBackButton fallbackHref="/jobs" inToolbar />
         <ShareButton
           path={`/jobs/${String(id)}`}
           title={job.title}

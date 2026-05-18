@@ -189,7 +189,7 @@ export default async function NewsDetailPage({
           <AdminReturnButton />
         </Suspense>
         <div className="flex items-center justify-between">
-          <DetailBackButton fallbackHref="/news" label="← 返回" />
+          <DetailBackButton fallbackHref="/news" label="← 返回" inToolbar />
           <ShareButton
             path={`/news/${post.slug}`}
             title={post.title}

@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 interface DetailBackButtonProps {
   fallbackHref: string
   label?: string
+  inToolbar?: boolean
 }
 
-export default function DetailBackButton({ fallbackHref, label = '← 返回' }: DetailBackButtonProps) {
+export default function DetailBackButton({ fallbackHref, label = '← 返回', inToolbar = false }: DetailBackButtonProps) {
   const router = useRouter()
 
   const handleBack = () => {
@@ -28,7 +29,9 @@ export default function DetailBackButton({ fallbackHref, label = '← 返回' }:
     <button
       type="button"
       onClick={handleBack}
-      className="sticky top-14 z-30 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-sm text-blue-600 shadow-sm border border-blue-100 backdrop-blur mb-4"
+      className={`z-30 inline-flex shrink-0 items-center gap-1 rounded-full border border-blue-100 bg-white/95 px-3 py-1.5 text-sm text-blue-600 shadow-sm backdrop-blur ${
+        inToolbar ? '' : 'sticky top-14 mb-4'
+      }`}
     >
       {label}
     </button>

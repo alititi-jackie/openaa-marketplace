@@ -145,7 +145,7 @@ export default function SecondhandDetailPage() {
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       <AdminReturnButton />
       <div className="flex items-center justify-between">
-        <DetailBackButton fallbackHref="/secondhand" />
+        <DetailBackButton fallbackHref="/secondhand" inToolbar />
         <ShareButton
           path={`/secondhand/${String(id)}`}
           title={item.title}
